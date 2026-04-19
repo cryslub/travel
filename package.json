@@ -9,13 +9,21 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.0.0",
+    "@mui/material": "^9.0.0",
     "@tailwindcss/vite": "^4.2.2",
+    "bcrypt": "^6.0.0",
+    "moment": "^2.30.1",
     "next": "16.2.4",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind": "^4.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
