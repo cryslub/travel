@@ -55,8 +55,8 @@ async function createTransports() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       destination_id UUID REFERENCES destinations(id) ON DELETE CASCADE,
      type VARCHAR(50) NOT NULL,
-     start_time TIME,
-     end_time TIME,
+     start_time VARCHAR(50),
+     end_time VARCHAR(50),
      start_terminal TEXT,
      end_terminal TEXT,
      link TEXT

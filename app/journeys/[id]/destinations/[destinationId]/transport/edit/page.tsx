@@ -16,7 +16,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
     : new Date().toLocaleDateString('en-CA');
 
   const toDateTimeLocal = (time: string | null) =>
-    time ? `${datePrefix}T${time.slice(0, 5)}` : '';
+    time ? (time.includes('T') ? time.slice(0, 16) : `${datePrefix}T${time.slice(0, 5)}`) : '';
 
   const defaultStartTime = transport?.start_time
     ? toDateTimeLocal(transport.start_time)

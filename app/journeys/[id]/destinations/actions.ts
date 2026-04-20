@@ -113,9 +113,8 @@ export async function deleteRecord(recordId: string, journeyId: string) {
 
 export async function upsertTransport(destinationId: string, formData: FormData) {
   const type = formData.get('type') as string | null;
-  const parseTime = (val: string | null) => val ? (val.includes('T') ? val.split('T')[1] : val) || null : null;
-  const start_time = parseTime(formData.get('start_time') as string | null);
-  const end_time = parseTime(formData.get('end_time') as string | null);
+  const start_time = (formData.get('start_time') as string) || null;
+  const end_time = (formData.get('end_time') as string) || null;
   const start_terminal = (formData.get('start_terminal') as string) || null;
   const end_terminal = (formData.get('end_terminal') as string) || null;
   const link = formData.get('link') as string | null;

@@ -96,12 +96,12 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   );
                 })()}
                 <div className="flex gap-3 text-zinc-500 dark:text-zinc-400">
-                  {destination.transport?.start_time && <span>{new Date(`1970-01-01T${destination.transport.start_time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
+                  {destination.transport?.start_time && <span>{destination.transport.start_time.split('T')[1]?.slice(0, 5) ?? destination.transport.start_time.slice(0, 5)}</span>}
                   {destination.transport?.start_time && destination.transport?.end_time && <span>~</span>}
-                  {destination.transport?.end_time && <span>{new Date(`1970-01-01T${destination.transport.end_time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
+                  {destination.transport?.end_time && <span>{destination.transport.end_time.split('T')[1]?.slice(0, 5) ?? destination.transport.end_time.slice(0, 5)}</span>}
                   {destination.transport?.start_time && destination.transport?.end_time && (() => {
-                    const start = new Date(`1970-01-01T${destination.transport!.start_time}`);
-                    const end = new Date(`1970-01-01T${destination.transport!.end_time}`);
+                    const start = new Date(destination.transport!.start_time!);
+                    const end = new Date(destination.transport!.end_time!);
                     const diff = (end.getTime() - start.getTime()) / 60000;
                     const h = Math.floor(Math.abs(diff) / 60);
                     const m = Math.abs(diff) % 60;
