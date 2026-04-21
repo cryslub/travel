@@ -2,44 +2,44 @@ import { fetchDestinationsByJourneyId, fetchJourneys, fetchSectionsByJourneyId }
 import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { BackToJourneysButton, CreateDestinationForJourneyButton } from './journey-destination-buttons';
-import HotelIcon from '@mui/icons-material/Hotel';
-import LocalActivityIcon from '@mui/icons-material/LocalActivity';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import TourIcon from '@mui/icons-material/Tour';
+import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
+import LocalActivityOutlinedIcon from '@mui/icons-material/LocalActivityOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
+import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import MovingIcon from '@mui/icons-material/Moving';
-import FlightIcon from '@mui/icons-material/Flight';
-import TrainIcon from '@mui/icons-material/Train';
-import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
-import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
-import ArticleIcon from '@mui/icons-material/Article';
-import NoteIcon from '@mui/icons-material/Note';
+import FlightOutlinedIcon from '@mui/icons-material/FlightOutlined';
+import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
+import DirectionsBusOutlinedIcon from '@mui/icons-material/DirectionsBusOutlined';
+import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
+import DirectionsBoatOutlinedIcon from '@mui/icons-material/DirectionsBoatOutlined';
+import SmartDisplayOutlinedIcon from '@mui/icons-material/SmartDisplayOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 import { notFound } from 'next/navigation';
 
 const eventIcons: Record<string, ElementType<SvgIconProps>> = {
-  Site: LocationOnIcon,
-  Meal: RestaurantIcon,
-  Tour: TourIcon,
-  Activity: LocalActivityIcon,
+  Site: LocationOnOutlinedIcon,
+  Meal: RestaurantOutlinedIcon,
+  Tour: TourOutlinedIcon,
+  Activity: LocalActivityOutlinedIcon,
   Transfer: MovingIcon,
 };
 
 const recordIcons: Record<string, ElementType<SvgIconProps>> = {
-  Video: SmartDisplayIcon,
-  Blog: ArticleIcon,
-  Etc: NoteIcon,
+  Video: SmartDisplayOutlinedIcon,
+  Blog: ArticleOutlinedIcon,
+  Etc: NoteOutlinedIcon,
 };
 
 const transportIcons: Record<string, ElementType<SvgIconProps>> = {
-  Flight: FlightIcon,
-  Train: TrainIcon,
-  Bus: DirectionsBusIcon,
-  Car: DirectionsCarIcon,
-  Ferry: DirectionsBoatIcon,
+  Flight: FlightOutlinedIcon,
+  Train: TrainOutlinedIcon,
+  Bus: DirectionsBusOutlinedIcon,
+  Car: DirectionsCarOutlinedIcon,
+  Ferry: DirectionsBoatOutlinedIcon,
 };
 
 export default async function JourneyDestinationsPage(props: PageProps<'/journeys/[id]/destinations'>) {
@@ -139,8 +139,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               </div>
               <div className="flex flex-col gap-1 mt-2">
                 {destination.accommodation?.name && (
-                  <div className="flex items-center gap-1">
-                    <HotelIcon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />
+                  <div className="flex items-center gap-2">
+                    <HotelOutlinedIcon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />
                     {destination.accommodation.link
                       ? <a href={destination.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.accommodation.name}</a>
                       : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.accommodation.name}</span>
@@ -162,8 +162,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 {destination.events.map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
                     <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1">
-                        {(() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
+                      <div className="flex items-center gap-2">
+                        {(() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityOutlinedIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
                         {activity.link
                           ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
@@ -196,7 +196,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   <div key={record.id} className="flex items-center justify-between gap-1 py-1.5">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
+                        {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteOutlinedIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
                         {record.link
                           ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>

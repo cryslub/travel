@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import EditIcon from '@mui/icons-material/Edit';
+import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddIcon from '@mui/icons-material/Add';
 
 export function JourneyButtons({ id }: { id: string }) {
@@ -15,14 +15,14 @@ export function JourneyButtons({ id }: { id: string }) {
         onClick={() => router.push(`/journeys/${id}/destinations`)}
         className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
       >
-        <EventNoteIcon fontSize="small" />
+        <EventNoteOutlinedIcon fontSize="small" />
       </button>
       <button
         type="button"
         onClick={() => router.push(`/journeys/${id}/edit`)}
         className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
       >
-        <EditIcon fontSize="small" />
+        <EditOutlinedIcon fontSize="small" />
       </button>
     </div>
   );

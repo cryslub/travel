@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { deleteDestination, deleteEvent, deleteRecord } from './actions';
 import Chip from '@mui/material/Chip';
@@ -34,7 +34,7 @@ export function EditDestinationButton({ journeyId, id }: { journeyId: string; id
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${id}/edit`)}
       className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
     >
-      <EditIcon fontSize="small" />
+      <EditOutlinedIcon fontSize="small" />
     </button>
   );
 }
@@ -74,14 +74,14 @@ export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: str
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${id}/edit`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            <EditIcon fontSize="small" /> Edit
+            <EditOutlinedIcon fontSize="small" /> Edit
           </button>
           <button
             type="button"
             onClick={handleDelete}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
           >
-            <DeleteIcon fontSize="small" /> Delete
+            <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
         </div>
       )}
@@ -97,7 +97,7 @@ export function EditTransportButton({ journeyId, destinationId }: { journeyId: s
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
     >
-      <EditIcon fontSize="small" />
+      <EditOutlinedIcon fontSize="small" />
     </button>
   );
 }
@@ -110,7 +110,7 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
-      <EditIcon fontSize="small" />
+      <EditOutlinedIcon fontSize="small" />
     </button>
   );
 }
@@ -136,7 +136,7 @@ export function EditEventButton({ journeyId, destinationId, eventId }: { journey
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
-      <EditIcon fontSize="small" />
+      <EditOutlinedIcon fontSize="small" />
     </button>
   );
 }
@@ -176,14 +176,14 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            <EditIcon fontSize="small" /> Edit
+            <EditOutlinedIcon fontSize="small" /> Edit
           </button>
           <button
             type="button"
             onClick={handleDelete}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
           >
-            <DeleteIcon fontSize="small" /> Delete
+            <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
         </div>
       )}
@@ -202,7 +202,7 @@ export function DeleteEventButton({ journeyId, eventId }: { journeyId: string; e
       onClick={handleDelete}
       className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 ml-1"
     >
-      <DeleteIcon fontSize="small" />
+      <DeleteOutlinedIcon fontSize="small" />
     </button>
   );
 }
@@ -255,14 +255,14 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/${recordId}/edit`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            <EditIcon fontSize="small" /> Edit
+            <EditOutlinedIcon fontSize="small" /> Edit
           </button>
           <button
             type="button"
             onClick={handleDelete}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
           >
-            <DeleteIcon fontSize="small" /> Delete
+            <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
         </div>
       )}
