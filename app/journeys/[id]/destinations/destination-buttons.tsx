@@ -7,6 +7,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { deleteDestination, deleteEvent, deleteRecord } from './actions';
+import Chip from '@mui/material/Chip';
+
+export function SectionChip({ label }: { label: string }) {
+  return <Chip label={label} size="small" variant="outlined" />;
+}
 
 export function CreateDestinationButton() {
   const router = useRouter();

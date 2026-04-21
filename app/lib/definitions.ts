@@ -73,4 +73,5 @@ export type DestinationWithTransport = Destination & {
   accommodation: Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link'> | null;
   events: Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link'>[];
   records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[];
+  section_name: string | null;
 };

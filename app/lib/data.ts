@@ -79,9 +79,11 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     accommodation_name: string | null; accommodation_check_in: string | null; accommodation_check_out: string | null; accommodation_link: string | null;
     events: Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link'>[] | null;
     records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[] | null;
+    section_name: string | null;
   })[]>`
     SELECT
       d.id, d.name, d.start_date, d.section_id,
+      s.name AS section_name,
       t.type AS transport_type,
       t.start_time AS transport_start_time,
       t.end_time AS transport_end_time,
@@ -97,11 +99,12 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     FROM destinations d
     LEFT JOIN transports t ON t.destination_id = d.id
     LEFT JOIN accommodations a ON a.destination_id = d.id
+    LEFT JOIN sections s ON s.id = d.section_id
     WHERE d.journey_id = ${journeyId}
-    GROUP BY d.id, d.name, d.start_date, d.section_id, d.created_time, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, a.name, a.check_in, a.check_out, a.link
+    GROUP BY d.id, d.name, d.start_date, d.section_id, d.created_time, s.name, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, a.name, a.check_in, a.check_out, a.link
     ORDER BY d.start_date ASC NULLS LAST, d.created_time ASC NULLS LAST, t.start_time ASC NULLS LAST
   `;
-  return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, events, records, ...d }) => ({
+  return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, section_name, events, records, ...d }) => ({
     ...d,
     transport: transport_type || transport_start_time || transport_end_time || transport_link
       ? { type: transport_type, start_time: transport_start_time, end_time: transport_end_time, start_terminal: transport_start_terminal, end_terminal: transport_end_terminal, link: transport_link }
@@ -109,6 +112,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     accommodation: accommodation_name || accommodation_check_in || accommodation_check_out || accommodation_link
       ? { name: accommodation_name, check_in: accommodation_check_in, check_out: accommodation_check_out, link: accommodation_link }
       : null,
+    section_name: section_name ?? null,
     events: events ?? [],
     records: records ?? [],
   }));
