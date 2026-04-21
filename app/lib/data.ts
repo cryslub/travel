@@ -42,6 +42,7 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
   `;
   return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, events, records, ...d }) => ({
     ...d,
+    section_name: null,
     transport: transport_type || transport_start_time || transport_end_time || transport_link
       ? { type: transport_type, start_time: transport_start_time, end_time: transport_end_time, start_terminal: transport_start_terminal, end_terminal: transport_end_terminal, link: transport_link }
       : null,
