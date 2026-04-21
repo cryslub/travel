@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Section } from '@/app/lib/definitions';
 import AddIcon from '@mui/icons-material/Add';
-import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 export function SectionFilter({ sections, journeyId }: { sections: Section[]; journeyId: string }) {
   const router = useRouter();
@@ -49,7 +49,7 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
         <AddIcon fontSize="small" />
       </a>
       <a href={`/journeys/${journeyId}/sections`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-        <SettingsIcon fontSize="small" />
+        <SettingsOutlinedIcon fontSize="small" />
       </a>
     </div>
   );

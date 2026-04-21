@@ -40,6 +40,7 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
   Bus: DirectionsBusOutlinedIcon,
   Car: DirectionsCarOutlinedIcon,
   Ferry: DirectionsBoatOutlinedIcon,
+  Combined: MovingIcon,
 };
 
 export default async function JourneyDestinationsPage(props: PageProps<'/journeys/[id]/destinations'>) {
@@ -61,7 +62,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
 
   return (
     <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">
-      <div className="flex items-center justify-between mb-8">
+      <div className="max-w-3xl mx-auto flex items-end justify-between mb-8">
         <div className="flex flex-col">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
           <h1 className="text-3xl font-semibold">Destinations</h1>
@@ -76,7 +77,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
       <ul className="flex flex-row flex-wrap gap-4">
         {destinations.map((destination) => (
           <li key={destination.id} className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 min-w-[350px] max-w-[350px]">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <div className="flex flex-col">
                 {destination.start_date && (
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">{new Date(destination.start_date).toLocaleDateString()}</span>
@@ -88,9 +89,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   )}
                 </div>
               </div>
-              <div className="flex gap-2">
-                <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
-              </div>
+              <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
             </div>
             <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-800">
               <div className="flex items-center justify-between">

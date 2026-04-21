@@ -1,7 +1,7 @@
 'use client'
 
 import { deleteDestination } from '@/app/journeys/[id]/destinations/actions';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 export function DeleteButton({ id, journeyId }: { id: string; journeyId: string }) {
   async function handleDelete() {
@@ -15,7 +15,7 @@ export function DeleteButton({ id, journeyId }: { id: string; journeyId: string 
       onClick={handleDelete}
       className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
     >
-      <DeleteIcon fontSize="small" />
+      <DeleteOutlinedIcon fontSize="small" />
     </button>
   );
 }
