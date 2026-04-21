@@ -9,8 +9,9 @@ export async function createDestination(formData: FormData) {
   const name = formData.get('name') as string;
   const start_date = (formData.get('start_date') as string) || null;
   const journey_id = (formData.get('journey_id') as string) || null;
+  const section_id = (formData.get('section_id') as string) || null;
 
-  await sql`INSERT INTO destinations (name, start_date, journey_id, created_time) VALUES (${name}, ${start_date}, ${journey_id}, NOW())`;
+  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, NOW())`;
 
   redirect(journey_id ? `/journeys/${journey_id}/destinations` : '/destinations');
 }
@@ -19,8 +20,9 @@ export async function updateDestination(id: string, formData: FormData) {
   const name = formData.get('name') as string;
   const start_date = formData.get('start_date') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const section_id = (formData.get('section_id') as string) || null;
 
-  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date} WHERE id = ${id}`;
+  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id} WHERE id = ${id}`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }

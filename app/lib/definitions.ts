@@ -3,6 +3,13 @@
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 
+export type Section = {
+  id: string;
+  journey_id: string;
+  name: string;
+  created_time: string | null;
+};
+
 export type Journey = {
   id: string;
   name: string;
@@ -26,6 +33,7 @@ export type Destination = {
   name: string;
   start_date: string | null;
   journey_id: string | null;
+  section_id: string | null;
   created_time: string | null;
 };
 

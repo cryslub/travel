@@ -6,6 +6,7 @@ import {
   DestinationWithTransport,
   Journey,
   Record,
+  Section,
   Transport,
 } from './definitions';
 
@@ -53,7 +54,7 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
 }
 
 export async function fetchDestinationById(id: string): Promise<Destination | null> {
-  const data = await sql<Destination[]>`SELECT id, name, start_date FROM destinations WHERE id = ${id}`;
+  const data = await sql<Destination[]>`SELECT id, name, start_date, journey_id, section_id FROM destinations WHERE id = ${id}`;
   return data[0] ?? null;
 }
 
@@ -67,6 +68,11 @@ export async function fetchEventsByDestinationId(destinationId: string): Promise
   return data;
 }
 
+export async function fetchLatestEventEndTimeByDestinationId(destinationId: string): Promise<string | null> {
+  const data = await sql<{ end_time: string | null }[]>`SELECT end_time FROM events WHERE destination_id = ${destinationId} AND end_time IS NOT NULL ORDER BY start_time DESC NULLS LAST, created_time DESC NULLS LAST LIMIT 1`;
+  return data[0]?.end_time ?? null;
+}
+
 export async function fetchDestinationsByJourneyId(journeyId: string): Promise<DestinationWithTransport[]> {
   const rows = await sql<(Destination & {
     transport_type: string | null; transport_start_time: string | null; transport_end_time: string | null; transport_start_terminal: string | null; transport_end_terminal: string | null; transport_link: string | null;
@@ -75,7 +81,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[] | null;
   })[]>`
     SELECT
-      d.id, d.name, d.start_date,
+      d.id, d.name, d.start_date, d.section_id,
       t.type AS transport_type,
       t.start_time AS transport_start_time,
       t.end_time AS transport_end_time,
@@ -92,7 +98,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     LEFT JOIN transports t ON t.destination_id = d.id
     LEFT JOIN accommodations a ON a.destination_id = d.id
     WHERE d.journey_id = ${journeyId}
-    GROUP BY d.id, d.name, d.start_date, d.created_time, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, a.name, a.check_in, a.check_out, a.link
+    GROUP BY d.id, d.name, d.start_date, d.section_id, d.created_time, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, a.name, a.check_in, a.check_out, a.link
     ORDER BY d.start_date ASC NULLS LAST, d.created_time ASC NULLS LAST, t.start_time ASC NULLS LAST
   `;
   return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, events, records, ...d }) => ({
@@ -141,4 +147,9 @@ export async function fetchLatestDestinationStartDateByJourneyId(journeyId: stri
 export async function fetchTransportByDestinationId(destinationId: string): Promise<Transport | null> {
   const data = await sql<Transport[]>`SELECT id, destination_id, type, start_time, end_time, start_terminal, end_terminal, link FROM transports WHERE destination_id = ${destinationId}`;
   return data[0] ?? null;
+}
+
+export async function fetchSectionsByJourneyId(journeyId: string): Promise<Section[]> {
+  const data = await sql<Section[]>`SELECT id, journey_id, name, created_time FROM sections WHERE journey_id = ${journeyId} ORDER BY created_time ASC`;
+  return data;
 }

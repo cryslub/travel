@@ -24,6 +24,25 @@ async function createJourneys() {
 
 }
 
+
+async function createSections() {
+
+  await sql`
+    DROP TABLE IF EXISTS sections CASCADE ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS sections (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE,
+      name VARCHAR(255) NOT NULL,
+      created_time TIMESTAMP DEFAULT NOW()
+    );
+  `;
+
+}
+
 async function createDestinations() {
 
   await sql`
@@ -35,6 +54,7 @@ async function createDestinations() {
     CREATE TABLE IF NOT EXISTS destinations (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE,
+      section_id UUID REFERENCES sections(id),
       name VARCHAR(255) NOT NULL,
       start_date DATE,
       created_time TIMESTAMP DEFAULT NOW()
@@ -148,6 +168,7 @@ export async function GET() {
 
    const result = await sql.begin(async (sql) => {
       await createJourneys();
+      await createSections();
       await createDestinations();
       await createTransports();
       await createAccommodations();

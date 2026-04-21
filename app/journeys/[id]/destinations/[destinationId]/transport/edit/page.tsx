@@ -47,6 +47,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             <option value="Bus">Bus</option>
             <option value="Car">Car</option>
             <option value="Ferry">Ferry</option>
+            <option value="Combined">Combined</option>
           </select>
         </div>
         <TransportTimeFields

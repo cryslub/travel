@@ -1,15 +1,20 @@
 import { createEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../time-fields';
-import { fetchDestinationById } from '@/app/lib/data';
+import { fetchDestinationById, fetchLatestEventEndTimeByDestinationId } from '@/app/lib/data';
 
 export default async function CreateEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/create'>) {
   const { id: journeyId, destinationId } = await props.params;
   const action = createEvent.bind(null, destinationId);
 
-  const destination = await fetchDestinationById(destinationId);
-  const defaultDateTime = destination?.start_date
+  const [destination, latestEndTime] = await Promise.all([
+    fetchDestinationById(destinationId),
+    fetchLatestEventEndTimeByDestinationId(destinationId),
+  ]);
+
+  const fallbackDateTime = destination?.start_date
     ? `${new Date(destination.start_date).toLocaleDateString('en-CA')}T00:00`
     : '';
+  const defaultDateTime = latestEndTime ?? fallbackDateTime;
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">

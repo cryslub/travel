@@ -1,4 +1,5 @@
-import { fetchDestinationsByJourneyId, fetchJourneys } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneys, fetchSectionsByJourneyId } from '@/app/lib/data';
+import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { BackToJourneysButton, CreateDestinationForJourneyButton } from './journey-destination-buttons';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -43,12 +44,20 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
 
 export default async function JourneyDestinationsPage(props: PageProps<'/journeys/[id]/destinations'>) {
   const { id } = await props.params;
+  const { section: sectionFilter } = await props.searchParams;
   const journeys = await fetchJourneys();
   const journey = journeys.find((j) => j.id === id);
 
   if (!journey) notFound();
 
-  const destinations = await fetchDestinationsByJourneyId(id);
+  const [allDestinations, sections] = await Promise.all([
+    fetchDestinationsByJourneyId(id),
+    fetchSectionsByJourneyId(id),
+  ]);
+
+  const destinations = sectionFilter
+    ? allDestinations.filter((d) => d.section_id === sectionFilter)
+    : allDestinations;
 
   return (
     <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">
@@ -62,6 +71,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
           <CreateDestinationForJourneyButton journeyId={id} />
         </div>
       </div>
+      <SectionFilter sections={sections} journeyId={id} />
       <div className="flex justify-center">
       <ul className="flex flex-row flex-wrap gap-4">
         {destinations.map((destination) => (

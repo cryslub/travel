@@ -1,10 +1,13 @@
 import { notFound } from 'next/navigation';
-import { fetchDestinationById } from '@/app/lib/data';
+import { fetchDestinationById, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { updateDestination } from '@/app/journeys/[id]/destinations/actions';
 
 export default async function EditDestinationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
-  const destination = await fetchDestinationById(destinationId);
+  const [destination, sections] = await Promise.all([
+    fetchDestinationById(destinationId),
+    fetchSectionsByJourneyId(journeyId),
+  ]);
 
   if (!destination) notFound();
 
@@ -39,6 +42,20 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
             defaultValue={destination.start_date ? new Date(destination.start_date).toLocaleDateString('en-CA') : ''}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="section_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Section</label>
+          <select
+            id="section_id"
+            name="section_id"
+            defaultValue={destination.section_id ?? ''}
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          >
+            <option value="">None</option>
+            {sections.map((section) => (
+              <option key={section.id} value={section.id}>{section.name}</option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-3">
           <button

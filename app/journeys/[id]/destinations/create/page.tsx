@@ -1,11 +1,12 @@
 import { createDestination } from '@/app/journeys/[id]/destinations/actions';
-import { fetchJourneyById, fetchLatestDestinationStartDateByJourneyId } from '@/app/lib/data';
+import { fetchJourneyById, fetchLatestDestinationStartDateByJourneyId, fetchSectionsByJourneyId } from '@/app/lib/data';
 
 export default async function CreateDestinationPage(props: PageProps<'/journeys/[id]/destinations/create'>) {
   const { id } = await props.params;
-  const [latestDate, journey] = await Promise.all([
+  const [latestDate, journey, sections] = await Promise.all([
     fetchLatestDestinationStartDateByJourneyId(id),
     fetchJourneyById(id),
+    fetchSectionsByJourneyId(id),
   ]);
   const raw = latestDate ?? journey?.start_date ?? null;
   const defaultStartDate = raw ? new Date(raw).toLocaleDateString('en-CA') : '';
@@ -38,6 +39,19 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
             defaultValue={defaultStartDate}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="section_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Section</label>
+          <select
+            id="section_id"
+            name="section_id"
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          >
+            <option value="">None</option>
+            {sections.map((section) => (
+              <option key={section.id} value={section.id}>{section.name}</option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-3">
           <button
