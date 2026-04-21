@@ -78,13 +78,15 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
           <li key={destination.id} className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 min-w-[350px] max-w-[350px]">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                {(destination.start_date || destination.section_name) && (
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    {destination.start_date && <span>{new Date(destination.start_date).toLocaleDateString()}</span>}
-                    {destination.section_name && <span>{destination.section_name}</span>}
-                  </div>
+                {destination.start_date && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{new Date(destination.start_date).toLocaleDateString()}</span>
                 )}
-                <span className="text-lg font-medium">{destination.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-medium">{destination.name}</span>
+                  {destination.section_name && (
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">{destination.section_name}</span>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2">
                 <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
