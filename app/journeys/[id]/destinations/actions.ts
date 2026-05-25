@@ -27,7 +27,10 @@ export async function createDestination(formData: FormData) {
 
 export async function updateDestination(id: string, formData: FormData) {
   const name = formData.get('name') as string;
-  const start_date = formData.get('start_date') as string | null;
+  const start_date = (formData.get('start_date') as string) || null;
+  const previous_start_date = (formData.get('previous_start_date') as string) || null;
+  const shift_dates = formData.get('shift_dates') === '1';
+  const shift_following = formData.get('shift_following') === '1';
   const journey_id = formData.get('journey_id') as string;
   const section_id = (formData.get('section_id') as string) || null;
   const existing_location_id = (formData.get('location_id') as string) || null;
@@ -46,6 +49,22 @@ export async function updateDestination(id: string, formData: FormData) {
   }
 
   await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id} WHERE id = ${id}`;
+
+  if ((shift_dates || shift_following) && start_date && previous_start_date) {
+    const offsetDays = Math.round((new Date(start_date).getTime() - new Date(previous_start_date).getTime()) / 86400000);
+    if (offsetDays !== 0) {
+      if (shift_dates) {
+        await sql`UPDATE events SET start_time = to_char(NULLIF(start_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI'), end_time = to_char(NULLIF(end_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI') WHERE destination_id = ${id}`;
+        await sql`UPDATE transports SET start_time = to_char(NULLIF(start_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI'), end_time = to_char(NULLIF(end_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI') WHERE destination_id = ${id}`;
+      }
+
+      if (shift_following) {
+        await sql`UPDATE events SET start_time = to_char(NULLIF(start_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI'), end_time = to_char(NULLIF(end_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI') WHERE destination_id IN (SELECT id FROM destinations WHERE journey_id = ${journey_id} AND id != ${id} AND start_date > ${previous_start_date})`;
+        await sql`UPDATE transports SET start_time = to_char(NULLIF(start_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI'), end_time = to_char(NULLIF(end_time,'')::timestamp + (${offsetDays} * INTERVAL '1 day'), 'YYYY-MM-DD"T"HH24:MI') WHERE destination_id IN (SELECT id FROM destinations WHERE journey_id = ${journey_id} AND id != ${id} AND start_date > ${previous_start_date})`;
+        await sql`UPDATE destinations SET start_date = start_date + ${offsetDays}::int WHERE journey_id = ${journey_id} AND id != ${id} AND start_date > ${previous_start_date}`;
+      }
+    }
+  }
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
