@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -79,13 +79,14 @@ function FitBounds({ points, fallback }: { points: [number, number][]; fallback:
   return null;
 }
 
-function InvalidateOnFullscreen() {
+function SyncMapHeight({ isFullscreen }: { isFullscreen: boolean }) {
   const map = useMap();
   useEffect(() => {
-    function handle() { setTimeout(() => map.invalidateSize(), 100); }
-    document.addEventListener('fullscreenchange', handle);
-    return () => document.removeEventListener('fullscreenchange', handle);
-  }, [map]);
+    const container = map.getContainer();
+    container.style.height = isFullscreen ? '100vh' : '200px';
+    const t = setTimeout(() => map.invalidateSize(), 50);
+    return () => clearTimeout(t);
+  }, [isFullscreen, map]);
   return null;
 }
 
@@ -104,14 +105,13 @@ export function DestinationCardMapInner({
   transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
   transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
 }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    function handle() { setIsFullscreen(!!document.fullscreenElement); }
-    document.addEventListener('fullscreenchange', handle);
-    return () => document.removeEventListener('fullscreenchange', handle);
-  }, []);
+    if (!isFullscreen) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [isFullscreen]);
 
   const markers = useMemo<MarkerDef[]>(() => [
     ...eventMarkers.map((m) => ({ lat: m.lat, lon: m.lon, label: m.name, category: 'event' as MarkerCategory, eventType: m.type })),
@@ -127,40 +127,28 @@ export function DestinationCardMapInner({
 
   const fallback = useMemo<[number, number]>(() => [lat, lon], [lat, lon]);
 
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      wrapperRef.current?.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  }
-
   return (
-    <>
-      <style>{`
-        .dcm-wrapper:-webkit-full-screen { height: 100%; }
-        .dcm-wrapper:fullscreen { height: 100%; }
-        .dcm-wrapper:-webkit-full-screen .leaflet-container { height: 100% !important; }
-        .dcm-wrapper:fullscreen .leaflet-container { height: 100% !important; }
-      `}</style>
-      <div ref={wrapperRef} className="dcm-wrapper relative">
-        <MapContainer
-          center={[lat, lon]}
-          zoom={10}
-          style={{ height: '200px' }}
-          className="rounded-lg border border-zinc-200 dark:border-zinc-700"
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          />
-          <ClusteredMarkers markers={markers} />
-          <FitBounds points={allPoints} fallback={fallback} />
-          <InvalidateOnFullscreen />
-        </MapContainer>
-        <button
-          type="button"
-          onClick={toggleFullscreen}
+    <div
+      className="relative"
+      style={isFullscreen ? { position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden' } : undefined}
+    >
+      <MapContainer
+        center={[lat, lon]}
+        zoom={10}
+        style={{ height: isFullscreen ? '100vh' : '200px' }}
+        className={isFullscreen ? '' : 'rounded-lg border border-zinc-200 dark:border-zinc-700'}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        />
+        <ClusteredMarkers markers={markers} />
+        <FitBounds points={allPoints} fallback={fallback} />
+        <SyncMapHeight isFullscreen={isFullscreen} />
+      </MapContainer>
+      <button
+        type="button"
+        onClick={() => setIsFullscreen(v => !v)}
           title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           className="absolute top-2 right-2 z-[1000] rounded bg-white p-1 shadow hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700"
         >
@@ -174,7 +162,6 @@ export function DestinationCardMapInner({
             </svg>
           )}
         </button>
-      </div>
-    </>
+    </div>
   );
 }

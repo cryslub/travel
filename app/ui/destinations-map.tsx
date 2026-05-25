@@ -123,7 +123,7 @@ function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; o
 
     function addLine(coords: [number, number][], dashed: boolean, color: string, dest: MapDest, prevName: string | null) {
       if (cancelled) return;
-      const line = L.polyline(coords, { color, weight: 4, opacity: 0.5, dashArray: dashed ? '8 6' : undefined });
+      const line = L.polyline(coords, { color, weight: 6, opacity: 0.5, dashArray: dashed ? '8 6' : undefined });
       line.on('click', () => onSelect(dest, prevName));
       line.addTo(map);
       layers.push(line);
@@ -182,6 +182,15 @@ function ClusteredMarkers({ destinations, onSelect }: { destinations: MapDest[];
     map.addLayer(cluster);
     return () => { map.removeLayer(cluster); };
   }, [map, destinations, onSelect]);
+  return null;
+}
+
+function InvalidateSize({ trigger }: { trigger: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const t = setTimeout(() => map.invalidateSize(), 100);
+    return () => clearTimeout(t);
+  }, [trigger, map]);
   return null;
 }
 
@@ -422,6 +431,13 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
 export function DestinationsMap({ destinations, className }: { destinations: MapDest[]; className?: string }) {
   const [selected, setSelected] = useState<{ dest: MapDest; nextDest: MapDest | null } | null>(null);
   const [selectedTransport, setSelectedTransport] = useState<{ dest: MapDest; prevDestName: string | null } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [isFullscreen]);
 
   if (destinations.length === 0) {
     return (
@@ -435,20 +451,42 @@ export function DestinationsMap({ destinations, className }: { destinations: Map
 
   return (
     <>
-      <MapContainer
-        center={points[0]}
-        zoom={5}
-        style={{ height: '100%' }}
-        className={`rounded-lg border border-zinc-200 dark:border-zinc-700 ${className ?? 'h-[500px]'}`}
+      <div
+        className="relative"
+        style={isFullscreen ? { position: 'fixed', inset: 0, zIndex: 9998, overflow: 'hidden' } : { height: '100%' }}
       >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        />
-        <TransportLines destinations={destinations} onSelect={(d, prevName) => setSelectedTransport({ dest: d, prevDestName: prevName })} />
-        <ClusteredMarkers destinations={destinations} onSelect={(d, next) => setSelected({ dest: d, nextDest: next })} />
-        <FitBounds points={points} />
-      </MapContainer>
+        <MapContainer
+          center={points[0]}
+          zoom={5}
+          style={{ height: '100%' }}
+          className={`rounded-lg border border-zinc-200 dark:border-zinc-700 ${isFullscreen ? '' : (className ?? 'h-[500px]')}`}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          />
+          <TransportLines destinations={destinations} onSelect={(d, prevName) => setSelectedTransport({ dest: d, prevDestName: prevName })} />
+          <ClusteredMarkers destinations={destinations} onSelect={(d, next) => setSelected({ dest: d, nextDest: next })} />
+          <FitBounds points={points} />
+          <InvalidateSize trigger={isFullscreen} />
+        </MapContainer>
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(v => !v)}
+          title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          className="absolute top-2 right-2 z-[1000] rounded bg-white p-1 shadow hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+        >
+          {isFullscreen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+          )}
+        </button>
+      </div>
       {selected && <DestinationModal dest={selected.dest} nextDest={selected.nextDest} onClose={() => setSelected(null)} />}
       {selectedTransport?.dest.transport && <TransportModal dest={selectedTransport.dest} prevDestName={selectedTransport.prevDestName} onClose={() => setSelectedTransport(null)} />}
     </>
