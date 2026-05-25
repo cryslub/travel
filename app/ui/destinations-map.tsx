@@ -174,7 +174,7 @@ function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; o
 function ClusteredMarkers({ destinations, onSelect }: { destinations: MapDest[]; onSelect: (d: MapDest, next: MapDest | null) => void }) {
   const map = useMap();
   useEffect(() => {
-    const cluster = (L as any).markerClusterGroup();
+    const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     destinations.forEach((d, i) => {
       const next = destinations[i + 1] ?? null;
       L.marker([d.lat, d.lon], { icon: createDestinationIcon() }).on('click', () => onSelect(d, next)).addTo(cluster);

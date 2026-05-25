@@ -53,7 +53,7 @@ function createIcon(category: MarkerCategory, eventType?: string | null, transpo
 function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
   const map = useMap();
   useEffect(() => {
-    const cluster = (L as any).markerClusterGroup();
+    const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     markers.forEach((m) => {
       const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType) });
       if (m.label) marker.bindPopup(m.label);
