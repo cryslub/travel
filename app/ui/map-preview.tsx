@@ -6,10 +6,12 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+
+const locationIcon = L.divIcon({
+  html: `<div style="width:28px;height:28px;border-radius:50%;background:#6366f1;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>`,
+  className: '',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
 });
 
 function MapClickHandler({ onLocationPick }: { onLocationPick: (lat: number, lon: number) => void }) {
@@ -59,7 +61,7 @@ export function MapPreview({ lat, lon, markerLat, markerLon, onLocationPick }: {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
-        {hasMarker && <Marker position={[markerLat, markerLon]} />}
+        {hasMarker && <Marker position={[markerLat, markerLon]} icon={locationIcon} />}
         <FlyTo lat={lat} lon={lon} />
         {onLocationPick && <MapClickHandler onLocationPick={onLocationPick} />}
         <InvalidateSize trigger={isFullscreen} />
