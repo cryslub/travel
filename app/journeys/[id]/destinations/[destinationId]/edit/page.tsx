@@ -1,6 +1,7 @@
-import { notFound } from 'next/navigation';
+﻿import { notFound } from 'next/navigation';
 import { fetchDestinationById, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { updateDestination } from '@/app/journeys/[id]/destinations/actions';
+import { Location } from '@/app/ui/location-autocomplete';
 
 export default async function EditDestinationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
@@ -28,7 +29,22 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
             type="text"
             required
             defaultValue={destination.name}
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
+          <Location
+            name="location"
+            placeholder="Search location…"
+            syncInputId="name"
+            defaultLocationName={destination.location_name ?? ''}
+            defaultLat={destination.latitude != null ? String(destination.latitude) : ''}
+            defaultLon={destination.longitude != null ? String(destination.longitude) : ''}
+            defaultValue={destination.location_name ? destination.location_name.split(',')[0].trim() : ''}
+            locationIdFieldName="location_id"
+            defaultLocationId={destination.location_id ?? ''}
           />
         </div>
         <div className="flex flex-col gap-2">

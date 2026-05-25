@@ -10,8 +10,17 @@ export async function createDestination(formData: FormData) {
   const start_date = (formData.get('start_date') as string) || null;
   const journey_id = (formData.get('journey_id') as string) || null;
   const section_id = (formData.get('section_id') as string) || null;
+  const location_name = (formData.get('location_name') as string) || null;
+  const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
 
-  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, NOW())`;
+  let location_id: string | null = null;
+  if (location_name) {
+    const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
+    location_id = loc[0].id;
+  }
+
+  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, NOW())`;
 
   redirect(journey_id ? `/journeys/${journey_id}/destinations` : '/destinations');
 }
@@ -21,8 +30,22 @@ export async function updateDestination(id: string, formData: FormData) {
   const start_date = formData.get('start_date') as string | null;
   const journey_id = formData.get('journey_id') as string;
   const section_id = (formData.get('section_id') as string) || null;
+  const existing_location_id = (formData.get('location_id') as string) || null;
+  const location_name = (formData.get('location_name') as string) || null;
+  const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
 
-  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id} WHERE id = ${id}`;
+  let location_id = existing_location_id;
+  if (location_name) {
+    if (existing_location_id) {
+      await sql`UPDATE locations SET name = ${location_name}, latitude = ${latitude}, longitude = ${longitude} WHERE id = ${existing_location_id}`;
+    } else {
+      const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
+      location_id = loc[0].id;
+    }
+  }
+
+  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id} WHERE id = ${id}`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -41,8 +64,17 @@ export async function createEvent(destinationId: string, formData: FormData) {
   const link = formData.get('link') as string | null;
   const memo = formData.get('memo') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const location_name = (formData.get('location_name') as string) || null;
+  const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
 
-  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, NOW())`;
+  let location_id: string | null = null;
+  if (location_name) {
+    const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
+    location_id = loc[0].id;
+  }
+
+  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${location_id}, NOW())`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -55,8 +87,22 @@ export async function updateEvent(eventId: string, _destinationId: string, formD
   const link = formData.get('link') as string | null;
   const memo = formData.get('memo') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const existing_location_id = (formData.get('location_id') as string) || null;
+  const location_name = (formData.get('location_name') as string) || null;
+  const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
 
-  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo} WHERE id = ${eventId}`;
+  let location_id = existing_location_id;
+  if (location_name) {
+    if (existing_location_id) {
+      await sql`UPDATE locations SET name = ${location_name}, latitude = ${latitude}, longitude = ${longitude} WHERE id = ${existing_location_id}`;
+    } else {
+      const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
+      location_id = loc[0].id;
+    }
+  }
+
+  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id} WHERE id = ${eventId}`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -73,11 +119,25 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
   const check_out = (formData.get('check_out') as string) || null;
   const link = formData.get('link') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const existing_location_id = (formData.get('location_id') as string) || null;
+  const location_name = (formData.get('location_name') as string) || null;
+  const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
+
+  let location_id = existing_location_id;
+  if (location_name) {
+    if (existing_location_id) {
+      await sql`UPDATE locations SET name = ${location_name}, latitude = ${latitude}, longitude = ${longitude} WHERE id = ${existing_location_id}`;
+    } else {
+      const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
+      location_id = loc[0].id;
+    }
+  }
 
   await sql`
-    INSERT INTO accommodations (destination_id, name, check_in, check_out, link)
-    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link})
-    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}
+    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id)
+    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${location_id})
+    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, location_id = ${location_id}
   `;
 
   redirect(`/journeys/${journey_id}/destinations`);
@@ -121,11 +181,40 @@ export async function upsertTransport(destinationId: string, formData: FormData)
   const end_terminal = (formData.get('end_terminal') as string) || null;
   const link = formData.get('link') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const existing_start_location_id = (formData.get('start_location_id') as string) || null;
+  const start_location_name = (formData.get('start_location_name') as string) || null;
+  const start_latitude = (formData.get('start_latitude') as string) ? parseFloat(formData.get('start_latitude') as string) : null;
+  const start_longitude = (formData.get('start_longitude') as string) ? parseFloat(formData.get('start_longitude') as string) : null;
+
+  const existing_end_location_id = (formData.get('end_location_id') as string) || null;
+  const end_location_name = (formData.get('end_location_name') as string) || null;
+  const end_latitude = (formData.get('end_latitude') as string) ? parseFloat(formData.get('end_latitude') as string) : null;
+  const end_longitude = (formData.get('end_longitude') as string) ? parseFloat(formData.get('end_longitude') as string) : null;
+
+  let start_location_id = existing_start_location_id;
+  if (start_location_name) {
+    if (existing_start_location_id) {
+      await sql`UPDATE locations SET name = ${start_location_name}, latitude = ${start_latitude}, longitude = ${start_longitude} WHERE id = ${existing_start_location_id}`;
+    } else {
+      const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${start_location_name}, ${start_latitude}, ${start_longitude}) RETURNING id`;
+      start_location_id = loc[0].id;
+    }
+  }
+
+  let end_location_id = existing_end_location_id;
+  if (end_location_name) {
+    if (existing_end_location_id) {
+      await sql`UPDATE locations SET name = ${end_location_name}, latitude = ${end_latitude}, longitude = ${end_longitude} WHERE id = ${existing_end_location_id}`;
+    } else {
+      const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${end_location_name}, ${end_latitude}, ${end_longitude}) RETURNING id`;
+      end_location_id = loc[0].id;
+    }
+  }
 
   await sql`
-    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link)
-    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link})
-    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}
+    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link, start_location_id, end_location_id)
+    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${start_location_id}, ${end_location_id})
+    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}
   `;
 
   redirect(`/journeys/${journey_id}/destinations`);

@@ -1,6 +1,7 @@
-import { fetchTransportByDestinationId, fetchDestinationById } from '@/app/lib/data';
+﻿import { fetchTransportByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { upsertTransport } from '@/app/journeys/[id]/destinations/actions';
 import { TransportTimeFields } from '../time-fields';
+import { Location } from '@/app/ui/location-autocomplete';
 
 export default async function EditTransportPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/transport/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
@@ -27,7 +28,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
     : `${datePrefix}T00:00`;
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="w-[350px] mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Edit Transport</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
@@ -63,7 +64,23 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             name="start_terminal"
             type="text"
             defaultValue={transport?.start_terminal ?? ''}
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Start Location</label>
+          <Location
+            name="start_location"
+            placeholder="Search location…"
+            syncInputId="start_terminal"
+            defaultLocationName={transport?.start_location_name ?? ''}
+            defaultLat={transport?.start_latitude != null ? String(transport.start_latitude) : ''}
+            defaultLon={transport?.start_longitude != null ? String(transport.start_longitude) : ''}
+            defaultValue={transport?.start_location_name ? transport.start_location_name.split(',')[0].trim() : ''}
+            fieldNames={{ locationName: 'start_location_name', lat: 'start_latitude', lon: 'start_longitude' }}
+            locationIdFieldName="start_location_id"
+            defaultLocationId={transport?.start_location_id ?? ''}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -75,7 +92,23 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             name="end_terminal"
             type="text"
             defaultValue={transport?.end_terminal ?? ''}
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">End Location</label>
+          <Location
+            name="end_location"
+            placeholder="Search location…"
+            syncInputId="end_terminal"
+            defaultLocationName={transport?.end_location_name ?? ''}
+            defaultLat={transport?.end_latitude != null ? String(transport.end_latitude) : ''}
+            defaultLon={transport?.end_longitude != null ? String(transport.end_longitude) : ''}
+            defaultValue={transport?.end_location_name ? transport.end_location_name.split(',')[0].trim() : ''}
+            fieldNames={{ locationName: 'end_location_name', lat: 'end_latitude', lon: 'end_longitude' }}
+            locationIdFieldName="end_location_id"
+            defaultLocationId={transport?.end_location_id ?? ''}
           />
         </div>
         <div className="flex flex-col gap-2">

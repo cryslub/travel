@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Section } from '@/app/lib/definitions';
 import AddIcon from '@mui/icons-material/Add';
@@ -9,6 +10,18 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
   const router = useRouter();
   const searchParams = useSearchParams();
   const active = searchParams.get('section');
+  const storageKey = `section-filter:${journeyId}`;
+
+  useEffect(() => {
+    if (active !== null) {
+      localStorage.setItem(storageKey, active);
+    } else {
+      const saved = localStorage.getItem(storageKey);
+      if (saved && sections.some((s) => s.id === saved)) {
+        router.replace(`?section=${saved}`);
+      }
+    }
+  }, [active, storageKey, sections, router]);
 
   const setSection = (id: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -16,6 +29,7 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
       params.set('section', id);
     } else {
       params.delete('section');
+      localStorage.removeItem(storageKey);
     }
     router.push(`?${params.toString()}`);
   };

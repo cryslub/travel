@@ -6,6 +6,24 @@ async function ensureExtension() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 }
 
+async function createLocations() {
+
+  await sql`
+    DROP TABLE IF EXISTS locations CASCADE ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS locations (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      name TEXT,
+      latitude NUMERIC,
+      longitude NUMERIC
+    );
+  `;
+
+}
+
 async function createJourneys() {
 
   await sql`
@@ -55,6 +73,7 @@ async function createDestinations() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE,
       section_id UUID REFERENCES sections(id),
+      location_id UUID REFERENCES locations(id),
       name VARCHAR(255) NOT NULL,
       start_date DATE,
       created_time TIMESTAMP DEFAULT NOW()
@@ -79,7 +98,9 @@ async function createTransports() {
      end_time VARCHAR(50),
      start_terminal TEXT,
      end_terminal TEXT,
-     link TEXT
+    start_location_id UUID REFERENCES locations(id),
+    end_location_id UUID REFERENCES locations(id),
+    link TEXT
     );
   `;
 
@@ -101,6 +122,7 @@ async function createAccommodations() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       destination_id UUID REFERENCES destinations(id) ON DELETE CASCADE,
       name TEXT,
+      location_id UUID REFERENCES locations(id),
       check_in TIME,
   check_out TIME,
      link TEXT
@@ -127,6 +149,7 @@ async function createEvents() {
       destination_id UUID REFERENCES destinations(id) ON DELETE CASCADE,
       type VARCHAR(50),
       name TEXT NOT NULL,
+      location_id UUID REFERENCES locations(id),
       start_time VARCHAR(50),
       end_time VARCHAR(50),
      memo TEXT,
@@ -167,13 +190,13 @@ export async function GET() {
     await ensureExtension();
 
    const result = await sql.begin(async (sql) => {
-      await createJourneys();
-      await createSections();
-      await createDestinations();
-      await createTransports();
-      await createAccommodations();
-      await createEvents();
-      await createRecords();
+      // await createJourneys();
+      // await createSections();
+      // await createDestinations();
+      // await createTransports();
+      // await createAccommodations();
+      // await createEvents();
+      // await createRecords();
     });
 
     return Response.json({ message: 'Database seeded successfully' });

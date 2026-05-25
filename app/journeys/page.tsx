@@ -1,6 +1,5 @@
 import { fetchJourneys } from '@/app/lib/data';
 import { JourneyButtons, CreateJourneyButton } from './journey-buttons';
-import Image from 'next/image';
 
 export default async function JourneysPage() {
   const journeys = await fetchJourneys();
@@ -9,10 +8,7 @@ export default async function JourneysPage() {
     <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-end justify-between mb-8">
-          <div className="flex flex-col gap-1">
-            <Image src="/logo.svg" alt="Journey" width={120} height={30} priority />
-            <h1 className="text-3xl font-semibold tracking-tight">Journeys</h1>
-          </div>
+          <h1 className="text-3xl font-semibold tracking-tight">Journeys</h1>
           <CreateJourneyButton />
         </div>
         <ul className="flex flex-col gap-4">

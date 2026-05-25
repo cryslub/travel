@@ -1,9 +1,11 @@
 import { fetchDestinationsByJourneyId, fetchJourneys, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
-import { BackToJourneysButton, CreateDestinationForJourneyButton } from './journey-destination-buttons';
+import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
+import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
+import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
-import LocalActivityOutlinedIcon from '@mui/icons-material/LocalActivityOutlined';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
@@ -24,7 +26,7 @@ const eventIcons: Record<string, ElementType<SvgIconProps>> = {
   Site: LocationOnOutlinedIcon,
   Meal: RestaurantOutlinedIcon,
   Tour: TourOutlinedIcon,
-  Activity: LocalActivityOutlinedIcon,
+  Activity: StarBorderOutlinedIcon,
   Transfer: MovingIcon,
 };
 
@@ -45,7 +47,8 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
 
 export default async function JourneyDestinationsPage(props: PageProps<'/journeys/[id]/destinations'>) {
   const { id } = await props.params;
-  const { section: sectionFilter } = await props.searchParams;
+  const { section: sectionFilter, view: viewParam } = await props.searchParams;
+  const currentView = (Array.isArray(viewParam) ? viewParam[0] : viewParam) === 'map' ? 'map' : 'cards';
   const journeys = await fetchJourneys();
   const journey = journeys.find((j) => j.id === id);
 
@@ -61,21 +64,46 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     : allDestinations;
 
   return (
-    <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">
-      <div className="max-w-3xl mx-auto flex items-end justify-between mb-8">
+    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-screen flex flex-col pt-12' : 'py-12 min-h-screen'}`}>
+      <div className="w-full mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <BackToJourneysButton />
+          <div className="flex gap-2">
+            <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
+            <CreateDestinationForJourneyButton journeyId={id} />
+          </div>
+        </div>
         <div className="flex flex-col">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
           <h1 className="text-3xl font-semibold">Destinations</h1>
         </div>
-        <div className="flex gap-2">
-          <BackToJourneysButton />
-          <CreateDestinationForJourneyButton journeyId={id} />
-        </div>
       </div>
       <SectionFilter sections={sections} journeyId={id} />
-      <div className="flex justify-center">
+      {currentView === 'map' && (() => {
+        const mapDestinations: MapDest[] = destinations
+          .filter((d) => d.latitude != null && d.longitude != null)
+          .map((d) => ({
+            id: d.id,
+            name: d.name,
+            lat: d.latitude!,
+            lon: d.longitude!,
+            journey_id: id,
+            start_date: d.start_date,
+            section_name: d.section_name,
+            transport: d.transport,
+            accommodation: d.accommodation,
+            events: d.events,
+            records: d.records,
+          }));
+        return (
+          <div className="flex-1 min-h-0 pb-4">
+            <DestinationsMapClient destinations={mapDestinations} className="h-full" />
+          </div>
+        );
+      })()}
+      <div className={`flex justify-center ${currentView === 'map' ? 'hidden' : ''}`}>
       <ul className="flex flex-row flex-wrap gap-4">
-        {destinations.map((destination) => (
+        {destinations.map((destination, index) => (
           <li key={destination.id} className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 min-w-[350px] max-w-[350px]">
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
@@ -103,8 +131,12 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                     ? <a href={destination.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.transport!.type}</a>
                     : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.transport!.type}</span>;
                   return (
-                    <div className="flex items-center gap-1">
-                      {Icon && <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />}
+                    <div className="flex items-center gap-2">
+                      {Icon && (
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 flex-shrink-0">
+                          <Icon style={{ fontSize: 16 }} className="text-white" />
+                        </div>
+                      )}
                       {label}
                     </div>
                   );
@@ -139,7 +171,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               <div className="flex flex-col gap-1 mt-2">
                 {destination.accommodation?.name && (
                   <div className="flex items-center gap-2">
-                    <HotelOutlinedIcon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0">
+                      <HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" />
+                    </div>
                     {destination.accommodation.link
                       ? <a href={destination.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.accommodation.name}</a>
                       : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.accommodation.name}</span>
@@ -162,7 +196,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        {(() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityOutlinedIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
+                        {(() => { const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
                         {activity.link
                           ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
@@ -185,6 +219,31 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 ))}
               </div>
             </div>
+            {destination.latitude != null && destination.longitude != null && (
+              <DestinationCardMap
+                lat={destination.latitude}
+                lon={destination.longitude}
+                eventMarkers={destination.events
+                  .filter((e) => e.latitude != null && e.longitude != null)
+                  .map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type }))}
+                accommodationMarker={
+                  destination.accommodation?.latitude != null && destination.accommodation?.longitude != null
+                    ? { lat: destination.accommodation.latitude, lon: destination.accommodation.longitude, name: destination.accommodation.name }
+                    : null
+                }
+                transportEndMarker={
+                  destination.transport?.end_latitude != null && destination.transport?.end_longitude != null
+                    ? { lat: destination.transport.end_latitude, lon: destination.transport.end_longitude, name: destination.transport.end_terminal ?? null, type: destination.transport.type }
+                    : null
+                }
+                transportStartMarker={(() => {
+                  const next = destinations[index + 1];
+                  return next?.transport?.start_latitude != null && next?.transport?.start_longitude != null
+                    ? { lat: next.transport.start_latitude, lon: next.transport.start_longitude, name: next.transport.start_terminal ?? null, type: next.transport.type }
+                    : null;
+                })()}
+              />
+            )}
             <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-800">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
@@ -195,7 +254,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   <div key={record.id} className="flex items-center justify-between gap-1 py-1.5">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteOutlinedIcon; return <Icon fontSize="small" className="text-zinc-500 dark:text-zinc-400" />; })()}
+                        {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
                         {record.link
                           ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>

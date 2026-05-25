@@ -68,7 +68,7 @@ export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: str
         <MoreVertIcon fontSize="small" />
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${id}/edit`); }}
@@ -170,7 +170,7 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
         <MoreVertIcon fontSize="small" />
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`); }}
@@ -249,7 +249,7 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
         <MoreVertIcon fontSize="small" />
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/${recordId}/edit`); }}

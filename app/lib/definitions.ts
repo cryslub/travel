@@ -26,6 +26,15 @@ export type Transport = {
   start_terminal: string | null;
   end_terminal: string | null;
   link: string | null;
+  start_location_id: string | null;
+  end_location_id: string | null;
+};
+
+export type Location = {
+  id: string;
+  name: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export type Destination = {
@@ -34,6 +43,7 @@ export type Destination = {
   start_date: string | null;
   journey_id: string | null;
   section_id: string | null;
+  location_id: string | null;
   created_time: string | null;
 };
 
@@ -44,6 +54,7 @@ export type Accommodation = {
   check_in: string | null;
   check_out: string | null;
   link: string | null;
+  location_id: string | null;
 };
 
 export type Event = {
@@ -56,6 +67,7 @@ export type Event = {
   link: string | null;
   memo: string | null;
   created_time: string | null;
+  location_id: string | null;
 };
 
 export type Record = {
@@ -69,9 +81,12 @@ export type Record = {
 };
 
 export type DestinationWithTransport = Destination & {
-  transport: Pick<Transport, 'type' | 'start_time' | 'end_time' | 'start_terminal' | 'end_terminal' | 'link'> | null;
-  accommodation: Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link'> | null;
-  events: Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link'>[];
+  location_name: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  transport: (Pick<Transport, 'type' | 'start_time' | 'end_time' | 'start_terminal' | 'end_terminal' | 'link'> & { start_latitude: number | null; start_longitude: number | null; end_latitude: number | null; end_longitude: number | null }) | null;
+  accommodation: (Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link'> & { latitude: number | null; longitude: number | null }) | null;
+  events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link'> & { latitude: number | null; longitude: number | null })[];
   records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[];
   section_name: string | null;
 };

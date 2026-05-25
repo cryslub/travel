@@ -1,9 +1,13 @@
-import { fetchAccommodationByDestinationId } from '@/app/lib/data';
+﻿import { fetchAccommodationByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { upsertAccommodation } from '@/app/journeys/[id]/destinations/actions';
+import { Location } from '@/app/ui/location-autocomplete';
 
 export default async function EditAccommodationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/accommodation/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
-  const accommodation = await fetchAccommodationByDestinationId(destinationId);
+  const [accommodation, destination] = await Promise.all([
+    fetchAccommodationByDestinationId(destinationId),
+    fetchDestinationById(destinationId),
+  ]);
 
   const action = upsertAccommodation.bind(null, destinationId);
 
@@ -21,7 +25,23 @@ export default async function EditAccommodationPage(props: PageProps<'/journeys/
             name="name"
             type="text"
             defaultValue={accommodation?.name ?? ''}
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
+          <Location
+            name="location"
+            placeholder="Search location…"
+            syncInputId="name"
+            defaultLocationName={accommodation?.location_name ?? ''}
+            defaultLat={accommodation?.latitude != null ? String(accommodation.latitude) : ''}
+            defaultLon={accommodation?.longitude != null ? String(accommodation.longitude) : ''}
+            defaultValue={accommodation?.location_name ? accommodation.location_name.split(',')[0].trim() : ''}
+            locationIdFieldName="location_id"
+            defaultLocationId={accommodation?.location_id ?? ''}
+            fallbackCenter={destination?.latitude != null && destination?.longitude != null ? { lat: destination.latitude, lon: destination.longitude } : undefined}
           />
         </div>
         <div className="flex flex-col gap-2">

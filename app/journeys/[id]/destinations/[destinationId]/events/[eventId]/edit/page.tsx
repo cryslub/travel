@@ -1,11 +1,15 @@
-import { notFound } from 'next/navigation';
-import { fetchEventsByDestinationId } from '@/app/lib/data';
+﻿import { notFound } from 'next/navigation';
+import { fetchEventsByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { updateEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../../time-fields';
+import { Location } from '@/app/ui/location-autocomplete';
 
 export default async function EditEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/[eventId]/edit'>) {
   const { id: journeyId, destinationId, eventId } = await props.params;
-  const events = await fetchEventsByDestinationId(destinationId);
+  const [events, destination] = await Promise.all([
+    fetchEventsByDestinationId(destinationId),
+    fetchDestinationById(destinationId),
+  ]);
   const event = events.find((e) => e.id === eventId);
 
   if (!event) notFound();
@@ -13,7 +17,7 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
   const action = updateEvent.bind(null, eventId, destinationId);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="w-[350px] mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Edit Event</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
@@ -25,7 +29,23 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
             type="text"
             required
             defaultValue={event.name ?? ''}
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
+          <Location
+            name="location"
+            placeholder="Search location…"
+            syncInputId="name"
+            defaultLocationName={event.location_name ?? ''}
+            defaultLat={event.latitude != null ? String(event.latitude) : ''}
+            defaultLon={event.longitude != null ? String(event.longitude) : ''}
+            defaultValue={event.location_name ? event.location_name.split(',')[0].trim() : ''}
+            locationIdFieldName="location_id"
+            defaultLocationId={event.location_id ?? ''}
+            fallbackCenter={destination?.latitude != null && destination?.longitude != null ? { lat: destination.latitude, lon: destination.longitude } : undefined}
           />
         </div>
         <div className="flex flex-col gap-2">

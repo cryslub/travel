@@ -1,6 +1,7 @@
 import { createEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../time-fields';
 import { fetchDestinationById, fetchLatestEventEndTimeByDestinationId } from '@/app/lib/data';
+import { Location } from '@/app/ui/location-autocomplete';
 
 export default async function CreateEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/create'>) {
   const { id: journeyId, destinationId } = await props.params;
@@ -17,7 +18,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
   const defaultDateTime = latestEndTime ?? fallbackDateTime;
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="w-[350px] mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Create Event</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
@@ -28,7 +29,17 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
             name="name"
             type="text"
             required
+            autoComplete="off"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
+          <Location
+            name="location"
+            placeholder="Search location…"
+            syncInputId="name"
+            fallbackCenter={destination?.latitude != null && destination?.longitude != null ? { lat: destination.latitude, lon: destination.longitude } : undefined}
           />
         </div>
         <div className="flex flex-col gap-2">
