@@ -24,3 +24,117 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media (max-width: 639px) {
+  .fc {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .fc-daygrid-dot-event .fc-event-title {
+    display: none !important;
+  }
+}
+
+@media (max-width: 409px) {
+  .fc-daygrid-dot-event .fc-event-title,
+  .fc-daygrid-dot-event .fc-event-time {
+    display: none !important;
+  }
+}
+
+.fc-h-event .fc-event-time {
+  overflow: visible !important;
+}
+
+/* FullCalendar button overrides */
+.fc .fc-button,
+.fc .fc-button-primary {
+  background: #ffffff !important;
+  color: #71717a !important;
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 9999px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 0.75rem !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+  transition: background 0.15s !important;
+}
+
+.fc .fc-button:hover,
+.fc .fc-button-primary:hover {
+  background: #f4f4f5 !important;
+  color: #71717a !important;
+  border-color: #e4e4e7 !important;
+}
+
+.fc .fc-button:focus,
+.fc .fc-button-primary:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #000 !important;
+}
+
+.fc .fc-button-group .fc-button {
+  border-radius: 0 !important;
+  border-left-width: 0 !important;
+}
+
+.fc .fc-button-group .fc-button:first-child {
+  border-radius: 9999px 0 0 9999px !important;
+  border-left-width: 1px !important;
+}
+
+.fc .fc-button-group .fc-button:last-child {
+  border-radius: 0 9999px 9999px 0 !important;
+}
+
+.fc .fc-today-button {
+  min-width: 2.25rem !important;
+}
+
+.fc .fc-today-button::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%2371717a' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
+}
+
+.dark .fc .fc-today-button::before {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%23a1a1aa' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
+}
+
+
+.dark .fc .fc-button,
+.dark .fc .fc-button-primary {
+  background: #27272a !important;
+  color: #a1a1aa !important;
+  border-color: #3f3f46 !important;
+}
+
+.dark .fc .fc-button:hover,
+.dark .fc .fc-button-primary:hover {
+  background: #3f3f46 !important;
+  color: #a1a1aa !important;
+  border-color: #3f3f46 !important;
+}
+
+.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
+.dark .fc .fc-button-primary:not(:disabled):active {
+  background: #fff !important;
+  color: #000 !important;
+  border-color: #fff !important;
+}

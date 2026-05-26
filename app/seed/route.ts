@@ -191,6 +191,7 @@ export async function GET() {
 
    const result = await sql.begin(async (sql) => {
       // await createJourneys();
+      // await createLocations(); 
       // await createSections();
       // await createDestinations();
       // await createTransports();

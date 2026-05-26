@@ -238,3 +238,16 @@ export async function upsertTransport(destinationId: string, formData: FormData)
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
+
+export async function calendarUpdateDestinationDate(destinationId: string, startDate: string) {
+  await sql`UPDATE destinations SET start_date = ${startDate} WHERE id = ${destinationId}`;
+}
+
+export async function calendarUpdateEventTimes(eventId: string, startTime: string, endTime: string | null) {
+  await sql`UPDATE events SET start_time = ${startTime}, end_time = ${endTime} WHERE id = ${eventId}`;
+}
+
+export async function calendarUpdateTransportTimes(destinationId: string, startTime: string, endTime: string | null) {
+  await sql`UPDATE transports SET start_time = ${startTime}, end_time = ${endTime} WHERE destination_id = ${destinationId}`;
+}
+

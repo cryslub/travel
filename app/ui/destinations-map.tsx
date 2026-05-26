@@ -71,11 +71,11 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
   Combined: MovingIcon,
 };
 
-export type MapDest = {
+export type ModalDest = {
   id: string;
   name: string;
-  lat: number;
-  lon: number;
+  lat: number | null;
+  lon: number | null;
   journey_id: string;
   start_date: string | null;
   section_name: string | null;
@@ -102,6 +102,8 @@ export type MapDest = {
   events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; latitude: number | null; longitude: number | null }[];
   records: { id: string; name: string; type: string | null; link: string | null; memo: string | null }[];
 };
+
+export type MapDest = ModalDest & { lat: number; lon: number };
 
 const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjI3NmM3NzYyNTY4YTQzM2JhNGE0ODU0OWQxNmUxNmRhIiwiaCI6Im11cm11cjY0In0=';
 const ORS_ROUTED_TYPES = new Set(['Car', 'Bus', 'Train', 'Combined']);
@@ -204,7 +206,7 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
-function DestinationModal({ dest, nextDest, onClose }: { dest: MapDest; nextDest: MapDest | null; onClose: () => void }) {
+export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest; nextDest: ModalDest | null; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onMouseDown={onClose}>
       <div className="absolute inset-0 bg-black/40" />
@@ -237,14 +239,16 @@ function DestinationModal({ dest, nextDest, onClose }: { dest: MapDest; nextDest
         </div>
 
         <div className="flex flex-col gap-3 overflow-y-auto p-4">
-          <DestinationCardMap
-            lat={dest.lat}
-            lon={dest.lon}
-            eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type }))}
-            accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name } : null}
-            transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
-            transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
-          />
+          {dest.lat != null && dest.lon != null && (
+            <DestinationCardMap
+              lat={dest.lat}
+              lon={dest.lon}
+              eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type }))}
+              accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name } : null}
+              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
+              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
+            />
+          )}
           <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>

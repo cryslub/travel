@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 
 export function BackToJourneysButton() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function CreateDestinationForJourneyButton({ journeyId }: { journeyId: st
 
 export function ViewToggle({ journeyId, currentView, currentSection }: {
   journeyId: string;
-  currentView: 'cards' | 'map';
+  currentView: 'cards' | 'map' | 'calendar';
   currentSection?: string;
 }) {
   const router = useRouter();
@@ -44,20 +45,20 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
     const urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.has('view')) {
       const saved = localStorage.getItem('destinations-view');
-      if (saved === 'map') {
+      if (saved === 'map' || saved === 'calendar') {
         const params = new URLSearchParams();
         if (currentSection) params.set('section', currentSection);
-        params.set('view', 'map');
+        params.set('view', saved);
         router.replace(`/journeys/${journeyId}/destinations?${params.toString()}`);
       }
     }
   }, [journeyId, currentSection, router]);
 
-  function navigate(view: 'cards' | 'map') {
+  function navigate(view: 'cards' | 'map' | 'calendar') {
     localStorage.setItem('destinations-view', view);
     const params = new URLSearchParams();
     if (currentSection) params.set('section', currentSection);
-    if (view === 'map') params.set('view', 'map');
+    if (view !== 'cards') params.set('view', view);
     const qs = params.toString();
     router.push(`/journeys/${journeyId}/destinations${qs ? `?${qs}` : ''}`);
   }
@@ -73,6 +74,13 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
         className={`px-3 py-2 transition-colors ${currentView === 'cards' ? active : inactive}`}
       >
         <GridViewOutlinedIcon fontSize="small" />
+      </button>
+      <button
+        type="button"
+        onClick={() => navigate('calendar')}
+        className={`border-l border-zinc-200 px-3 py-2 transition-colors dark:border-zinc-700 ${currentView === 'calendar' ? active : inactive}`}
+      >
+        <CalendarMonthOutlinedIcon fontSize="small" />
       </button>
       <button
         type="button"

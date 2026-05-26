@@ -3,6 +3,7 @@ import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
+import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinations-calendar-client';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
@@ -48,7 +49,8 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
 export default async function JourneyDestinationsPage(props: PageProps<'/journeys/[id]/destinations'>) {
   const { id } = await props.params;
   const { section: sectionFilter, view: viewParam } = await props.searchParams;
-  const currentView = (Array.isArray(viewParam) ? viewParam[0] : viewParam) === 'map' ? 'map' : 'cards';
+  const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
+  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : 'cards';
   const journeys = await fetchJourneys();
   const journey = journeys.find((j) => j.id === id);
 
@@ -79,6 +81,56 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
         </div>
       </div>
       <SectionFilter sections={sections} journeyId={id} />
+      {currentView === 'calendar' && (
+        <DestinationsCalendarClient
+          destinations={destinations.map((d): CalendarDest => ({
+            id: d.id,
+            name: d.name,
+            start_date: d.start_date,
+            section_name: d.section_name,
+            journey_id: id,
+            lat: d.latitude ?? null,
+            lon: d.longitude ?? null,
+            transport: d.transport ? {
+              type: d.transport.type,
+              start_time: d.transport.start_time,
+              end_time: d.transport.end_time,
+              start_terminal: d.transport.start_terminal,
+              end_terminal: d.transport.end_terminal,
+              link: d.transport.link,
+              start_latitude: d.transport.start_latitude,
+              start_longitude: d.transport.start_longitude,
+              end_latitude: d.transport.end_latitude,
+              end_longitude: d.transport.end_longitude,
+            } : null,
+            accommodation: d.accommodation ? {
+              name: d.accommodation.name,
+              check_in: d.accommodation.check_in,
+              check_out: d.accommodation.check_out,
+              link: d.accommodation.link,
+              latitude: d.accommodation.latitude,
+              longitude: d.accommodation.longitude,
+            } : null,
+            events: d.events.map((e) => ({
+              id: e.id,
+              name: e.name,
+              type: e.type,
+              start_time: e.start_time,
+              end_time: e.end_time,
+              link: e.link,
+              latitude: e.latitude ?? null,
+              longitude: e.longitude ?? null,
+            })),
+            records: d.records.map((r) => ({
+              id: r.id,
+              name: r.name,
+              type: r.type,
+              link: r.link,
+              memo: r.memo,
+            })),
+          }))}
+        />
+      )}
       {currentView === 'map' && (() => {
         const mapDestinations: MapDest[] = destinations
           .filter((d) => d.latitude != null && d.longitude != null)
@@ -101,7 +153,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
           </div>
         );
       })()}
-      <div className={`flex justify-center ${currentView === 'map' ? 'hidden' : ''}`}>
+      <div className={`flex justify-center ${currentView !== 'cards' ? 'hidden' : ''}`}>
       <ul className="flex flex-row flex-wrap gap-4">
         {destinations.map((destination, index) => (
           <li key={destination.id} className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 min-w-[350px] max-w-[350px]">
