@@ -32,20 +32,37 @@ body {
 }
 
 @media (max-width: 639px) {
-  .fc-daygrid-dot-event .fc-event-title {
-    display: none !important;
-  }
-}
-
-@media (max-width: 409px) {
   .fc-daygrid-dot-event .fc-event-title,
   .fc-daygrid-dot-event .fc-event-time {
     display: none !important;
   }
+
+  .fc-daygrid-event-harness:has(.fc-daygrid-dot-event) {
+    display: inline-block !important;
+    width: auto !important;
+    vertical-align: top !important;
+  }
+
+  .fc-daygrid-dot-event .fc-daygrid-event-dot {
+    margin: 0 !important;
+  }
+
+  .fc-direction-ltr .fc-daygrid-event.fc-event-end,
+  .fc-direction-rtl .fc-daygrid-event.fc-event-start {
+    margin-right: 0 !important;
+  }
 }
+
 
 .fc-h-event .fc-event-time {
   overflow: visible !important;
+}
+
+.fc-daygrid-dot-event .fc-event-title,
+.fc-h-event .fc-event-title {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
 /* FullCalendar button overrides */
