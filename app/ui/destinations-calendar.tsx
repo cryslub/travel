@@ -36,10 +36,10 @@ export function DestinationsCalendar({ destinations }: { destinations: CalendarD
   const [selectedDest, setSelectedDest] = useState<ModalDest | null>(null);
 
   const calendarEvents = useMemo(() => {
-    const result: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string }[] = [];
+    const result: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; extendedProps?: Record<string, unknown> }[] = [];
     for (const dest of destinations) {
       if (dest.start_date) {
-        result.push({ id: `dest-${dest.id}`, title: dest.name, start: dest.start_date, allDay: true, color: '#6366f1' });
+        result.push({ id: `dest-${dest.id}`, title: dest.name, start: dest.start_date, allDay: true, color: '#6366f1', extendedProps: { transportStartTime: dest.transport?.start_time ?? '' } });
       }
       for (const ev of dest.events) {
         if (ev.start_time) {
@@ -159,6 +159,21 @@ export function DestinationsCalendar({ destinations }: { destinations: CalendarD
           slotLabelFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
           headerToolbar={false}
           datesSet={(arg) => setCalendarTitle(arg.view.title)}
+          eventOrder={(a: unknown, b: unknown) => {
+            const ea = a as { allDay: boolean; start: unknown; extendedProps: Record<string, unknown> };
+            const eb = b as { allDay: boolean; start: unknown; extendedProps: Record<string, unknown> };
+            if (ea.allDay && eb.allDay) {
+              const aTime = (ea.extendedProps?.transportStartTime as string) ?? '';
+              const bTime = (eb.extendedProps?.transportStartTime as string) ?? '';
+              return aTime.localeCompare(bTime);
+            }
+            if (!ea.allDay && !eb.allDay) {
+              const aMs = ea.start ? new Date(ea.start as never).getTime() : 0;
+              const bMs = eb.start ? new Date(eb.start as never).getTime() : 0;
+              return aMs - bMs;
+            }
+            return 0;
+          }}
           editable
           eventDrop={handleEventChange}
           eventResize={handleEventChange}
