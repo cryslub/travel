@@ -187,6 +187,21 @@ function ClusteredMarkers({ destinations, onSelect }: { destinations: MapDest[];
   return null;
 }
 
+function ZoomControls() {
+  const map = useMap();
+  const btnCls = 'flex items-center justify-center rounded bg-white p-2 shadow hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700';
+  return (
+    <div className="absolute top-2 left-2 z-[1000] flex flex-col gap-1">
+      <button type="button" title="Zoom in" className={btnCls} onClick={() => map.zoomIn()}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      </button>
+      <button type="button" title="Zoom out" className={btnCls} onClick={() => map.zoomOut()}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
+      </button>
+    </div>
+  );
+}
+
 function InvalidateSize({ trigger }: { trigger: boolean }) {
   const map = useMap();
   useEffect(() => {
@@ -462,6 +477,7 @@ export function DestinationsMap({ destinations, className }: { destinations: Map
         <MapContainer
           center={points[0]}
           zoom={5}
+          zoomControl={false}
           style={{ height: '100%' }}
           className={`rounded-lg border border-zinc-200 dark:border-zinc-700 ${isFullscreen ? '' : (className ?? 'h-[500px]')}`}
         >
@@ -473,19 +489,20 @@ export function DestinationsMap({ destinations, className }: { destinations: Map
           <ClusteredMarkers destinations={destinations} onSelect={(d, next) => setSelected({ dest: d, nextDest: next })} />
           <FitBounds points={points} />
           <InvalidateSize trigger={isFullscreen} />
+          <ZoomControls />
         </MapContainer>
         <button
           type="button"
           onClick={() => setIsFullscreen(v => !v)}
           title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-          className="absolute top-2 right-2 z-[1000] rounded bg-white p-1 shadow hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+          className="absolute top-2 right-2 z-[1000] rounded bg-white p-2 shadow hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700"
         >
           {isFullscreen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
             </svg>
           )}

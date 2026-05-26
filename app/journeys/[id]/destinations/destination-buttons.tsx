@@ -18,6 +18,7 @@ export function CreateDestinationButton() {
   return (
     <button
       type="button"
+      title="Create destination"
       onClick={() => router.push('/destinations/create')}
       className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
     >
@@ -31,6 +32,7 @@ export function EditDestinationButton({ journeyId, id }: { journeyId: string; id
   return (
     <button
       type="button"
+      title="Edit destination"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${id}/edit`)}
       className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
     >
@@ -62,6 +64,7 @@ export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: str
     <div ref={ref} className="relative">
       <button
         type="button"
+        title="More options"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >
@@ -94,6 +97,7 @@ export function EditTransportButton({ journeyId, destinationId }: { journeyId: s
   return (
     <button
       type="button"
+      title="Edit transport"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
     >
@@ -107,6 +111,7 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
   return (
     <button
       type="button"
+      title="Edit accommodation"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
@@ -120,6 +125,7 @@ export function CreateEventButton({ journeyId, destinationId }: { journeyId: str
   return (
     <button
       type="button"
+      title="Add event"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/create`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
@@ -133,6 +139,7 @@ export function EditEventButton({ journeyId, destinationId, eventId }: { journey
   return (
     <button
       type="button"
+      title="Edit event"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
@@ -164,6 +171,7 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
     <div ref={ref} className="relative ml-1">
       <button
         type="button"
+        title="More options"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >
@@ -199,6 +207,7 @@ export function DeleteEventButton({ journeyId, eventId }: { journeyId: string; e
   return (
     <button
       type="button"
+      title="Delete event"
       onClick={handleDelete}
       className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 ml-1"
     >
@@ -212,6 +221,7 @@ export function CreateRecordButton({ journeyId, destinationId }: { journeyId: st
   return (
     <button
       type="button"
+      title="Add record"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/create`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
@@ -243,6 +253,7 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
     <div ref={ref} className="relative ml-1">
       <button
         type="button"
+        title="More options"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >

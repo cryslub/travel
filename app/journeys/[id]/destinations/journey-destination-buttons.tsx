@@ -13,6 +13,7 @@ export function BackToJourneysButton() {
   return (
     <button
       type="button"
+      title="Back to journeys"
       onClick={() => router.push('/journeys')}
       className="rounded-full border border-zinc-200 bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
     >
@@ -26,6 +27,7 @@ export function CreateDestinationForJourneyButton({ journeyId }: { journeyId: st
   return (
     <button
       type="button"
+      title="Add destination"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/create`)}
       className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
     >
@@ -70,6 +72,7 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
     <div className="flex overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-700">
       <button
         type="button"
+        title="Cards view"
         onClick={() => navigate('cards')}
         className={`px-3 py-2 transition-colors ${currentView === 'cards' ? active : inactive}`}
       >
@@ -77,6 +80,7 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
       </button>
       <button
         type="button"
+        title="Calendar view"
         onClick={() => navigate('calendar')}
         className={`border-l border-zinc-200 px-3 py-2 transition-colors dark:border-zinc-700 ${currentView === 'calendar' ? active : inactive}`}
       >
@@ -84,6 +88,7 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
       </button>
       <button
         type="button"
+        title="Map view"
         onClick={() => navigate('map')}
         className={`border-l border-zinc-200 px-3 py-2 transition-colors dark:border-zinc-700 ${currentView === 'map' ? active : inactive}`}
       >

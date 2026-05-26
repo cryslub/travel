@@ -67,7 +67,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
 
   return (
     <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-screen flex flex-col pt-12' : 'py-12 min-h-screen'}`}>
-      <div className="w-full mb-8">
+      <div className="w-full mb-4">
         <div className="flex items-center justify-between mb-3">
           <BackToJourneysButton />
           <div className="flex gap-2">
@@ -77,7 +77,6 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
         </div>
         <div className="flex flex-col">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
-          <h1 className="text-3xl font-semibold">Destinations</h1>
         </div>
       </div>
       <SectionFilter sections={sections} journeyId={id} />

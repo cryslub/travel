@@ -1,8 +1,6 @@
 import { fetchSectionsByJourneyId, fetchJourneyById } from '@/app/lib/data';
-import { deleteSection } from './actions';
 import { notFound } from 'next/navigation';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { BackToDestinationsButton, CreateSectionButton, EditSectionButton } from './sections-buttons';
+import { BackToDestinationsButton, CreateSectionButton, ImportSectionButton, OverviewButton, EditSectionButton, DeleteSectionButton } from './sections-buttons';
 
 export default async function SectionsPage(props: PageProps<'/journeys/[id]/sections'>) {
   const { id: journeyId } = await props.params;
@@ -16,14 +14,18 @@ export default async function SectionsPage(props: PageProps<'/journeys/[id]/sect
   return (
     <main className="min-h-screen bg-zinc-100 dark:bg-zinc-900 px-4 py-12 min-w-[350px]">
       <div className="max-w-3xl mx-auto">
-      <div className="flex items-end justify-between mb-8">
+      <div className="mb-8">
+        <div className="flex justify-between mb-4">
+          <BackToDestinationsButton journeyId={journeyId} />
+          <div className="flex gap-2">
+            <OverviewButton journeyId={journeyId} />
+            <ImportSectionButton journeyId={journeyId} />
+            <CreateSectionButton journeyId={journeyId} />
+          </div>
+        </div>
         <div className="flex flex-col">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
           <h1 className="text-3xl font-semibold">Sections</h1>
-        </div>
-        <div className="flex gap-2">
-          <BackToDestinationsButton journeyId={journeyId} />
-          <CreateSectionButton journeyId={journeyId} />
         </div>
       </div>
       <ul className="flex flex-col gap-2">
@@ -32,14 +34,7 @@ export default async function SectionsPage(props: PageProps<'/journeys/[id]/sect
             <span className="text-sm font-medium">{section.name}</span>
             <div className="flex gap-2">
               <EditSectionButton journeyId={journeyId} sectionId={section.id} />
-              <form action={deleteSection.bind(null, section.id, journeyId)}>
-                <button
-                  type="submit"
-                  className="rounded-full border border-zinc-200 px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-                >
-                  <DeleteOutlinedIcon fontSize="small" />
-                </button>
-              </form>
+              <DeleteSectionButton journeyId={journeyId} sectionId={section.id} />
             </div>
           </li>
         ))}
