@@ -58,6 +58,17 @@ body {
   overflow: visible !important;
 }
 
+.fc .fc-list-event:hover td {
+  background: transparent !important;
+}
+
+.fc .fc-col-header-cell,
+.fc th,
+.fc .fc-scrollgrid-section-header > td,
+.fc .fc-scrollgrid-section-header > th {
+  background: transparent !important;
+}
+
 .fc-daygrid-dot-event .fc-event-title,
 .fc-h-event .fc-event-title {
   overflow: hidden !important;
@@ -130,28 +141,42 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%2371717a' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
 }
 
-.dark .fc .fc-today-button::before {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%23a1a1aa' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
-}
+@media (prefers-color-scheme: dark) {
+  .fc .fc-today-button::before {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%23a1a1aa' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
+  }
 
+  .fc .fc-col-header-cell-cushion {
+    color: #a1a1aa !important;
+  }
 
-.dark .fc .fc-button,
-.dark .fc .fc-button-primary {
-  background: #27272a !important;
-  color: #a1a1aa !important;
-  border-color: #3f3f46 !important;
-}
+  .fc .fc-list-day-cushion {
+    background: #27272a !important;
+  }
 
-.dark .fc .fc-button:hover,
-.dark .fc .fc-button-primary:hover {
-  background: #3f3f46 !important;
-  color: #a1a1aa !important;
-  border-color: #3f3f46 !important;
-}
+  .fc .fc-list-day-text,
+  .fc .fc-list-day-side-text {
+    color: #a1a1aa !important;
+  }
 
-.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
-.dark .fc .fc-button-primary:not(:disabled):active {
-  background: #fff !important;
-  color: #000 !important;
-  border-color: #fff !important;
+  .fc .fc-button,
+  .fc .fc-button-primary {
+    background: #27272a !important;
+    color: #a1a1aa !important;
+    border-color: #3f3f46 !important;
+  }
+
+  .fc .fc-button:hover,
+  .fc .fc-button-primary:hover {
+    background: #3f3f46 !important;
+    color: #a1a1aa !important;
+    border-color: #3f3f46 !important;
+  }
+
+  .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .fc .fc-button-primary:not(:disabled):active {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+  }
 }
