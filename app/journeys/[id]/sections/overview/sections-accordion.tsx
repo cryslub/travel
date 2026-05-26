@@ -75,7 +75,7 @@ export function SectionsAccordion({ sectionsWithDests: initial, journeyId }: { s
       });
     });
 
-    moveDestination(destId, targetSectionId, journeyId);
+    moveDestination(destId, targetSectionId === '__none__' ? null : targetSectionId, journeyId);
   }
 
   if (!sections.length) {
@@ -132,7 +132,7 @@ export function SectionsAccordion({ sectionsWithDests: initial, journeyId }: { s
                       </div>
                       {dest.start_date && (
                         <span className="ml-4 shrink-0 text-xs text-zinc-400 dark:text-zinc-500">
-                          {new Date(dest.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          {new Date(dest.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </span>
                       )}
                     </li>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import AddIcon from '@mui/icons-material/Add';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
@@ -25,11 +25,12 @@ export function BackToDestinationsButton({ journeyId }: { journeyId: string }) {
 
 export function CreateSectionButton({ journeyId }: { journeyId: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   return (
     <button
       type="button"
       title="Add section"
-      onClick={() => router.push(`/journeys/${journeyId}/sections/create`)}
+      onClick={() => router.push(`/journeys/${journeyId}/sections/create?redirectTo=${encodeURIComponent(pathname)}`)}
       className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
     >
       <AddIcon fontSize="small" />

@@ -8,10 +8,11 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function createSection(journeyId: string, formData: FormData) {
   const name = formData.get('name') as string;
+  const redirectTo = formData.get('redirect_to') as string | null;
 
   await sql`INSERT INTO sections (journey_id, name, created_time) VALUES (${journeyId}, ${name}, NOW())`;
 
-  redirect(`/journeys/${journeyId}/destinations`);
+  redirect(redirectTo || `/journeys/${journeyId}/sections`);
 }
 
 export async function updateSection(sectionId: string, journeyId: string, formData: FormData) {
@@ -23,6 +24,7 @@ export async function updateSection(sectionId: string, journeyId: string, formDa
 }
 
 export async function deleteSection(sectionId: string, journeyId: string) {
+  await sql`UPDATE destinations SET section_id = NULL WHERE section_id = ${sectionId}`;
   await sql`DELETE FROM sections WHERE id = ${sectionId}`;
 
   redirect(`/journeys/${journeyId}/sections`);
@@ -35,7 +37,7 @@ export async function deleteSectionAndDestinations(sectionId: string, journeyId:
   redirect(`/journeys/${journeyId}/sections`);
 }
 
-export async function moveDestination(destinationId: string, targetSectionId: string, journeyId: string) {
+export async function moveDestination(destinationId: string, targetSectionId: string | null, journeyId: string) {
   await sql`UPDATE destinations SET section_id = ${targetSectionId} WHERE id = ${destinationId}`;
   revalidatePath(`/journeys/${journeyId}/sections/overview`);
 }

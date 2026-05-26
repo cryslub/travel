@@ -2,12 +2,16 @@ import { createSection } from '../actions';
 
 export default async function CreateSectionPage(props: PageProps<'/journeys/[id]/sections/create'>) {
   const { id: journeyId } = await props.params;
+  const searchParams = await (props as any).searchParams as { redirectTo?: string } | undefined;
+  const redirectTo = searchParams?.redirectTo;
+  const cancelHref = redirectTo ?? `/journeys/${journeyId}/sections`;
   const action = createSection.bind(null, journeyId);
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Create Section</h1>
       <form action={action} className="flex flex-col gap-6">
+        {redirectTo && <input type="hidden" name="redirect_to" value={redirectTo} />}
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name</label>
           <input
@@ -26,7 +30,7 @@ export default async function CreateSectionPage(props: PageProps<'/journeys/[id]
             Create
           </button>
           <a
-            href={`/journeys/${journeyId}/destinations`}
+            href={cancelHref}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel
