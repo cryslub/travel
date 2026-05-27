@@ -4,6 +4,8 @@ import { SectionsAccordion } from './sections-accordion';
 
 export default async function SectionsOverviewPage(props: PageProps<'/journeys/[id]/sections/overview'>) {
   const { id: journeyId } = await props.params;
+  const searchParams = await (props as any).searchParams as { from?: string } | undefined;
+  const backHref = searchParams?.from ?? `/journeys/${journeyId}/sections`;
   const [journey, sections, destinations] = await Promise.all([
     fetchJourneyById(journeyId),
     fetchSectionsByJourneyId(journeyId),
@@ -39,8 +41,8 @@ export default async function SectionsOverviewPage(props: PageProps<'/journeys/[
           </div>
           <div className="flex gap-2">
             <a
-              href={`/journeys/${journeyId}/sections`}
-              title="Back to sections"
+              href={backHref}
+              title="Go back"
               className="rounded-full border border-zinc-200 bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
             >
               <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">

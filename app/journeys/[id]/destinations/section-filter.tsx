@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Section } from '@/app/lib/definitions';
 import AddIcon from '@mui/icons-material/Add';
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -72,6 +73,9 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
               {section.name}
             </button>
           ))}
+          <a title="Overview" href={`/journeys/${journeyId}/sections/overview?from=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+            <AccountTreeOutlinedIcon fontSize="small" />
+          </a>
           <a title="Add section" href={`/journeys/${journeyId}/sections/create?redirectTo=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
             <AddIcon fontSize="small" />
           </a>

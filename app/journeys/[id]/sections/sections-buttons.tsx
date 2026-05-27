@@ -40,11 +40,12 @@ export function CreateSectionButton({ journeyId }: { journeyId: string }) {
 
 export function OverviewButton({ journeyId }: { journeyId: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   return (
     <button
       type="button"
       title="Overview"
-      onClick={() => router.push(`/journeys/${journeyId}/sections/overview`)}
+      onClick={() => router.push(`/journeys/${journeyId}/sections/overview?from=${encodeURIComponent(pathname)}`)}
       className="rounded-full border border-zinc-200 bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
     >
       <AccountTreeOutlinedIcon fontSize="small" />
