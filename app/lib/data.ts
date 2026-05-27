@@ -1,4 +1,5 @@
 import postgres from 'postgres';
+import { unstable_noStore as noStore } from 'next/cache';
 import {
   Accommodation,
   Event,
@@ -168,6 +169,7 @@ export async function fetchRecordsByDestinationId(destinationId: string): Promis
 }
 
 export async function fetchJourneys(): Promise<Journey[]> {
+  noStore();
   const data = await sql<Journey[]>`SELECT id, name, start_date, created_time FROM journeys ORDER BY start_date DESC NULLS LAST, created_time DESC`;
   return data;
 }
