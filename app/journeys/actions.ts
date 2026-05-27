@@ -2,6 +2,7 @@
 
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -9,6 +10,7 @@ export async function createJourney(formData: FormData) {
   const name = formData.get('name') as string;
   const start_date = (formData.get('start_date') as string) || null;
   await sql`INSERT INTO journeys (name, start_date, created_time) VALUES (${name}, ${start_date}, NOW())`;
+  revalidatePath('/journeys');
   redirect('/journeys');
 }
 
