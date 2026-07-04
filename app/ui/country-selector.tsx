@@ -137,10 +137,10 @@ function FlagImg({ code }: { code: string }) {
   const lower = code.toLowerCase();
   return (
     <img
-      src={`https://flagcdn.com/16x12/${lower}.png`}
-      srcSet={`https://flagcdn.com/32x24/${lower}.png 2x, https://flagcdn.com/48x36/${lower}.png 3x`}
-      width={16}
-      height={12}
+      src={`https://flagcdn.com/w20/${lower}.png`}
+      srcSet={`https://flagcdn.com/w40/${lower}.png 2x`}
+      width={20}
+      height={15}
       alt={code}
       className="flex-shrink-0"
     />
