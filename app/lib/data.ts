@@ -18,8 +18,8 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
   const rows = await sql<(Destination & {
     location_name: string | null; latitude: number | null; longitude: number | null;
     transport_type: string | null; transport_start_time: string | null; transport_end_time: string | null; transport_start_terminal: string | null; transport_end_terminal: string | null; transport_link: string | null; transport_start_latitude: number | null; transport_start_longitude: number | null; transport_end_latitude: number | null; transport_end_longitude: number | null;
-    accommodation_name: string | null; accommodation_check_in: string | null; accommodation_check_out: string | null; accommodation_link: string | null; accommodation_latitude: number | null; accommodation_longitude: number | null;
-    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link'> & { latitude: number | null; longitude: number | null })[] | null;
+    accommodation_name: string | null; accommodation_check_in: string | null; accommodation_check_out: string | null; accommodation_link: string | null; accommodation_image_url: string | null; accommodation_latitude: number | null; accommodation_longitude: number | null;
+    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null })[] | null;
     records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[] | null;
   })[]>`
     SELECT
@@ -39,9 +39,10 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
       a.check_in AS accommodation_check_in,
       a.check_out AS accommodation_check_out,
       a.link AS accommodation_link,
+      a.image_url AS accommodation_image_url,
       al.latitude AS accommodation_latitude,
       al.longitude AS accommodation_longitude,
-      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'latitude', el.latitude, 'longitude', el.longitude) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id WHERE ac.destination_id = d.id) AS events,
+      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'image_url', ac.image_url, 'latitude', el.latitude, 'longitude', el.longitude) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id WHERE ac.destination_id = d.id) AS events,
       (SELECT COALESCE(json_agg(json_build_object('id', r.id, 'name', r.name, 'type', r.type, 'link', r.link, 'memo', r.memo) ORDER BY r.created_time ASC), '[]') FROM records r WHERE r.destination_id = d.id) AS records
     FROM destinations d
     LEFT JOIN locations l ON l.id = d.location_id
@@ -50,17 +51,17 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
     LEFT JOIN locations tl ON tl.id = t.end_location_id
     LEFT JOIN accommodations a ON a.destination_id = d.id
     LEFT JOIN locations al ON al.id = a.location_id
-    GROUP BY d.id, d.name, d.start_date, d.location_id, d.created_time, l.name, l.latitude, l.longitude, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, sl.latitude, sl.longitude, tl.latitude, tl.longitude, a.name, a.check_in, a.check_out, a.link, al.latitude, al.longitude
+    GROUP BY d.id, d.name, d.start_date, d.location_id, d.created_time, l.name, l.latitude, l.longitude, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, sl.latitude, sl.longitude, tl.latitude, tl.longitude, a.name, a.check_in, a.check_out, a.link, a.image_url, al.latitude, al.longitude
     ORDER BY d.start_date ASC NULLS LAST, d.created_time ASC NULLS LAST, t.start_time ASC NULLS LAST
   `;
-  return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, transport_start_latitude, transport_start_longitude, transport_end_latitude, transport_end_longitude, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, accommodation_latitude, accommodation_longitude, events, records, ...d }) => ({
+  return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, transport_start_latitude, transport_start_longitude, transport_end_latitude, transport_end_longitude, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, accommodation_image_url, accommodation_latitude, accommodation_longitude, events, records, ...d }) => ({
     ...d,
     section_name: null,
     transport: transport_type || transport_start_time || transport_end_time || transport_link
       ? { type: transport_type, start_time: transport_start_time, end_time: transport_end_time, start_terminal: transport_start_terminal, end_terminal: transport_end_terminal, link: transport_link, start_latitude: transport_start_latitude, start_longitude: transport_start_longitude, end_latitude: transport_end_latitude, end_longitude: transport_end_longitude }
       : null,
     accommodation: accommodation_name || accommodation_check_in || accommodation_check_out || accommodation_link
-      ? { name: accommodation_name, check_in: accommodation_check_in, check_out: accommodation_check_out, link: accommodation_link, latitude: accommodation_latitude, longitude: accommodation_longitude }
+      ? { name: accommodation_name, check_in: accommodation_check_in, check_out: accommodation_check_out, link: accommodation_link, image_url: accommodation_image_url, latitude: accommodation_latitude, longitude: accommodation_longitude }
       : null,
     events: events ?? [],
     records: records ?? [],
