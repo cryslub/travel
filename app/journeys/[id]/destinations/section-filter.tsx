@@ -44,7 +44,7 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
       <button
         title={expanded ? 'Collapse sections' : 'Show sections'}
         onClick={() => setExpanded((v) => !v)}
-        className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        className="inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
       >
         {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
       </button>
@@ -73,13 +73,13 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
               {section.name}
             </button>
           ))}
-          <a title="Overview" href={`/journeys/${journeyId}/sections/overview?from=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+          <a title="Overview" href={`/journeys/${journeyId}/sections/overview?from=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
             <AccountTreeOutlinedIcon fontSize="small" />
           </a>
-          <a title="Add section" href={`/journeys/${journeyId}/sections/create?redirectTo=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+          <a title="Add section" href={`/journeys/${journeyId}/sections/create?redirectTo=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className="inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
             <AddIcon fontSize="small" />
           </a>
-          <a title="Manage sections" href={`/journeys/${journeyId}/sections`} className="rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+          <a title="Manage sections" href={`/journeys/${journeyId}/sections`} className="inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white p-1.5 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
             <SettingsOutlinedIcon fontSize="small" />
           </a>
         </>
