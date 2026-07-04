@@ -259,7 +259,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
           {dest.image_url && (
             <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
           )}
-          <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
+          <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
               <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
@@ -293,7 +293,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             </div>
           </div>
 
-          <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
+          <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
               <EditAccommodationButton journeyId={dest.journey_id} destinationId={dest.id} />
@@ -316,7 +316,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             </div>
           </div>
 
-          <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
+          <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
               <CreateEventButton journeyId={dest.journey_id} destinationId={dest.id} />
@@ -358,7 +358,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             />
           )}
 
-          <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
+          <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
               <CreateRecordButton journeyId={dest.journey_id} destinationId={dest.id} />

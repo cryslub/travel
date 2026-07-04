@@ -76,13 +76,18 @@ function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
 function FitBounds({ points, fallback }: { points: [number, number][]; fallback: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    if (points.length === 0) {
-      map.setView(fallback, 10);
-    } else if (points.length === 1) {
-      map.setView(points[0], 10);
-    } else {
-      map.fitBounds(L.latLngBounds(points), { padding: [32, 32] });
+    function fit() {
+      if (points.length === 0) {
+        map.setView(fallback, 10);
+      } else if (points.length === 1) {
+        map.setView(points[0], 10);
+      } else {
+        map.fitBounds(L.latLngBounds(points), { padding: [32, 32] });
+      }
     }
+    fit();
+    const t = setTimeout(() => { map.invalidateSize(); fit(); }, 100);
+    return () => clearTimeout(t);
   }, [map, points, fallback]);
   return null;
 }

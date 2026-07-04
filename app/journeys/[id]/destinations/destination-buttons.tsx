@@ -99,7 +99,7 @@ export function EditTransportButton({ journeyId, destinationId }: { journeyId: s
       type="button"
       title="Edit transport"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit`)}
-      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
@@ -113,7 +113,7 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
       type="button"
       title="Edit accommodation"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit`)}
-      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
