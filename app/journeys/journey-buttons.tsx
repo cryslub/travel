@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import { deleteJourney } from './actions';
 
@@ -36,9 +36,9 @@ export function JourneyButtons({ id }: { id: string }) {
           type="button"
           title="More options"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-full border border-zinc-200 px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          className="rounded-full px-2 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
         >
-          <MoreHorizIcon fontSize="small" />
+          <MoreVertIcon fontSize="small" />
         </button>
         {open && (
           <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">

@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { fetchJourneys } from '@/app/lib/data';
-import { updateJourney } from '../../actions';
+import { updateJourney, getJourneyCountryCodes } from '../../actions';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { CountrySelector } from '@/app/ui/country-selector';
 
 export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/edit'>) {
   const { id } = await props.params;
@@ -53,6 +54,7 @@ export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/e
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <CountrySelector name="countries" defaultValue={journey.countries} onAutoGenerate={getJourneyCountryCodes.bind(null, id)} />
         <div className="flex gap-3">
           <button
             type="submit"

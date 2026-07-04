@@ -1,5 +1,6 @@
 import { createJourney } from '../actions';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { CountrySelector } from '@/app/ui/country-selector';
 
 export default function CreateJourneyPage() {
   return (
@@ -35,6 +36,7 @@ export default function CreateJourneyPage() {
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <CountrySelector name="countries" />
         <div className="flex gap-3">
           <button
             type="submit"

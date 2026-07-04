@@ -17,7 +17,7 @@ export default async function JourneysPage() {
               <div className="flex items-center gap-4">
                 {journey.image_url && (
                   <a href={`/journeys/${journey.id}/destinations`}>
-                    <img src={journey.image_url} alt="" className="w-14 h-14 rounded-md object-cover flex-shrink-0" />
+                    <img src={journey.image_url} alt="" className="w-16 h-16 rounded-md object-cover flex-shrink-0" />
                   </a>
                 )}
                 <div className="flex flex-col">
@@ -28,6 +28,22 @@ export default async function JourneysPage() {
                     </span>
                   )}
                   <a href={`/journeys/${journey.id}/destinations`} className="text-lg font-medium hover:underline">{journey.name}</a>
+                  {journey.countries.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {journey.countries.map((code) => (
+                        <span key={code} className="flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-700 dark:text-zinc-300">
+                          <img
+                            src={`https://flagcdn.com/16x12/${code.toLowerCase()}.png`}
+                            srcSet={`https://flagcdn.com/32x24/${code.toLowerCase()}.png 2x, https://flagcdn.com/48x36/${code.toLowerCase()}.png 3x`}
+                            width={16}
+                            height={12}
+                            alt={code}
+                          />
+                          <span className="font-mono">{code}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <JourneyButtons id={journey.id} />

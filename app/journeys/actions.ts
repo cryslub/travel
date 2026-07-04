@@ -10,7 +10,6 @@ export async function createJourney(formData: FormData) {
   const name = formData.get('name') as string;
   const start_date = (formData.get('start_date') as string) || null;
   const end_date = (formData.get('end_date') as string) || null;
-
   const imageFile = formData.get('image') as File | null;
   let image_url: string | null = null;
   if (imageFile && imageFile.size > 0) {
@@ -19,7 +18,11 @@ export async function createJourney(formData: FormData) {
     image_url = url;
   }
 
-  await sql`INSERT INTO journeys (name, start_date, end_date, image_url, created_time) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, NOW())`;
+  const countries = formData.getAll('countries') as string[];
+  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, created_time) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, NOW()) RETURNING id`;
+  for (const code of countries) {
+    await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
+  }
   redirect('/journeys');
 }
 
@@ -44,7 +47,12 @@ export async function updateJourney(id: string, formData: FormData) {
     imageUrl = currentImageUrl;
   }
 
+  const countries = formData.getAll('countries') as string[];
   await sql`UPDATE journeys SET name = ${name}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl} WHERE id = ${id}`;
+  await sql`DELETE FROM journey_countries WHERE journey_id = ${id}`;
+  for (const code of countries) {
+    await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
+  }
 
   if (shift_destinations && start_date && previous_start_date) {
     const offsetDays = Math.round((new Date(start_date).getTime() - new Date(previous_start_date).getTime()) / 86400000);
@@ -56,6 +64,33 @@ export async function updateJourney(id: string, formData: FormData) {
   }
 
   redirect('/journeys');
+}
+
+export async function getJourneyCountryCodes(journeyId: string): Promise<string[]> {
+  const locations = await sql<{ latitude: number; longitude: number }[]>`
+    SELECT DISTINCT l.latitude, l.longitude
+    FROM destinations d
+    JOIN locations l ON l.id = d.location_id
+    WHERE d.journey_id = ${journeyId}
+      AND l.latitude IS NOT NULL AND l.longitude IS NOT NULL
+  `;
+
+  const codes = new Set<string>();
+  for (const { latitude, longitude } of locations) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+        { headers: { 'User-Agent': 'travel-app/1.0' }, cache: 'force-cache' },
+      );
+      const data = await res.json();
+      if (data?.address?.country_code) {
+        codes.add((data.address.country_code as string).toUpperCase());
+      }
+    } catch {
+      // skip failed geocoding
+    }
+  }
+  return [...codes];
 }
 
 export async function deleteJourney(id: string) {

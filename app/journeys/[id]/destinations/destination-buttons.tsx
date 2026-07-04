@@ -66,7 +66,7 @@ export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: str
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
