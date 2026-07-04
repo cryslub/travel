@@ -304,15 +304,19 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
                   {dest.accommodation!.image_url
                     ? <img src={dest.accommodation!.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
                     : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>}
-                  {dest.accommodation.link
-                    ? <a href={dest.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.accommodation.name}</a>
-                    : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.accommodation.name}</span>}
+                  <div className="flex flex-col gap-0.5">
+                    {dest.accommodation.link
+                      ? <a href={dest.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.accommodation.name}</a>
+                      : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.accommodation.name}</span>}
+                    {(dest.accommodation.check_in || dest.accommodation.check_out) && (
+                      <div className="flex gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+                        {dest.accommodation.check_in && <span>Check-in: {new Date(`1970-01-01T${dest.accommodation.check_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
+                        {dest.accommodation.check_out && <span>Check-out: {new Date(`1970-01-01T${dest.accommodation.check_out}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-              <div className="flex gap-4 text-zinc-500 dark:text-zinc-400">
-                {dest.accommodation?.check_in && <span>Check-in: {new Date(`1970-01-01T${dest.accommodation.check_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-                {dest.accommodation?.check_out && <span>Check-out: {new Date(`1970-01-01T${dest.accommodation.check_out}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-              </div>
             </div>
           </div>
 
