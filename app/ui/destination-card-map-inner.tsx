@@ -11,7 +11,7 @@ import 'leaflet.markercluster';
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 type MarkerCategory = 'event' | 'accommodation' | 'transport';
-type MarkerDef = { lat: number; lon: number; label: string | null; category: MarkerCategory; eventType?: string | null; transportType?: string | null };
+type MarkerDef = { lat: number; lon: number; label: string | null; category: MarkerCategory; eventType?: string | null; transportType?: string | null; imageUrl?: string | null };
 
 const categoryColors: Record<MarkerCategory, string> = {
   event: '#3b82f6',
@@ -35,7 +35,15 @@ const svgPaths: Record<string, string> = {
   Combined: 'M19.71 9.71 22 12V6h-6l2.29 2.29-4.17 4.17c-.39.39-1.02.39-1.41 0l-1.17-1.17c-1.17-1.17-3.07-1.17-4.24 0L2 16.59 3.41 18l5.29-5.29c.39-.39 1.02-.39 1.41 0l1.17 1.17c1.17 1.17 3.07 1.17 4.24 0z',
 };
 
-function createIcon(category: MarkerCategory, eventType?: string | null, transportType?: string | null) {
+function createIcon(category: MarkerCategory, eventType?: string | null, transportType?: string | null, imageUrl?: string | null) {
+  if (imageUrl) {
+    return L.divIcon({
+      html: `<div style="width:44px;height:44px;border-radius:4px;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.5);overflow:hidden;"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
+      className: '',
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
+    });
+  }
   const color = categoryColors[category];
   let pathKey: string;
   if (category === 'event' && eventType) pathKey = eventType;
@@ -55,7 +63,7 @@ function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
   useEffect(() => {
     const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     markers.forEach((m) => {
-      const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType) });
+      const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType, m.imageUrl) });
       if (m.label) marker.bindPopup(m.label);
       marker.addTo(cluster);
     });
@@ -115,8 +123,8 @@ export function DestinationCardMapInner({
 }: {
   lat: number;
   lon: number;
-  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null }[];
-  accommodationMarker?: { lat: number; lon: number; name: string | null } | null;
+  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null }[];
+  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null } | null;
   transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
   transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
 }) {
@@ -129,8 +137,8 @@ export function DestinationCardMapInner({
   }, [isFullscreen]);
 
   const markers = useMemo<MarkerDef[]>(() => [
-    ...eventMarkers.map((m) => ({ lat: m.lat, lon: m.lon, label: m.name, category: 'event' as MarkerCategory, eventType: m.type })),
-    ...(accommodationMarker ? [{ lat: accommodationMarker.lat, lon: accommodationMarker.lon, label: accommodationMarker.name, category: 'accommodation' as MarkerCategory }] : []),
+    ...eventMarkers.map((m) => ({ lat: m.lat, lon: m.lon, label: m.name, category: 'event' as MarkerCategory, eventType: m.type, imageUrl: m.image_url })),
+    ...(accommodationMarker ? [{ lat: accommodationMarker.lat, lon: accommodationMarker.lon, label: accommodationMarker.name, category: 'accommodation' as MarkerCategory, imageUrl: accommodationMarker.image_url }] : []),
     ...(transportEndMarker ? [{ lat: transportEndMarker.lat, lon: transportEndMarker.lon, label: transportEndMarker.name, category: 'transport' as MarkerCategory, transportType: transportEndMarker.type }] : []),
     ...(transportStartMarker ? [{ lat: transportStartMarker.lat, lon: transportStartMarker.lon, label: transportStartMarker.name, category: 'transport' as MarkerCategory, transportType: transportStartMarker.type }] : []),
   ], [eventMarkers, accommodationMarker, transportEndMarker, transportStartMarker]);

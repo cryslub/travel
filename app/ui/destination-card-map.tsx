@@ -14,8 +14,8 @@ export function DestinationCardMap({
 }: {
   lat: number;
   lon: number;
-  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null }[];
-  accommodationMarker?: { lat: number; lon: number; name: string | null } | null;
+  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null }[];
+  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null } | null;
   transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
   transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
 }) {

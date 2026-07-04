@@ -127,7 +127,7 @@ export function CreateEventButton({ journeyId, destinationId }: { journeyId: str
       type="button"
       title="Add event"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/create`)}
-      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
     </button>
@@ -173,7 +173,7 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className="rounded-full px-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
@@ -223,7 +223,7 @@ export function CreateRecordButton({ journeyId, destinationId }: { journeyId: st
       type="button"
       title="Add record"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/create`)}
-      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
     </button>
@@ -255,7 +255,7 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className="rounded-full px-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>

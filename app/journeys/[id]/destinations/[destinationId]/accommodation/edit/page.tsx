@@ -1,6 +1,7 @@
 ﻿import { fetchAccommodationByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { upsertAccommodation } from '@/app/journeys/[id]/destinations/actions';
 import { Location } from '@/app/ui/location-autocomplete';
+import { ImageUpload } from '@/app/ui/image-upload';
 
 export default async function EditAccommodationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/accommodation/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
@@ -29,6 +30,7 @@ export default async function EditAccommodationPage(props: PageProps<'/journeys/
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <ImageUpload currentImageUrl={accommodation?.image_url ?? null} />
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
           <Location

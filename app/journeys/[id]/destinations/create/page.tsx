@@ -1,6 +1,7 @@
 import { createDestination } from '@/app/journeys/[id]/destinations/actions';
 import { fetchJourneyById, fetchLatestDestinationStartDateByJourneyId, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { Location } from '@/app/ui/location-autocomplete';
+import { ImageUpload } from '@/app/ui/image-upload';
 
 export default async function CreateDestinationPage(props: PageProps<'/journeys/[id]/destinations/create'>) {
   const { id } = await props.params;
@@ -30,6 +31,7 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <ImageUpload />
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
           <Location name="location" placeholder="Search location…" syncInputId="name" />

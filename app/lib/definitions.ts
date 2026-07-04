@@ -14,6 +14,8 @@ export type Journey = {
   id: string;
   name: string;
   start_date: string | null;
+  end_date: string | null;
+  image_url: string | null;
   created_time: string | null;
 };
 
@@ -44,6 +46,7 @@ export type Destination = {
   journey_id: string | null;
   section_id: string | null;
   location_id: string | null;
+  image_url: string | null;
   created_time: string | null;
 };
 
@@ -54,6 +57,7 @@ export type Accommodation = {
   check_in: string | null;
   check_out: string | null;
   link: string | null;
+  image_url: string | null;
   location_id: string | null;
 };
 
@@ -66,6 +70,7 @@ export type Event = {
   end_time: string | null;
   link: string | null;
   memo: string | null;
+  image_url: string | null;
   created_time: string | null;
   location_id: string | null;
 };

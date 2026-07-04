@@ -3,6 +3,7 @@ import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
+import { SummaryList } from './summary-list';
 import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinations-calendar-client';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
@@ -50,7 +51,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const { id } = await props.params;
   const { section: sectionFilter, view: viewParam } = await props.searchParams;
   const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
-  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : 'cards';
+  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : 'summary';
   const journeys = await fetchJourneys();
   const journey = journeys.find((j) => j.id === id);
 
@@ -107,6 +108,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               check_in: d.accommodation.check_in,
               check_out: d.accommodation.check_out,
               link: d.accommodation.link,
+              image_url: d.accommodation.image_url,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
             } : null,
@@ -117,6 +119,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               start_time: e.start_time,
               end_time: e.end_time,
               link: e.link,
+              image_url: e.image_url,
               latitude: e.latitude ?? null,
               longitude: e.longitude ?? null,
             })),
@@ -141,6 +144,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             journey_id: id,
             start_date: d.start_date,
             section_name: d.section_name,
+            image_url: d.image_url,
             transport: d.transport,
             accommodation: d.accommodation,
             events: d.events,
@@ -152,6 +156,25 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
           </div>
         );
       })()}
+      {currentView === 'summary' && (
+        <SummaryList
+          journeyId={id}
+          destinations={destinations.map((d) => ({
+            id: d.id,
+            name: d.name,
+            lat: d.latitude ?? null,
+            lon: d.longitude ?? null,
+            journey_id: id,
+            start_date: d.start_date,
+            section_name: d.section_name,
+            image_url: d.image_url,
+            transport: d.transport,
+            accommodation: d.accommodation,
+            events: d.events,
+            records: d.records,
+          }))}
+        />
+      )}
       <div className={`flex justify-center ${currentView !== 'cards' ? 'hidden' : ''}`}>
       <ul className="flex flex-row flex-wrap gap-4">
         {destinations.map((destination, index) => (
@@ -170,6 +193,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               </div>
               <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
             </div>
+            {destination.image_url && (
+              <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
+            )}
             <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-800">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
@@ -222,9 +248,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               <div className="flex flex-col gap-1 mt-2">
                 {destination.accommodation?.name && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0">
-                      <HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" />
-                    </div>
+                    {destination.accommodation!.image_url
+                      ? <img src={destination.accommodation!.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                      : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>}
                     {destination.accommodation.link
                       ? <a href={destination.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.accommodation.name}</a>
                       : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.accommodation.name}</span>
@@ -247,22 +273,28 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        {(() => { const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
-                        {activity.link
-                          ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
-                          : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
-                        }
-                      </div>
-                      <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                        {activity.start_time && activity.end_time && <span>~</span>}
-                        {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                        {activity.start_time && activity.end_time && (() => {
-                          const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
-                          const h = Math.floor(Math.abs(diff) / 60);
-                          const m = Math.abs(diff) % 60;
-                          return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
-                        })()}
+                        {activity.image_url
+                          ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                          : (() => { const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
+                        <div className="flex flex-col gap-0.5">
+                          {activity.link
+                            ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
+                            : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
+                          }
+                          {(activity.start_time || activity.end_time) && (
+                            <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                              {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
+                              {activity.start_time && activity.end_time && <span>~</span>}
+                              {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
+                              {activity.start_time && activity.end_time && (() => {
+                                const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
+                                const h = Math.floor(Math.abs(diff) / 60);
+                                const m = Math.abs(diff) % 60;
+                                return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
+                              })()}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <MoreOptionsEventButton journeyId={id} destinationId={destination.id} eventId={activity.id} />
@@ -276,10 +308,10 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 lon={destination.longitude}
                 eventMarkers={destination.events
                   .filter((e) => e.latitude != null && e.longitude != null)
-                  .map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type }))}
+                  .map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
                 accommodationMarker={
                   destination.accommodation?.latitude != null && destination.accommodation?.longitude != null
-                    ? { lat: destination.accommodation.latitude, lon: destination.accommodation.longitude, name: destination.accommodation.name }
+                    ? { lat: destination.accommodation.latitude, lon: destination.accommodation.longitude, name: destination.accommodation.name, image_url: destination.accommodation.image_url }
                     : null
                 }
                 transportEndMarker={

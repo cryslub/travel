@@ -36,17 +36,21 @@ export function ImportSectionsForm({
     });
   }
 
+  const NONE_ID = '__none__';
+  const totalSections = selectedJourney ? selectedJourney.sections.length + 1 : 0;
+
   function toggleAll() {
     if (!selectedJourney) return;
-    if (checked.size === selectedJourney.sections.length) {
+    if (checked.size === totalSections) {
       setChecked(new Set());
     } else {
-      setChecked(new Set(selectedJourney.sections.map((s) => s.id)));
+      setChecked(new Set([NONE_ID, ...selectedJourney.sections.map((s) => s.id)]));
     }
   }
 
   return (
     <form action={action}>
+      {selectedJourneyId && <input type="hidden" name="source_journey_id" value={selectedJourneyId} />}
       {/* Journey list */}
       <div className="mb-6">
         <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">Select a journey to import sections from</p>
@@ -81,37 +85,44 @@ export function ImportSectionsForm({
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Select sections to import</p>
-            {selectedJourney.sections.length > 0 && (
-              <button
-                type="button"
-                onClick={toggleAll}
-                className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-              >
-                {checked.size === selectedJourney.sections.length ? 'Deselect all' : 'Select all'}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={toggleAll}
+              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              {checked.size === totalSections ? 'Deselect all' : 'Select all'}
+            </button>
           </div>
-          {selectedJourney.sections.length === 0 ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">This journey has no sections.</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {selectedJourney.sections.map((section) => (
-                <li key={section.id}>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700">
-                    <input
-                      type="checkbox"
-                      name="section_id"
-                      value={section.id}
-                      checked={checked.has(section.id)}
-                      onChange={() => toggleSection(section.id)}
-                      className="h-4 w-4 accent-black dark:accent-white"
-                    />
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{section.name}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="flex flex-col gap-2">
+            <li>
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700">
+                <input
+                  type="checkbox"
+                  name="section_id"
+                  value={NONE_ID}
+                  checked={checked.has(NONE_ID)}
+                  onChange={() => toggleSection(NONE_ID)}
+                  className="h-4 w-4 accent-black dark:accent-white"
+                />
+                <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">None</span>
+              </label>
+            </li>
+            {selectedJourney.sections.map((section) => (
+              <li key={section.id}>
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700">
+                  <input
+                    type="checkbox"
+                    name="section_id"
+                    value={section.id}
+                    checked={checked.has(section.id)}
+                    onChange={() => toggleSection(section.id)}
+                    className="h-4 w-4 accent-black dark:accent-white"
+                  />
+                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{section.name}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import { createJourney } from '../actions';
+import { ImageUpload } from '@/app/ui/image-upload';
 
 export default function CreateJourneyPage() {
   return (
@@ -15,11 +16,21 @@ export default function CreateJourneyPage() {
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <ImageUpload />
         <div className="flex flex-col gap-2">
           <label htmlFor="start_date" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Start Date</label>
           <input
             id="start_date"
             name="start_date"
+            type="date"
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="end_date" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">End Date</label>
+          <input
+            id="end_date"
+            name="end_date"
             type="date"
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />

@@ -79,6 +79,7 @@ export type ModalDest = {
   journey_id: string;
   start_date: string | null;
   section_name: string | null;
+  image_url: string | null;
   transport: {
     type: string | null;
     start_time: string | null;
@@ -96,10 +97,11 @@ export type ModalDest = {
     check_in: string | null;
     check_out: string | null;
     link: string | null;
+    image_url: string | null;
     latitude: number | null;
     longitude: number | null;
   } | null;
-  events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; latitude: number | null; longitude: number | null }[];
+  events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; image_url: string | null; latitude: number | null; longitude: number | null }[];
   records: { id: string; name: string; type: string | null; link: string | null; memo: string | null }[];
 };
 
@@ -254,15 +256,8 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
         </div>
 
         <div className="flex flex-col gap-3 overflow-y-auto p-4">
-          {dest.lat != null && dest.lon != null && (
-            <DestinationCardMap
-              lat={dest.lat}
-              lon={dest.lon}
-              eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type }))}
-              accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name } : null}
-              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
-              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
-            />
+          {dest.image_url && (
+            <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
           )}
           <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
             <div className="flex items-center justify-between">
@@ -306,7 +301,9 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             <div className="mt-2 flex flex-col gap-1">
               {dest.accommodation?.name && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>
+                  {dest.accommodation!.image_url
+                    ? <img src={dest.accommodation!.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                    : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>}
                   {dest.accommodation.link
                     ? <a href={dest.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.accommodation.name}</a>
                     : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.accommodation.name}</span>}
@@ -327,26 +324,39 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             <div className="mt-2 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700">
               {dest.events.map((activity) => (
                 <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                      {(() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
+                  <div className="flex items-center gap-2">
+                    {activity.image_url
+                      ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                      : (() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
+                    <div className="flex flex-col gap-0.5">
                       {activity.link
                         ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
                         : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>}
+                      {(activity.start_time || activity.end_time) && (
+                        <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                          {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
+                          {activity.start_time && activity.end_time && <span>~</span>}
+                          {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
+                        </div>
+                      )}
                     </div>
-                    {(activity.start_time || activity.end_time) && (
-                      <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                        {activity.start_time && activity.end_time && <span>~</span>}
-                        {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                      </div>
-                    )}
                   </div>
                   <MoreOptionsEventButton journeyId={dest.journey_id} destinationId={dest.id} eventId={activity.id} />
                 </div>
               ))}
             </div>
           </div>
+
+          {dest.lat != null && dest.lon != null && (
+            <DestinationCardMap
+              lat={dest.lat}
+              lon={dest.lon}
+              eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
+              accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name, image_url: dest.accommodation.image_url } : null}
+              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
+              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
+            />
+          )}
 
           <div className="rounded-md bg-zinc-50 px-4 py-3 text-sm dark:bg-zinc-900">
             <div className="flex items-center justify-between">

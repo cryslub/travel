@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -32,14 +31,6 @@ export function JourneyButtons({ id }: { id: string }) {
 
   return (
     <div className="flex gap-2">
-      <button
-        type="button"
-        title="Destinations"
-        onClick={() => router.push(`/journeys/${id}/destinations`)}
-        className="rounded-full border border-zinc-200 px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-      >
-        <LocationOnOutlinedIcon fontSize="small" />
-      </button>
       <div ref={menuRef} className="relative">
         <button
           type="button"

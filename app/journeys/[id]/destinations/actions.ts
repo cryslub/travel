@@ -2,6 +2,7 @@
 
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
+import { put } from '@vercel/blob';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -20,7 +21,15 @@ export async function createDestination(formData: FormData) {
     location_id = loc[0].id;
   }
 
-  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, NOW())`;
+  const imageFile = formData.get('image') as File | null;
+  let image_url: string | null = null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+    const { url } = await put(`destinations/new-${Date.now()}${ext}`, imageFile, { access: 'public' });
+    image_url = url;
+  }
+
+  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, ${image_url}, NOW())`;
 
   redirect(journey_id ? `/journeys/${journey_id}/destinations` : '/destinations');
 }
@@ -48,7 +57,21 @@ export async function updateDestination(id: string, formData: FormData) {
     }
   }
 
-  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id} WHERE id = ${id}`;
+  const imageFile = formData.get('image') as File | null;
+  const removeImage = formData.get('remove_image') === '1';
+  const currentImageUrl = (formData.get('current_image_url') as string) || null;
+  let imageUrl: string | null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+    const { url } = await put(`destinations/${id}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+    imageUrl = url;
+  } else if (removeImage) {
+    imageUrl = null;
+  } else {
+    imageUrl = currentImageUrl;
+  }
+
+  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${id}`;
 
   if ((shift_dates || shift_following) && start_date && previous_start_date) {
     const offsetDays = Math.round((new Date(start_date).getTime() - new Date(previous_start_date).getTime()) / 86400000);
@@ -93,7 +116,15 @@ export async function createEvent(destinationId: string, formData: FormData) {
     location_id = loc[0].id;
   }
 
-  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${location_id}, NOW())`;
+  const imageFile = formData.get('image') as File | null;
+  let imageUrl: string | null = null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+    const { url } = await put(`events/new-${Date.now()}${ext}`, imageFile, { access: 'public' });
+    imageUrl = url;
+  }
+
+  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, NOW())`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -121,7 +152,21 @@ export async function updateEvent(eventId: string, _destinationId: string, formD
     }
   }
 
-  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id} WHERE id = ${eventId}`;
+  const imageFile = formData.get('image') as File | null;
+  const removeImage = formData.get('remove_image') === '1';
+  const currentImageUrl = (formData.get('current_image_url') as string) || null;
+  let imageUrl: string | null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+    const { url } = await put(`events/${eventId}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+    imageUrl = url;
+  } else if (removeImage) {
+    imageUrl = null;
+  } else {
+    imageUrl = currentImageUrl;
+  }
+
+  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${eventId}`;
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -153,10 +198,24 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
     }
   }
 
+  const imageFile = formData.get('image') as File | null;
+  const removeImage = formData.get('remove_image') === '1';
+  const currentImageUrl = (formData.get('current_image_url') as string) || null;
+  let imageUrl: string | null;
+  if (imageFile && imageFile.size > 0) {
+    const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+    const { url } = await put(`accommodations/${destinationId}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+    imageUrl = url;
+  } else if (removeImage) {
+    imageUrl = null;
+  } else {
+    imageUrl = currentImageUrl;
+  }
+
   await sql`
-    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id)
-    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${location_id})
-    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, location_id = ${location_id}
+    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, image_url, location_id)
+    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${imageUrl}, ${location_id})
+    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, image_url = ${imageUrl}, location_id = ${location_id}
   `;
 
   redirect(`/journeys/${journey_id}/destinations`);
