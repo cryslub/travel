@@ -23,8 +23,8 @@ export default async function JourneysPage() {
                 <div className="flex flex-col">
                   {journey.start_date && (
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {new Date(journey.start_date).toLocaleDateString()}
-                      {journey.end_date && <> ~ {new Date(journey.end_date).toLocaleDateString()}</>}
+                      {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                      {journey.end_date && <> ~ {new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}</>}
                     </span>
                   )}
                   <a href={`/journeys/${journey.id}/destinations`} className="text-lg font-medium hover:underline">{journey.name}</a>
