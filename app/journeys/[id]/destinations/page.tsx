@@ -130,7 +130,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               link: r.link,
               memo: r.memo,
             })),
-            image_url: null
+            image_url: d.image_url,
           }))}
         />
       )}
