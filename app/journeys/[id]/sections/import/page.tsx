@@ -1,15 +1,19 @@
 import { fetchJourneys, fetchSectionsByJourneyId, fetchJourneyById } from '@/app/lib/data';
 import { importSections } from '../actions';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ImportSectionsForm } from './import-sections-form';
+import { getServerSession } from 'next-auth';
 
 export default async function ImportSectionsPage(props: PageProps<'/journeys/[id]/sections/import'>) {
   const { id: journeyId } = await props.params;
-  const journey = await fetchJourneyById(journeyId);
+  const session = await getServerSession();
+  if (!session?.user?.email) redirect('/');
 
+  const journey = await fetchJourneyById(journeyId);
   if (!journey) notFound();
 
-  const allJourneys = await fetchJourneys();
+  const signInType = session.user.sign_in_type ?? 'Google';
+  const allJourneys = await fetchJourneys(session.user.email, signInType);
   const otherJourneys = allJourneys.filter((j) => j.id !== journeyId);
 
   const journeysWithSections = await Promise.all(
