@@ -1,4 +1,4 @@
-import { fetchDestinationsByJourneyId, fetchJourneys, fetchSectionsByJourneyId } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
@@ -52,8 +52,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const { section: sectionFilter, view: viewParam } = await props.searchParams;
   const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
   const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : 'summary';
-  const journeys = await fetchJourneys();
-  const journey = journeys.find((j) => j.id === id);
+  const journey = await fetchJourneyById(id);
 
   if (!journey) notFound();
 
