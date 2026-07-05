@@ -188,7 +188,7 @@ async function createRecords() {
 async function createJourneyCoutnries() {
 
   await sql`
-    DROP TABLE IF EXISTS records ;
+    DROP TABLE IF EXISTS journey_countries ;
   `;
 
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -197,6 +197,24 @@ async function createJourneyCoutnries() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE,
       country_code VARCHAR(6)
+    );
+  `;
+
+
+}
+
+async function createUsers() {
+
+  await sql`
+    DROP TABLE IF EXISTS users ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      sign_in_type TEXT,
+      email TEXT
     );
   `;
 

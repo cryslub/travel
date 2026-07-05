@@ -170,13 +170,15 @@ export async function fetchRecordsByDestinationId(destinationId: string): Promis
   return data;
 }
 
-export async function fetchJourneys(): Promise<Journey[]> {
+export async function fetchJourneys(userEmail: string, signInType: string): Promise<Journey[]> {
   noStore();
   const data = await sql<Journey[]>`
     SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time,
       array_remove(array_agg(jc.country_code ORDER BY jc.country_code), NULL) AS countries
     FROM journeys j
+    JOIN users u ON u.id = j.user_id
     LEFT JOIN journey_countries jc ON jc.journey_id = j.id
+    WHERE u.email = ${userEmail} AND u.sign_in_type = ${signInType}
     GROUP BY j.id
     ORDER BY j.start_date DESC NULLS LAST, j.created_time DESC
   `;

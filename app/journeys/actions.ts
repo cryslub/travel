@@ -3,6 +3,7 @@
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { put } from '@vercel/blob';
+import { getServerSession } from 'next-auth';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -18,8 +19,13 @@ export async function createJourney(formData: FormData) {
     image_url = url;
   }
 
+  const session = await getServerSession();
+  const userEmail = session?.user?.email ?? null;
+  const signInType = (session?.user as any)?.sign_in_type ?? null;
+  const [user] = await sql<{ id: string }[]>`SELECT id FROM users WHERE email = ${userEmail} AND sign_in_type = ${signInType} LIMIT 1`;
+
   const countries = formData.getAll('countries') as string[];
-  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, created_time) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, NOW()) RETURNING id`;
+  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, created_time, user_id) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, NOW(), ${user?.id ?? null}) RETURNING id`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
   }

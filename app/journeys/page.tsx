@@ -1,8 +1,13 @@
 import { fetchJourneys } from '@/app/lib/data';
 import { JourneyButtons, CreateJourneyButton } from './journey-buttons';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 
 export default async function JourneysPage() {
-  const journeys = await fetchJourneys();
+  const session = await getServerSession();
+  if (!session?.user?.email) redirect('/');
+  const signInType = session.user.sign_in_type ?? 'Google';
+  const journeys = await fetchJourneys(session.user.email, signInType);
 
   return (
     <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">

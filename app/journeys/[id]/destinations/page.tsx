@@ -67,7 +67,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     : allDestinations;
 
   return (
-    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-screen flex flex-col pt-12' : 'py-12 min-h-screen'}`}>
+    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-screen flex flex-col pt-6' : 'pt-6 pb-12 min-h-screen'}`}>
       <div className="w-full mb-4">
         <div className="flex items-center justify-between mb-3">
           <BackToJourneysButton />

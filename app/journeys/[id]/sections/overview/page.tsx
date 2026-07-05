@@ -34,12 +34,8 @@ export default async function SectionsOverviewPage(props: PageProps<'/journeys/[
   return (
     <main className="min-h-screen bg-zinc-100 dark:bg-zinc-900 px-4 py-12 min-w-[350px]">
       <div className="max-w-3xl mx-auto">
-        <div className="flex items-end justify-between mb-8">
-          <div className="flex flex-col">
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
-            <h1 className="text-3xl font-semibold">Overview</h1>
-          </div>
-          <div className="flex gap-2">
+        <div className="mb-8">
+          <div className="flex justify-between mb-4">
             <a
               href={backHref}
               title="Go back"
@@ -58,6 +54,10 @@ export default async function SectionsOverviewPage(props: PageProps<'/journeys/[
                 <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
               </svg>
             </a>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
+            <h1 className="text-3xl font-semibold">Overview</h1>
           </div>
         </div>
         <SectionsAccordion sectionsWithDests={sectionsWithDests} journeyId={journeyId} />
