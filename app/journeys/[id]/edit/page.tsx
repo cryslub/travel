@@ -1,13 +1,12 @@
 import { notFound } from 'next/navigation';
-import { fetchJourneys } from '@/app/lib/data';
+import { fetchJourneyById } from '@/app/lib/data';
 import { updateJourney, getJourneyCountryCodes } from '../../actions';
 import { ImageUpload } from '@/app/ui/image-upload';
 import { CountrySelector } from '@/app/ui/country-selector';
 
 export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/edit'>) {
   const { id } = await props.params;
-  const journeys = await fetchJourneys();
-  const journey = journeys.find((j) => j.id === id);
+  const journey = await fetchJourneyById(id);
 
   if (!journey) notFound();
 
