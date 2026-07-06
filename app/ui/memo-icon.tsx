@@ -11,6 +11,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const btnRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLSpanElement>(null);
 
   const show = clicked || hovered;
 
@@ -27,6 +28,18 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
     window.addEventListener(MEMO_OPEN_EVENT, onOtherOpen);
     return () => window.removeEventListener(MEMO_OPEN_EVENT, onOtherOpen);
   }, [id]);
+
+  useEffect(() => {
+    if (!show) return;
+    function onTouchOutside(e: TouchEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setClicked(false);
+        setHovered(false);
+      }
+    }
+    document.addEventListener('touchstart', onTouchOutside);
+    return () => document.removeEventListener('touchstart', onTouchOutside);
+  }, [show]);
 
   function broadcast() {
     window.dispatchEvent(new CustomEvent<string>(MEMO_OPEN_EVENT, { detail: id }));
@@ -45,7 +58,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
   }
 
   return (
-    <span className={`relative flex-shrink-0${className ? ` ${className}` : ''}`}>
+    <span ref={containerRef} className={`relative flex-shrink-0${className ? ` ${className}` : ''}`}>
       <button
         ref={btnRef}
         type="button"
