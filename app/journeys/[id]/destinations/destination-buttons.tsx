@@ -41,10 +41,14 @@ export function EditDestinationButton({ journeyId, id }: { journeyId: string; id
   );
 }
 
+const MENU_H = 84;
+
 export function MoreOptionsDestinationButton({ journeyId, id, className }: { journeyId: string; id: string; className?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -53,6 +57,17 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  }
 
   async function handleDelete() {
     setOpen(false);
@@ -63,15 +78,19 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
   return (
     <div ref={ref} className="relative">
       <button
+        ref={btnRef}
         type="button"
         title="More options"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className={`rounded-full py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ${className ?? 'px-1.5'}`}
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && (
-        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+      {open && menuPos && (
+        <div
+          className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+          style={{ top: menuPos.top, right: menuPos.right }}
+        >
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${id}/edit`); }}
@@ -152,6 +171,8 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -160,6 +181,17 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  }
 
   async function handleDelete() {
     setOpen(false);
@@ -170,15 +202,19 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
   return (
     <div ref={ref} className="relative ml-1">
       <button
+        ref={btnRef}
         type="button"
         title="More options"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && (
-        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+      {open && menuPos && (
+        <div
+          className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+          style={{ top: menuPos.top, right: menuPos.right }}
+        >
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`); }}
@@ -234,6 +270,8 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -242,6 +280,17 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  }
 
   async function handleDelete() {
     setOpen(false);
@@ -252,15 +301,19 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
   return (
     <div ref={ref} className="relative ml-1">
       <button
+        ref={btnRef}
         type="button"
         title="More options"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && (
-        <div className="absolute right-0 z-[1001] mt-1 w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+      {open && menuPos && (
+        <div
+          className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+          style={{ top: menuPos.top, right: menuPos.right }}
+        >
           <button
             type="button"
             onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/${recordId}/edit`); }}
