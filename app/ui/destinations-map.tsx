@@ -30,6 +30,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
+import { MemoIcon } from '@/app/ui/memo-icon';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -78,6 +79,7 @@ export type ModalDest = {
     start_terminal: string | null;
     end_terminal: string | null;
     link: string | null;
+    memo: string | null;
     start_latitude: number | null;
     start_longitude: number | null;
     end_latitude: number | null;
@@ -91,6 +93,7 @@ export type ModalDest = {
     check_out: string | null;
     link: string | null;
     image_url: string | null;
+    memo: string | null;
     latitude: number | null;
     longitude: number | null;
   } | null;
@@ -268,7 +271,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
                 const label = dest.transport!.link
                   ? <a href={dest.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.transport!.type}</a>
                   : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.transport!.type}</span>;
-                return <div className="flex items-center gap-2">{Icon && <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>}{label}</div>;
+                return <div className="flex items-center gap-2">{Icon && <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>}{label}{dest.transport!.memo && <MemoIcon memo={dest.transport!.memo} />}</div>;
               })()}
               <div className="flex gap-3 text-zinc-500 dark:text-zinc-400">
                 {dest.transport?.start_time && <span>{dest.transport.start_time.split('T')[1]?.slice(0, 5) ?? dest.transport.start_time.slice(0, 5)}</span>}

@@ -215,6 +215,7 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
   const check_in = (formData.get('check_in') as string) || null;
   const check_out = (formData.get('check_out') as string) || null;
   const link = formData.get('link') as string | null;
+  const memo = (formData.get('memo') as string) || null;
   const journey_id = formData.get('journey_id') as string;
   const existing_location_id = (formData.get('location_id') as string) || null;
   const location_name = (formData.get('location_name') as string) || null;
@@ -261,9 +262,9 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
   }
 
   await sql`
-    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, image_url, location_id, price_id)
-    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${imageUrl}, ${location_id}, ${final_price_id})
-    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, image_url = ${imageUrl}, location_id = ${location_id}, price_id = ${final_price_id}
+    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, memo, image_url, location_id, price_id)
+    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${final_price_id})
+    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, memo = ${memo}, image_url = ${imageUrl}, location_id = ${location_id}, price_id = ${final_price_id}
   `;
 
   await updateDestinationTotalPrice(destinationId);
@@ -308,6 +309,7 @@ export async function upsertTransport(destinationId: string, formData: FormData)
   const start_terminal = (formData.get('start_terminal') as string) || null;
   const end_terminal = (formData.get('end_terminal') as string) || null;
   const link = formData.get('link') as string | null;
+  const memo = (formData.get('memo') as string) || null;
   const journey_id = formData.get('journey_id') as string;
   const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
   const price_currency = (formData.get('price_currency') as string) || null;
@@ -355,9 +357,9 @@ export async function upsertTransport(destinationId: string, formData: FormData)
   }
 
   await sql`
-    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link, start_location_id, end_location_id, price_id)
-    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${start_location_id}, ${end_location_id}, ${final_price_id})
-    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}, price_id = ${final_price_id}
+    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link, memo, start_location_id, end_location_id, price_id)
+    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${memo}, ${start_location_id}, ${end_location_id}, ${final_price_id})
+    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, memo = ${memo}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}, price_id = ${final_price_id}
   `;
 
   await updateDestinationTotalPrice(destinationId);

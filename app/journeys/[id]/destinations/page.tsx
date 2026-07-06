@@ -6,6 +6,7 @@ import { EventItem } from './event-item';
 import { AccommodationItem } from './accommodation-item';
 import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
+import { MemoIcon } from '@/app/ui/memo-icon';
 import { SummaryList } from './summary-list';
 import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinations-calendar-client';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
@@ -99,6 +100,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               start_longitude: d.transport.start_longitude,
               end_latitude: d.transport.end_latitude,
               end_longitude: d.transport.end_longitude,
+              memo: d.transport.memo,
               price: d.transport.price ?? null,
               price_currency: d.transport.price_currency ?? null,
             } : null,
@@ -108,6 +110,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               check_out: d.accommodation.check_out,
               link: d.accommodation.link,
               image_url: d.accommodation.image_url,
+              memo: d.accommodation.memo,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
             } : null,
@@ -227,6 +230,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                         </div>
                       )}
                       {label}
+                      {destination.transport!.memo && <MemoIcon memo={destination.transport!.memo} />}
                     </div>
                   );
                 })()}

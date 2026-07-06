@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
+import { MemoIcon } from '@/app/ui/memo-icon';
 
 type Accommodation = {
   name: string | null;
@@ -9,6 +10,7 @@ type Accommodation = {
   image_url?: string | null;
   check_in?: string | null;
   check_out?: string | null;
+  memo?: string | null;
   price?: number | null;
   price_currency?: string | null;
 };
@@ -39,9 +41,12 @@ export function AccommodationItem({ accommodation }: { accommodation: Accommodat
             </div>
           )}
         <div className="flex flex-col gap-0.5">
-          {accommodation.link
-            ? <a href={accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{accommodation.name}</a>
-            : <span className="font-medium text-zinc-700 dark:text-zinc-300">{accommodation.name}</span>}
+          <div className="flex items-center gap-1">
+            {accommodation.link
+              ? <a href={accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{accommodation.name}</a>
+              : <span className="font-medium text-zinc-700 dark:text-zinc-300">{accommodation.name}</span>}
+            {accommodation.memo && <MemoIcon memo={accommodation.memo} />}
+          </div>
           {(accommodation.check_in || accommodation.check_out) && (
             <div className="flex gap-3 text-xs text-zinc-500 dark:text-zinc-400">
               {accommodation.check_in && <span>Check-in: {formatTime(accommodation.check_in)}</span>}
