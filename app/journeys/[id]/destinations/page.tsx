@@ -1,16 +1,13 @@
 import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { SectionFilter } from './section-filter';
-import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, MoreOptionsEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
+import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
+import { EventItem } from './event-item';
+import { AccommodationItem } from './accommodation-item';
 import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
 import { SummaryList } from './summary-list';
 import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinations-calendar-client';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
-import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
-import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
-import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import MovingIcon from '@mui/icons-material/Moving';
 import FlightOutlinedIcon from '@mui/icons-material/FlightOutlined';
 import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
@@ -23,14 +20,6 @@ import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 import { notFound } from 'next/navigation';
-
-const eventIcons: Record<string, ElementType<SvgIconProps>> = {
-  Site: LocationOnOutlinedIcon,
-  Meal: RestaurantOutlinedIcon,
-  Tour: TourOutlinedIcon,
-  Activity: StarBorderOutlinedIcon,
-  Transfer: MovingIcon,
-};
 
 const recordIcons: Record<string, ElementType<SvgIconProps>> = {
   Video: SmartDisplayOutlinedIcon,
@@ -246,24 +235,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 <EditAccommodationButton journeyId={id} destinationId={destination.id} />
               </div>
               <div className="flex flex-col gap-1 mt-2">
-                {destination.accommodation?.name && (
-                  <div className="flex items-center gap-2">
-                    {destination.accommodation!.image_url
-                      ? <img src={destination.accommodation!.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                      : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>}
-                    <div className="flex flex-col gap-0.5">
-                      {destination.accommodation.link
-                        ? <a href={destination.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.accommodation.name}</a>
-                        : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.accommodation.name}</span>}
-                      {(destination.accommodation.check_in || destination.accommodation.check_out) && (
-                        <div className="flex gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-                          {destination.accommodation.check_in && <span>Check-in: {new Date(`1970-01-01T${destination.accommodation.check_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-                          {destination.accommodation.check_out && <span>Check-out: {new Date(`1970-01-01T${destination.accommodation.check_out}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {destination.accommodation && <AccommodationItem accommodation={destination.accommodation} />}
               </div>
             </div>
             <div className="rounded-md bg-zinc-50 py-3 text-sm dark:bg-zinc-800">
@@ -273,35 +245,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               </div>
               <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
                 {destination.events.map((activity) => (
-                  <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-2">
-                        {activity.image_url
-                          ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                          : (() => { const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
-                        <div className="flex flex-col gap-0.5">
-                          {activity.link
-                            ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
-                            : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
-                          }
-                          {(activity.start_time || activity.end_time) && (
-                            <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                              {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                              {activity.start_time && activity.end_time && <span>~</span>}
-                              {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                              {activity.start_time && activity.end_time && (() => {
-                                const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
-                                const h = Math.floor(Math.abs(diff) / 60);
-                                const m = Math.abs(diff) % 60;
-                                return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <MoreOptionsEventButton journeyId={id} destinationId={destination.id} eventId={activity.id} />
-                  </div>
+                  <EventItem key={activity.id} activity={activity} journeyId={id} destinationId={destination.id} />
                 ))}
               </div>
             </div>

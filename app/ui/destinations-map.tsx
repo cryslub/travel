@@ -14,15 +14,11 @@ import {
   EditTransportButton,
   EditAccommodationButton,
   CreateEventButton,
-  MoreOptionsEventButton,
   CreateRecordButton,
   MoreOptionsRecordButton,
 } from '@/app/journeys/[id]/destinations/destination-buttons';
-import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
-import LocalActivityOutlinedIcon from '@mui/icons-material/LocalActivityOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
-import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
+import { EventItem } from '@/app/journeys/[id]/destinations/event-item';
+import { AccommodationItem } from '@/app/journeys/[id]/destinations/accommodation-item';
 import MovingIcon from '@mui/icons-material/Moving';
 import FlightOutlinedIcon from '@mui/icons-material/FlightOutlined';
 import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
@@ -48,13 +44,6 @@ function createDestinationIcon() {
   });
 }
 
-const eventIcons: Record<string, ElementType<SvgIconProps>> = {
-  Site: LocationOnOutlinedIcon,
-  Meal: RestaurantOutlinedIcon,
-  Tour: TourOutlinedIcon,
-  Activity: LocalActivityOutlinedIcon,
-  Transfer: MovingIcon,
-};
 
 const recordIcons: Record<string, ElementType<SvgIconProps>> = {
   Video: SmartDisplayOutlinedIcon,
@@ -299,24 +288,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
               <EditAccommodationButton journeyId={dest.journey_id} destinationId={dest.id} />
             </div>
             <div className="mt-2 flex flex-col gap-1">
-              {dest.accommodation?.name && (
-                <div className="flex items-center gap-2">
-                  {dest.accommodation!.image_url
-                    ? <img src={dest.accommodation!.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                    : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0"><HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" /></div>}
-                  <div className="flex flex-col gap-0.5">
-                    {dest.accommodation.link
-                      ? <a href={dest.accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.accommodation.name}</a>
-                      : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.accommodation.name}</span>}
-                    {(dest.accommodation.check_in || dest.accommodation.check_out) && (
-                      <div className="flex gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-                        {dest.accommodation.check_in && <span>Check-in: {new Date(`1970-01-01T${dest.accommodation.check_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-                        {dest.accommodation.check_out && <span>Check-out: {new Date(`1970-01-01T${dest.accommodation.check_out}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {dest.accommodation && <AccommodationItem accommodation={dest.accommodation} />}
             </div>
           </div>
 
@@ -327,26 +299,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             </div>
             <div className="mt-2 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700">
               {dest.events.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between gap-1 py-1.5">
-                  <div className="flex items-center gap-2">
-                    {activity.image_url
-                      ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                      : (() => { const Icon = (activity.type && eventIcons[activity.type]) || LocalActivityOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
-                    <div className="flex flex-col gap-0.5">
-                      {activity.link
-                        ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
-                        : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>}
-                      {(activity.start_time || activity.end_time) && (
-                        <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                          {activity.start_time && <span>{(() => { const d = new Date(activity.start_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                          {activity.start_time && activity.end_time && <span>~</span>}
-                          {activity.end_time && <span>{(() => { const d = new Date(activity.end_time!); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <MoreOptionsEventButton journeyId={dest.journey_id} destinationId={dest.id} eventId={activity.id} />
-                </div>
+                <EventItem key={activity.id} activity={activity} journeyId={dest.journey_id} destinationId={dest.id} />
               ))}
             </div>
           </div>
