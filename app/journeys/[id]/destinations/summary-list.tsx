@@ -26,7 +26,7 @@ export function SummaryList({ destinations, journeyId }: {
               <button
                 type="button"
                 onClick={() => setSelectedIdx(i)}
-                className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-md"
+                className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-md transition-opacity hover:opacity-75"
               >
                 {d.image_url
                   ? <img src={d.image_url} alt="" className="w-full h-full object-cover" />
@@ -52,7 +52,7 @@ export function SummaryList({ destinations, journeyId }: {
                   )}
                 </div>
               </div>
-              <MoreOptionsDestinationButton journeyId={journeyId} id={d.id} />
+              <MoreOptionsDestinationButton journeyId={journeyId} id={d.id} className="px-1.5" />
             </li>
           ))}
         </ul>

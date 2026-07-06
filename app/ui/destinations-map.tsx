@@ -237,7 +237,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             <button
               type="button"
               onMouseDown={onClose}
-              className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
+              className="rounded-full p-1.5 text-sm text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
             >
               <CloseIcon fontSize="small" />
             </button>
@@ -376,7 +376,7 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
             <button
               type="button"
               onMouseDown={onClose}
-              className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
+              className="rounded-full p-1.5 text-sm text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
             >
               <CloseIcon fontSize="small" />
             </button>

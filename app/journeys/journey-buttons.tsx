@@ -36,7 +36,7 @@ export function JourneyButtons({ id }: { id: string }) {
           type="button"
           title="More options"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-full px-2 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          className="rounded-full px-2 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
         >
           <MoreVertIcon fontSize="small" />
         </button>

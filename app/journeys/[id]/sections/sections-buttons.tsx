@@ -81,7 +81,7 @@ export function DeleteSectionButton({ journeyId, sectionId }: { journeyId: strin
       type="button"
       title="Delete section"
       onClick={handleDelete}
-      className="rounded-full border border-zinc-200 px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+      className="rounded-full px-4 py-1.5 text-red-600 dark:text-red-400 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
     >
       <DeleteOutlinedIcon fontSize="small" />
     </button>
@@ -95,7 +95,7 @@ export function EditSectionButton({ journeyId, sectionId }: { journeyId: string;
       type="button"
       title="Edit section"
       onClick={() => router.push(`/journeys/${journeyId}/sections/${sectionId}/edit`)}
-      className="rounded-full border border-zinc-200 px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-700"
+      className="rounded-full px-4 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>

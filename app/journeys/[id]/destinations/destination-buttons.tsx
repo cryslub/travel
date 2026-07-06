@@ -41,7 +41,7 @@ export function EditDestinationButton({ journeyId, id }: { journeyId: string; id
   );
 }
 
-export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: string; id: string }) {
+export function MoreOptionsDestinationButton({ journeyId, id, className }: { journeyId: string; id: string; className?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export function MoreOptionsDestinationButton({ journeyId, id }: { journeyId: str
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className={`rounded-full py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ${className ?? 'px-1.5'}`}
       >
         <MoreVertIcon fontSize="small" />
       </button>
@@ -99,7 +99,7 @@ export function EditTransportButton({ journeyId, destinationId }: { journeyId: s
       type="button"
       title="Edit transport"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit`)}
-      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+      className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
@@ -113,7 +113,7 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
       type="button"
       title="Edit accommodation"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit`)}
-      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
@@ -127,7 +127,7 @@ export function CreateEventButton({ journeyId, destinationId }: { journeyId: str
       type="button"
       title="Add event"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/create`)}
-      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
     </button>
@@ -141,7 +141,7 @@ export function EditEventButton({ journeyId, destinationId, eventId }: { journey
       type="button"
       title="Edit event"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`)}
-      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
@@ -173,7 +173,7 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full px-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
@@ -223,7 +223,7 @@ export function CreateRecordButton({ journeyId, destinationId }: { journeyId: st
       type="button"
       title="Add record"
       onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/create`)}
-      className="rounded-full pl-4 pr-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 ml-4"
+      className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
     </button>
@@ -255,7 +255,7 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
         type="button"
         title="More options"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full px-1 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+        className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
       >
         <MoreVertIcon fontSize="small" />
       </button>
