@@ -8,6 +8,7 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import MovingIcon from '@mui/icons-material/Moving';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { MoreOptionsEventButton } from './destination-buttons';
 
 const eventIcons: Record<string, ElementType<SvgIconProps>> = {
@@ -26,6 +27,7 @@ type EventActivity = {
   end_time?: string | null;
   link?: string | null;
   image_url?: string | null;
+  memo?: string | null;
   price?: number | null;
   price_currency?: string | null;
 };
@@ -61,10 +63,17 @@ export function EventItem({ activity, journeyId, destinationId }: {
               </div>
             )}
           <div className="flex flex-col gap-0.5 min-w-0">
-            {activity.link
-              ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
-              : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
-            }
+            <div className="flex items-center gap-1">
+              {activity.link
+                ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
+                : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
+              }
+              {activity.memo && (
+                <span title={activity.memo} className="text-zinc-400 dark:text-zinc-500 cursor-default flex-shrink-0">
+                  <InfoOutlinedIcon style={{ fontSize: 14 }} />
+                </span>
+              )}
+            </div>
             {(activity.start_time || activity.end_time) && (
               <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400 flex-wrap">
                 {activity.start_time && <span>{formatTime(activity.start_time)}</span>}

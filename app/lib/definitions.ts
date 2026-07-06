@@ -99,7 +99,7 @@ export type DestinationWithTransport = Destination & {
   longitude: number | null;
   transport: (Pick<Transport, 'type' | 'start_time' | 'end_time' | 'start_terminal' | 'end_terminal' | 'link'> & { start_latitude: number | null; start_longitude: number | null; end_latitude: number | null; end_longitude: number | null; price: number | null; price_currency: string | null }) | null;
   accommodation: (Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null }) | null;
-  events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[];
+  events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url' | 'memo'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[];
   records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[];
   section_name: string | null;
   price?: number | null;

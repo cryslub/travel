@@ -94,7 +94,7 @@ export type ModalDest = {
     latitude: number | null;
     longitude: number | null;
   } | null;
-  events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; image_url: string | null; latitude: number | null; longitude: number | null }[];
+  events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; image_url: string | null; memo: string | null; latitude: number | null; longitude: number | null }[];
   records: { id: string; name: string; type: string | null; link: string | null; memo: string | null }[];
 };
 

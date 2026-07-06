@@ -20,7 +20,7 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
     transport_type: string | null; transport_start_time: string | null; transport_end_time: string | null; transport_start_terminal: string | null; transport_end_terminal: string | null; transport_link: string | null; transport_start_latitude: number | null; transport_start_longitude: number | null; transport_end_latitude: number | null; transport_end_longitude: number | null; transport_price: number | null; transport_price_currency: string | null;
     accommodation_name: string | null; accommodation_check_in: string | null; accommodation_check_out: string | null; accommodation_link: string | null; accommodation_image_url: string | null; accommodation_latitude: number | null; accommodation_longitude: number | null; accommodation_price: number | null; accommodation_price_currency: string | null;
     destination_price: number | null; destination_price_currency: string | null;
-    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[] | null;
+    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url' | 'memo'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[] | null;
     records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[] | null;
   })[]>`
     SELECT
@@ -48,7 +48,7 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
       al.longitude AS accommodation_longitude,
       ap.value AS accommodation_price,
       ap.currency AS accommodation_price_currency,
-      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'image_url', ac.image_url, 'latitude', el.latitude, 'longitude', el.longitude, 'price', ep.value, 'price_currency', ep.currency) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id LEFT JOIN prices ep ON ep.id = ac.price_id WHERE ac.destination_id = d.id) AS events,
+      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'image_url', ac.image_url, 'memo', ac.memo, 'latitude', el.latitude, 'longitude', el.longitude, 'price', ep.value, 'price_currency', ep.currency) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id LEFT JOIN prices ep ON ep.id = ac.price_id WHERE ac.destination_id = d.id) AS events,
       (SELECT COALESCE(json_agg(json_build_object('id', r.id, 'name', r.name, 'type', r.type, 'link', r.link, 'memo', r.memo) ORDER BY r.created_time ASC), '[]') FROM records r WHERE r.destination_id = d.id) AS records
     FROM destinations d
     LEFT JOIN locations l ON l.id = d.location_id
@@ -128,7 +128,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     transport_type: string | null; transport_start_time: string | null; transport_end_time: string | null; transport_start_terminal: string | null; transport_end_terminal: string | null; transport_link: string | null; transport_start_latitude: number | null; transport_start_longitude: number | null; transport_end_latitude: number | null; transport_end_longitude: number | null; transport_price: number | null; transport_price_currency: string | null;
     accommodation_name: string | null; accommodation_check_in: string | null; accommodation_check_out: string | null; accommodation_link: string | null; accommodation_image_url: string | null; accommodation_latitude: number | null; accommodation_longitude: number | null; accommodation_price: number | null; accommodation_price_currency: string | null;
     destination_price: number | null; destination_price_currency: string | null;
-    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[] | null;
+    events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url' | 'memo'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[] | null;
     records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[] | null;
     section_name: string | null;
   })[]>`
@@ -158,7 +158,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
       al.longitude AS accommodation_longitude,
       ap.value AS accommodation_price,
       ap.currency AS accommodation_price_currency,
-      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'image_url', ac.image_url, 'latitude', el.latitude, 'longitude', el.longitude, 'price', ep.value, 'price_currency', ep.currency) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id LEFT JOIN prices ep ON ep.id = ac.price_id WHERE ac.destination_id = d.id) AS events,
+      (SELECT COALESCE(json_agg(json_build_object('id', ac.id, 'name', ac.name, 'type', ac.type, 'start_time', ac.start_time, 'end_time', ac.end_time, 'link', ac.link, 'image_url', ac.image_url, 'memo', ac.memo, 'latitude', el.latitude, 'longitude', el.longitude, 'price', ep.value, 'price_currency', ep.currency) ORDER BY ac.start_time ASC NULLS LAST, ac.created_time ASC NULLS LAST), '[]') FROM events ac LEFT JOIN locations el ON el.id = ac.location_id LEFT JOIN prices ep ON ep.id = ac.price_id WHERE ac.destination_id = d.id) AS events,
       (SELECT COALESCE(json_agg(json_build_object('id', r.id, 'name', r.name, 'type', r.type, 'link', r.link, 'memo', r.memo) ORDER BY r.created_time ASC), '[]') FROM records r WHERE r.destination_id = d.id) AS records
     FROM destinations d
     LEFT JOIN transports t ON t.destination_id = d.id
