@@ -41,15 +41,6 @@ export default async function CreateRecordPage(props: PageProps<'/journeys/[id]/
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="memo" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Memo</label>
-          <textarea
-            id="memo"
-            name="memo"
-            rows={4}
-            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
-          />
-        </div>
         <div className="flex gap-3">
           <button
             type="submit"
