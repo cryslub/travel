@@ -19,6 +19,8 @@ export type Journey = {
   image_url: string | null;
   countries: string[];
   created_time: string | null;
+  currency?: string | null;
+  total_price?: number | null;
 };
 
 export type Transport = {
@@ -32,6 +34,7 @@ export type Transport = {
   link: string | null;
   start_location_id: string | null;
   end_location_id: string | null;
+  price_id?: string | null;
 };
 
 export type Location = {
@@ -50,6 +53,7 @@ export type Destination = {
   location_id: string | null;
   image_url: string | null;
   created_time: string | null;
+  price_id?: string | null;
 };
 
 export type Accommodation = {
@@ -61,6 +65,7 @@ export type Accommodation = {
   link: string | null;
   image_url: string | null;
   location_id: string | null;
+  price_id?: string | null;
 };
 
 export type Event = {
@@ -75,6 +80,7 @@ export type Event = {
   image_url: string | null;
   created_time: string | null;
   location_id: string | null;
+  price_id?: string | null;
 };
 
 export type Record = {
@@ -91,9 +97,11 @@ export type DestinationWithTransport = Destination & {
   location_name: string | null;
   latitude: number | null;
   longitude: number | null;
-  transport: (Pick<Transport, 'type' | 'start_time' | 'end_time' | 'start_terminal' | 'end_terminal' | 'link'> & { start_latitude: number | null; start_longitude: number | null; end_latitude: number | null; end_longitude: number | null }) | null;
-  accommodation: (Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null }) | null;
-  events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null })[];
+  transport: (Pick<Transport, 'type' | 'start_time' | 'end_time' | 'start_terminal' | 'end_terminal' | 'link'> & { start_latitude: number | null; start_longitude: number | null; end_latitude: number | null; end_longitude: number | null; price: number | null; price_currency: string | null }) | null;
+  accommodation: (Pick<Accommodation, 'name' | 'check_in' | 'check_out' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null }) | null;
+  events: (Pick<Event, 'id' | 'name' | 'type' | 'start_time' | 'end_time' | 'link' | 'image_url'> & { latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[];
   records: Pick<Record, 'id' | 'name' | 'type' | 'link' | 'memo'>[];
   section_name: string | null;
+  price?: number | null;
+  price_currency?: string | null;
 };

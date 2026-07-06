@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { SignOutButton } from '@/app/ui/navbar';
 
-export default async function JourneysLayout({ children }: { children: React.ReactNode }) {
+export default async function PreferencesLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
 
   return (

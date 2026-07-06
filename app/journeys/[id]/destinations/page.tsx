@@ -1,4 +1,5 @@
-import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
+import { getServerSession } from 'next-auth';
 import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { EventItem } from './event-item';
@@ -40,7 +41,15 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const { id } = await props.params;
   const { section: sectionFilter, view: viewParam } = await props.searchParams;
   const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
-  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : 'summary';
+
+  const session = await getServerSession();
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const prefs = session?.user?.email
+    ? await fetchUserPreferences(session.user.email, signInType)
+    : { destinations_view: 'summary' };
+  const prefView = prefs.destinations_view.toLowerCase() as 'summary' | 'cards' | 'map' | 'calendar';
+
+  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : viewStr === 'summary' ? 'summary' : prefView;
   const journey = await fetchJourneyById(id);
 
   if (!journey) notFound();
@@ -90,6 +99,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               start_longitude: d.transport.start_longitude,
               end_latitude: d.transport.end_latitude,
               end_longitude: d.transport.end_longitude,
+              price: d.transport.price ?? null,
+              price_currency: d.transport.price_currency ?? null,
             } : null,
             accommodation: d.accommodation ? {
               name: d.accommodation.name,
@@ -99,6 +110,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               image_url: d.accommodation.image_url,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
+              price: d.accommodation.price ?? null,
+              price_currency: d.accommodation.price_currency ?? null,
             } : null,
             events: d.events.map((e) => ({
               id: e.id,
@@ -110,6 +123,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               image_url: e.image_url,
               latitude: e.latitude ?? null,
               longitude: e.longitude ?? null,
+              price: e.price ?? null,
+              price_currency: e.price_currency ?? null,
             })),
             records: d.records.map((r) => ({
               id: r.id,
@@ -134,6 +149,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             start_date: d.start_date,
             section_name: d.section_name,
             image_url: d.image_url,
+            price: d.price ?? null,
+            price_currency: d.price_currency ?? null,
             transport: d.transport,
             accommodation: d.accommodation,
             events: d.events,
@@ -157,6 +174,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             start_date: d.start_date,
             section_name: d.section_name,
             image_url: d.image_url,
+            price: d.price ?? null,
+            price_currency: d.price_currency ?? null,
             transport: d.transport,
             accommodation: d.accommodation,
             events: d.events,
@@ -179,6 +198,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">{destination.section_name}</span>
                   )}
                 </div>
+                {destination.price != null && (
+                  <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                    {new Intl.NumberFormat('en', { style: 'currency', currency: destination.price_currency ?? 'USD' }).format(destination.price)}
+                  </span>
+                )}
               </div>
               <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
             </div>
@@ -226,6 +250,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                     {destination.transport.start_terminal && destination.transport.end_terminal && <span>→</span>}
                     {destination.transport.end_terminal && <span>{destination.transport.end_terminal}</span>}
                   </div>
+                )}
+                {destination.transport?.price != null && (
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                    {new Intl.NumberFormat('en', { style: 'currency', currency: destination.transport.price_currency ?? 'USD' }).format(destination.transport.price)}
+                  </span>
                 )}
               </div>
             </div>

@@ -1,8 +1,17 @@
 import { createJourney } from '../actions';
 import { ImageUpload } from '@/app/ui/image-upload';
 import { CountrySelector } from '@/app/ui/country-selector';
+import { CurrencySelector } from '@/app/ui/currency-selector';
+import { getServerSession } from 'next-auth';
+import { fetchUserPreferences } from '@/app/lib/data';
 
-export default function CreateJourneyPage() {
+export default async function CreateJourneyPage() {
+  const session = await getServerSession();
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const prefs = session?.user?.email
+    ? await fetchUserPreferences(session.user.email, signInType)
+    : null;
+
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Create Journey</h1>
@@ -37,6 +46,7 @@ export default function CreateJourneyPage() {
           />
         </div>
         <CountrySelector name="countries" />
+        <CurrencySelector defaultCurrency={prefs?.currency ?? 'USD'} />
         <div className="flex gap-3">
           <button
             type="submit"

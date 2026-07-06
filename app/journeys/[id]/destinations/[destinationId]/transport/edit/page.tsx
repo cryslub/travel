@@ -1,10 +1,18 @@
-﻿import { fetchTransportByDestinationId, fetchDestinationById } from '@/app/lib/data';
+﻿import { fetchTransportByDestinationId, fetchDestinationById, fetchUserPreferences } from '@/app/lib/data';
 import { upsertTransport } from '@/app/journeys/[id]/destinations/actions';
 import { TransportTimeFields } from '../time-fields';
 import { Location } from '@/app/ui/location-autocomplete';
+import { PriceField } from '../../events/price-field';
+import { getServerSession } from 'next-auth';
 
 export default async function EditTransportPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/transport/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
+  const session = await getServerSession();
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const prefs = session?.user?.email
+    ? await fetchUserPreferences(session.user.email, signInType)
+    : { currency: 'USD' };
+
   const [transport, destination] = await Promise.all([
     fetchTransportByDestinationId(destinationId),
     fetchDestinationById(destinationId),
@@ -111,6 +119,8 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             defaultLocationId={transport?.end_location_id ?? ''}
           />
         </div>
+        <input type="hidden" name="price_id" value={transport?.price_id ?? ''} />
+        <PriceField defaultPrice={transport?.price} defaultCurrency={transport?.price_currency ?? prefs?.currency ?? 'USD'} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Link

@@ -34,6 +34,7 @@ async function createJourneys() {
   await sql`
     CREATE TABLE IF NOT EXISTS journeys (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
       name VARCHAR(255) NOT NULL,
       start_date DATE,
       created_time TIMESTAMP DEFAULT NOW()
@@ -220,6 +221,65 @@ async function createUsers() {
 
 
 }
+
+
+async function createPreferences() {
+
+  await sql`
+    DROP TABLE IF EXISTS preferences ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS preferences (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      destinations_view VARCHAR(10) DEFAULT  'Summary',
+      currency VARCHAR(10) DEFAULT  'USD'
+    );
+  `;
+
+}
+
+
+async function createPrices() {
+
+  await sql`
+    DROP TABLE IF EXISTS prices ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS prices (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      value DOUBLE PRECISION,
+      currency VARCHAR(10)
+    );
+  `;
+
+}
+
+
+
+async function createCurrencies() {
+
+  await sql`
+    DROP TABLE IF EXISTS currencies ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS currencies (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      currency_a VARCHAR(10),
+      currency_b VARCHAR(10),
+      rate DOUBLE PRECISION,
+      update_date DATE
+    );
+  `;
+
+}
+
 
 export async function GET() {
   try {

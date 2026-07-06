@@ -69,6 +69,8 @@ export type ModalDest = {
   start_date: string | null;
   section_name: string | null;
   image_url: string | null;
+  price?: number | null;
+  price_currency?: string | null;
   transport: {
     type: string | null;
     start_time: string | null;
@@ -80,6 +82,8 @@ export type ModalDest = {
     start_longitude: number | null;
     end_latitude: number | null;
     end_longitude: number | null;
+    price: number | null;
+    price_currency: string | null;
   } | null;
   accommodation: {
     name: string | null;
@@ -231,6 +235,11 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">{dest.section_name}</span>
               )}
             </div>
+            {dest.price != null && (
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                {new Intl.NumberFormat('en', { style: 'currency', currency: dest.price_currency ?? 'USD' }).format(dest.price)}
+              </span>
+            )}
           </div>
           <div className="ml-4 flex shrink-0 items-center gap-1">
             <MoreOptionsDestinationButton journeyId={dest.journey_id} id={dest.id} />
@@ -278,6 +287,11 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
                   {dest.transport!.start_terminal && dest.transport!.end_terminal && <span>→</span>}
                   {dest.transport!.end_terminal && <span>{dest.transport!.end_terminal}</span>}
                 </div>
+              )}
+              {dest.transport?.price != null && (
+                <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                  {new Intl.NumberFormat('en', { style: 'currency', currency: dest.transport.price_currency ?? 'USD' }).format(dest.transport.price)}
+                </span>
               )}
             </div>
           </div>

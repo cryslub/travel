@@ -26,8 +26,11 @@ const handler = NextAuth({
       `;
 
       if (existing.length === 0) {
+        const [newUser] = await sql<{ id: string }[]>`
+          INSERT INTO users (sign_in_type, email) VALUES (${signInType}, ${email}) RETURNING id
+        `;
         await sql`
-          INSERT INTO users (sign_in_type, email) VALUES (${signInType}, ${email})
+          INSERT INTO preferences (user_id) VALUES (${newUser.id})
         `;
       }
 

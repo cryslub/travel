@@ -33,6 +33,11 @@ export default async function JourneysPage() {
                     </span>
                   )}
                   <a href={`/journeys/${journey.id}/destinations`} className="text-lg font-medium hover:underline">{journey.name}</a>
+                  {journey.total_price != null && (
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {new Intl.NumberFormat('en', { style: 'currency', currency: journey.currency ?? 'USD' }).format(journey.total_price)}
+                    </span>
+                  )}
                   {journey.countries.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-0.5">
                       {journey.countries.map((code) => (

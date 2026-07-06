@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
+import { updateDestinationTotalPrice } from '@/app/lib/prices';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -24,8 +25,9 @@ export async function createJourney(formData: FormData) {
   const signInType = (session?.user as any)?.sign_in_type ?? null;
   const [user] = await sql<{ id: string }[]>`SELECT id FROM users WHERE email = ${userEmail} AND sign_in_type = ${signInType} LIMIT 1`;
 
+  const currency = (formData.get('currency') as string) || null;
   const countries = formData.getAll('countries') as string[];
-  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, created_time, user_id) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, NOW(), ${user?.id ?? null}) RETURNING id`;
+  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, currency, created_time, user_id) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, ${currency}, NOW(), ${user?.id ?? null}) RETURNING id`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
   }
@@ -53,11 +55,18 @@ export async function updateJourney(id: string, formData: FormData) {
     imageUrl = currentImageUrl;
   }
 
+  const currency = (formData.get('currency') as string) || null;
+  const [prev] = await sql<{ currency: string | null }[]>`SELECT currency FROM journeys WHERE id = ${id}`;
   const countries = formData.getAll('countries') as string[];
-  await sql`UPDATE journeys SET name = ${name}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl} WHERE id = ${id}`;
+  await sql`UPDATE journeys SET name = ${name}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl}, currency = ${currency} WHERE id = ${id}`;
   await sql`DELETE FROM journey_countries WHERE journey_id = ${id}`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
+  }
+
+  if (currency !== (prev?.currency ?? null)) {
+    const destinations = await sql<{ id: string }[]>`SELECT id FROM destinations WHERE journey_id = ${id}`;
+    await Promise.all(destinations.map(d => updateDestinationTotalPrice(d.id)));
   }
 
   if (shift_destinations && start_date && previous_start_date) {

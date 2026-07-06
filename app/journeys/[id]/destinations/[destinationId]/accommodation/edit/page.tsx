@@ -1,10 +1,18 @@
-﻿import { fetchAccommodationByDestinationId, fetchDestinationById } from '@/app/lib/data';
+﻿import { fetchAccommodationByDestinationId, fetchDestinationById, fetchUserPreferences } from '@/app/lib/data';
 import { upsertAccommodation } from '@/app/journeys/[id]/destinations/actions';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { PriceField } from '../../events/price-field';
+import { getServerSession } from 'next-auth';
 
 export default async function EditAccommodationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/accommodation/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
+  const session = await getServerSession();
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const prefs = session?.user?.email
+    ? await fetchUserPreferences(session.user.email, signInType)
+    : { currency: 'USD' };
+
   const [accommodation, destination] = await Promise.all([
     fetchAccommodationByDestinationId(destinationId),
     fetchDestinationById(destinationId),
@@ -70,6 +78,8 @@ export default async function EditAccommodationPage(props: PageProps<'/journeys/
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
+        <input type="hidden" name="price_id" value={accommodation?.price_id ?? ''} />
+        <PriceField defaultPrice={accommodation?.price} defaultCurrency={accommodation?.price_currency ?? prefs?.currency ?? 'USD'} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Link

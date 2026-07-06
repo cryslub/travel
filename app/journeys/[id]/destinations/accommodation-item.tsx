@@ -9,6 +9,8 @@ type Accommodation = {
   image_url?: string | null;
   check_in?: string | null;
   check_out?: string | null;
+  price?: number | null;
+  price_currency?: string | null;
 };
 
 function formatTime(t: string) {
@@ -45,6 +47,11 @@ export function AccommodationItem({ accommodation }: { accommodation: Accommodat
               {accommodation.check_in && <span>Check-in: {formatTime(accommodation.check_in)}</span>}
               {accommodation.check_out && <span>Check-out: {formatTime(accommodation.check_out)}</span>}
             </div>
+          )}
+          {accommodation.price != null && (
+            <span className="text-xs text-emerald-600 dark:text-emerald-400">
+              {new Intl.NumberFormat('en', { style: 'currency', currency: accommodation.price_currency ?? 'USD' }).format(accommodation.price)}
+            </span>
           )}
         </div>
       </div>

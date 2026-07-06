@@ -3,6 +3,7 @@
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { put } from '@vercel/blob';
+import { updateDestinationTotalPrice } from '@/app/lib/prices';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -109,11 +110,19 @@ export async function createEvent(destinationId: string, formData: FormData) {
   const location_name = (formData.get('location_name') as string) || null;
   const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
   const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
+  const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
+  const price_currency = (formData.get('price_currency') as string) || null;
 
   let location_id: string | null = null;
   if (location_name) {
     const loc = await sql<{ id: string }[]>`INSERT INTO locations (name, latitude, longitude) VALUES (${location_name}, ${latitude}, ${longitude}) RETURNING id`;
     location_id = loc[0].id;
+  }
+
+  let price_id: string | null = null;
+  if (priceVal !== null) {
+    const [row] = await sql<{ id: string }[]>`INSERT INTO prices (value, currency) VALUES (${priceVal}, ${price_currency}) RETURNING id`;
+    price_id = row.id;
   }
 
   const imageFile = formData.get('image') as File | null;
@@ -124,12 +133,14 @@ export async function createEvent(destinationId: string, formData: FormData) {
     imageUrl = url;
   }
 
-  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, NOW())`;
+  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, price_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${price_id}, NOW())`;
+
+  await updateDestinationTotalPrice(destinationId);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
 
-export async function updateEvent(eventId: string, _destinationId: string, formData: FormData) {
+export async function updateEvent(eventId: string, destinationId: string, formData: FormData) {
   const name = formData.get('name') as string | null;
   const type = formData.get('type') as string | null;
   const start_time = (formData.get('start_time') as string) || null;
@@ -137,6 +148,9 @@ export async function updateEvent(eventId: string, _destinationId: string, formD
   const link = formData.get('link') as string | null;
   const memo = formData.get('memo') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
+  const price_currency = (formData.get('price_currency') as string) || null;
+  const existing_price_id = (formData.get('price_id') as string) || null;
   const existing_location_id = (formData.get('location_id') as string) || null;
   const location_name = (formData.get('location_name') as string) || null;
   const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
@@ -166,13 +180,32 @@ export async function updateEvent(eventId: string, _destinationId: string, formD
     imageUrl = currentImageUrl;
   }
 
-  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${eventId}`;
+  let final_price_id: string | null = existing_price_id;
+  if (priceVal !== null) {
+    if (existing_price_id) {
+      await sql`UPDATE prices SET value = ${priceVal}, currency = ${price_currency} WHERE id = ${existing_price_id}`;
+    } else {
+      const [row] = await sql<{ id: string }[]>`INSERT INTO prices (value, currency) VALUES (${priceVal}, ${price_currency}) RETURNING id`;
+      final_price_id = row.id;
+    }
+  } else {
+    final_price_id = null;
+  }
+
+  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl}, price_id = ${final_price_id} WHERE id = ${eventId}`;
+
+  await updateDestinationTotalPrice(destinationId);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
 
 export async function deleteEvent(eventId: string, journeyId: string) {
+  const [event] = await sql<{ destination_id: string }[]>`SELECT destination_id FROM events WHERE id = ${eventId}`;
   await sql`DELETE FROM events WHERE id = ${eventId}`;
+
+  if (event?.destination_id) {
+    await updateDestinationTotalPrice(event.destination_id);
+  }
 
   redirect(`/journeys/${journeyId}/destinations`);
 }
@@ -187,6 +220,9 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
   const location_name = (formData.get('location_name') as string) || null;
   const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
   const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
+  const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
+  const price_currency = (formData.get('price_currency') as string) || null;
+  const existing_price_id = (formData.get('price_id') as string) || null;
 
   let location_id = existing_location_id;
   if (location_name) {
@@ -212,11 +248,25 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
     imageUrl = currentImageUrl;
   }
 
+  let final_price_id: string | null = existing_price_id;
+  if (priceVal !== null) {
+    if (existing_price_id) {
+      await sql`UPDATE prices SET value = ${priceVal}, currency = ${price_currency} WHERE id = ${existing_price_id}`;
+    } else {
+      const [row] = await sql<{ id: string }[]>`INSERT INTO prices (value, currency) VALUES (${priceVal}, ${price_currency}) RETURNING id`;
+      final_price_id = row.id;
+    }
+  } else {
+    final_price_id = null;
+  }
+
   await sql`
-    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, image_url, location_id)
-    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${imageUrl}, ${location_id})
-    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, image_url = ${imageUrl}, location_id = ${location_id}
+    INSERT INTO accommodations (destination_id, name, check_in, check_out, link, image_url, location_id, price_id)
+    VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${imageUrl}, ${location_id}, ${final_price_id})
+    ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, image_url = ${imageUrl}, location_id = ${location_id}, price_id = ${final_price_id}
   `;
+
+  await updateDestinationTotalPrice(destinationId);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -259,6 +309,9 @@ export async function upsertTransport(destinationId: string, formData: FormData)
   const end_terminal = (formData.get('end_terminal') as string) || null;
   const link = formData.get('link') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
+  const price_currency = (formData.get('price_currency') as string) || null;
+  const existing_price_id = (formData.get('price_id') as string) || null;
   const existing_start_location_id = (formData.get('start_location_id') as string) || null;
   const start_location_name = (formData.get('start_location_name') as string) || null;
   const start_latitude = (formData.get('start_latitude') as string) ? parseFloat(formData.get('start_latitude') as string) : null;
@@ -289,11 +342,25 @@ export async function upsertTransport(destinationId: string, formData: FormData)
     }
   }
 
+  let final_price_id: string | null = existing_price_id;
+  if (priceVal !== null) {
+    if (existing_price_id) {
+      await sql`UPDATE prices SET value = ${priceVal}, currency = ${price_currency} WHERE id = ${existing_price_id}`;
+    } else {
+      const [row] = await sql<{ id: string }[]>`INSERT INTO prices (value, currency) VALUES (${priceVal}, ${price_currency}) RETURNING id`;
+      final_price_id = row.id;
+    }
+  } else {
+    final_price_id = null;
+  }
+
   await sql`
-    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link, start_location_id, end_location_id)
-    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${start_location_id}, ${end_location_id})
-    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}
+    INSERT INTO transports (destination_id, type, start_time, end_time, start_terminal, end_terminal, link, start_location_id, end_location_id, price_id)
+    VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${start_location_id}, ${end_location_id}, ${final_price_id})
+    ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}, price_id = ${final_price_id}
   `;
+
+  await updateDestinationTotalPrice(destinationId);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }

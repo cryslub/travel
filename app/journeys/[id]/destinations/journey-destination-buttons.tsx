@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -44,26 +43,11 @@ export function ViewToggle({ journeyId, currentView, currentSection }: {
 }) {
   const router = useRouter();
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has('view')) {
-      const saved = localStorage.getItem('destinations-view');
-      if (saved === 'cards' || saved === 'map' || saved === 'calendar') {
-        const params = new URLSearchParams();
-        if (currentSection) params.set('section', currentSection);
-        params.set('view', saved);
-        router.replace(`/journeys/${journeyId}/destinations?${params.toString()}`);
-      }
-    }
-  }, [journeyId, currentSection, router]);
-
   function navigate(view: 'summary' | 'cards' | 'map' | 'calendar') {
-    localStorage.setItem('destinations-view', view);
     const params = new URLSearchParams();
     if (currentSection) params.set('section', currentSection);
-    if (view !== 'summary') params.set('view', view);
-    const qs = params.toString();
-    router.push(`/journeys/${journeyId}/destinations${qs ? `?${qs}` : ''}`);
+    params.set('view', view);
+    router.push(`/journeys/${journeyId}/destinations?${params.toString()}`);
   }
 
   const active = 'bg-black text-white dark:bg-white dark:text-black';

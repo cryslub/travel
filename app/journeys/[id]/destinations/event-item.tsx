@@ -26,6 +26,8 @@ type EventActivity = {
   end_time?: string | null;
   link?: string | null;
   image_url?: string | null;
+  price?: number | null;
+  price_currency?: string | null;
 };
 
 function formatTime(t: string) {
@@ -75,6 +77,11 @@ export function EventItem({ activity, journeyId, destinationId }: {
                   return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
                 })()}
               </div>
+            )}
+            {activity.price != null && (
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                {new Intl.NumberFormat('en', { style: 'currency', currency: activity.price_currency ?? 'USD' }).format(activity.price)}
+              </span>
             )}
           </div>
         </div>

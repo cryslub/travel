@@ -1,12 +1,20 @@
 import { createEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../time-fields';
-import { fetchDestinationById, fetchLatestEventEndTimeByDestinationId } from '@/app/lib/data';
+import { PriceField } from '../price-field';
+import { fetchDestinationById, fetchLatestEventEndTimeByDestinationId, fetchUserPreferences } from '@/app/lib/data';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { getServerSession } from 'next-auth';
 
 export default async function CreateEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/create'>) {
   const { id: journeyId, destinationId } = await props.params;
   const action = createEvent.bind(null, destinationId);
+
+  const session = await getServerSession();
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const prefs = session?.user?.email
+    ? await fetchUserPreferences(session.user.email, signInType)
+    : { currency: 'USD' };
 
   const [destination, latestEndTime] = await Promise.all([
     fetchDestinationById(destinationId),
@@ -60,6 +68,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
           </select>
         </div>
         <EventTimeFields defaultStartTime={defaultDateTime} defaultEndTime={defaultDateTime} />
+        <PriceField defaultCurrency={prefs?.currency ?? 'USD'} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Link</label>
           <input
