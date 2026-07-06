@@ -5,7 +5,8 @@ import { useState } from 'react';
 type JourneyWithSections = {
   id: string;
   name: string;
-  sections: { id: string; name: string }[];
+  sections: { id: string; name: string; destination_count?: number }[];
+  noneCount: number;
 };
 
 export function ImportSectionsForm({
@@ -105,6 +106,7 @@ export function ImportSectionsForm({
                   className="h-4 w-4 accent-black dark:accent-white"
                 />
                 <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">None</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">{selectedJourney.noneCount} destinations</span>
               </label>
             </li>
             {selectedJourney.sections.map((section) => (
@@ -119,6 +121,7 @@ export function ImportSectionsForm({
                     className="h-4 w-4 accent-black dark:accent-white"
                   />
                   <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{section.name}</span>
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500">{section.destination_count ?? 0} destinations</span>
                 </label>
               </li>
             ))}

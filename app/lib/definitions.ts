@@ -8,6 +8,7 @@ export type Section = {
   journey_id: string;
   name: string;
   created_time: string | null;
+  destination_count?: number;
 };
 
 export type Journey = {

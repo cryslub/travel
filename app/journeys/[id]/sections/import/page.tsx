@@ -1,4 +1,4 @@
-import { fetchJourneys, fetchSectionsByJourneyId, fetchJourneyById } from '@/app/lib/data';
+import { fetchJourneys, fetchSectionsByJourneyId, fetchUnsectionedDestinationCount, fetchJourneyById } from '@/app/lib/data';
 import { importSections } from '../actions';
 import { notFound, redirect } from 'next/navigation';
 import { ImportSectionsForm } from './import-sections-form';
@@ -17,11 +17,13 @@ export default async function ImportSectionsPage(props: PageProps<'/journeys/[id
   const otherJourneys = allJourneys.filter((j) => j.id !== journeyId);
 
   const journeysWithSections = await Promise.all(
-    otherJourneys.map(async (j) => ({
-      id: j.id,
-      name: j.name,
-      sections: await fetchSectionsByJourneyId(j.id),
-    }))
+    otherJourneys.map(async (j) => {
+      const [sections, noneCount] = await Promise.all([
+        fetchSectionsByJourneyId(j.id),
+        fetchUnsectionedDestinationCount(j.id),
+      ]);
+      return { id: j.id, name: j.name, sections, noneCount };
+    })
   );
 
   const action = importSections.bind(null, journeyId);

@@ -218,7 +218,21 @@ export async function fetchTransportByDestinationId(destinationId: string): Prom
   return data[0] ?? null;
 }
 
+export async function fetchUnsectionedDestinationCount(journeyId: string): Promise<number> {
+  const [row] = await sql<{ count: number }[]>`
+    SELECT COUNT(*)::int AS count FROM destinations WHERE journey_id = ${journeyId} AND section_id IS NULL
+  `;
+  return row?.count ?? 0;
+}
+
 export async function fetchSectionsByJourneyId(journeyId: string): Promise<Section[]> {
-  const data = await sql<Section[]>`SELECT id, journey_id, name, created_time FROM sections WHERE journey_id = ${journeyId} ORDER BY created_time ASC`;
+  const data = await sql<Section[]>`
+    SELECT s.id, s.journey_id, s.name, s.created_time, COUNT(d.id)::int AS destination_count
+    FROM sections s
+    LEFT JOIN destinations d ON d.section_id = s.id
+    WHERE s.journey_id = ${journeyId}
+    GROUP BY s.id
+    ORDER BY s.created_time ASC
+  `;
   return data;
 }
