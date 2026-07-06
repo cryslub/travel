@@ -211,7 +211,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             {destination.image_url && (
               <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
             )}
-            <div className="rounded-md bg-zinc-50 py-3 text-sm dark:bg-zinc-800">
+            <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
                 <EditTransportButton journeyId={id} destinationId={destination.id} />
@@ -261,7 +261,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 )}
               </div>
             </div>
-            <div className="rounded-md bg-zinc-50 py-3 text-sm dark:bg-zinc-800">
+            <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
                 <EditAccommodationButton journeyId={id} destinationId={destination.id} />
@@ -270,7 +270,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 {destination.accommodation && <AccommodationItem accommodation={destination.accommodation} />}
               </div>
             </div>
-            <div className="rounded-md bg-zinc-50 py-3 text-sm dark:bg-zinc-800">
+            <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
                 <CreateEventButton journeyId={id} destinationId={destination.id} />
@@ -306,7 +306,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 })()}
               />
             )}
-            <div className="rounded-md bg-zinc-50 py-3 text-sm dark:bg-zinc-800">
+            <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
                 <CreateRecordButton journeyId={id} destinationId={destination.id} />

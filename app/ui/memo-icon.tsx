@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
+const MEMO_OPEN_EVENT = 'memo-icon-open';
+
 export function MemoIcon({ memo }: { memo: string }) {
+  const id = useId();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -13,6 +16,21 @@ export function MemoIcon({ memo }: { memo: string }) {
 
   const TOOLTIP_WIDTH = 192; // w-48
   const MARGIN = 8;
+
+  useEffect(() => {
+    function onOtherOpen(e: Event) {
+      if ((e as CustomEvent<string>).detail !== id) {
+        setClicked(false);
+        setHovered(false);
+      }
+    }
+    window.addEventListener(MEMO_OPEN_EVENT, onOtherOpen);
+    return () => window.removeEventListener(MEMO_OPEN_EVENT, onOtherOpen);
+  }, [id]);
+
+  function broadcast() {
+    window.dispatchEvent(new CustomEvent<string>(MEMO_OPEN_EVENT, { detail: id }));
+  }
 
   function updatePos() {
     if (!btnRef.current) return;
@@ -31,8 +49,8 @@ export function MemoIcon({ memo }: { memo: string }) {
       <button
         ref={btnRef}
         type="button"
-        onClick={() => { updatePos(); setClicked(v => !v); }}
-        onMouseEnter={() => { updatePos(); setHovered(true); }}
+        onClick={() => { updatePos(); broadcast(); setClicked(v => !v); }}
+        onMouseEnter={() => { updatePos(); broadcast(); setHovered(true); }}
         onMouseLeave={() => setHovered(false)}
         onBlur={() => { setClicked(false); setHovered(false); }}
         className="flex items-center text-zinc-400 dark:text-zinc-500"
