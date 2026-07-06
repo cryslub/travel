@@ -110,8 +110,6 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               image_url: d.accommodation.image_url,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
-              price: d.accommodation.price ?? null,
-              price_currency: d.accommodation.price_currency ?? null,
             } : null,
             events: d.events.map((e) => ({
               id: e.id,
@@ -121,6 +119,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               end_time: e.end_time,
               link: e.link,
               image_url: e.image_url,
+              memo: e.memo,
               latitude: e.latitude ?? null,
               longitude: e.longitude ?? null,
               price: e.price ?? null,
