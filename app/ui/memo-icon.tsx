@@ -5,7 +5,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 const MEMO_OPEN_EVENT = 'memo-icon-open';
 
-export function MemoIcon({ memo }: { memo: string }) {
+export function MemoIcon({ memo, className }: { memo: string; className?: string }) {
   const id = useId();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -45,7 +45,7 @@ export function MemoIcon({ memo }: { memo: string }) {
   }
 
   return (
-    <span className="relative flex-shrink-0">
+    <span className={`relative flex-shrink-0${className ? ` ${className}` : ''}`}>
       <button
         ref={btnRef}
         type="button"
