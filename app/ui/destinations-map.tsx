@@ -269,7 +269,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
               {dest.transport?.type && (() => {
                 const Icon = transportIcons[dest.transport!.type!];
                 const label = dest.transport!.link
-                  ? <a href={dest.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.transport!.type}</a>
+                  ? <a href={dest.transport!.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.transport!.type}</a>
                   : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.transport!.type}</span>;
                 return <div className="flex items-center gap-2">{Icon && <div className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>}{label}{dest.transport!.memo && <MemoIcon memo={dest.transport!.memo} />}</div>;
               })()}
@@ -344,7 +344,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
                     <div className="flex items-center gap-2">
                       {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
                       {record.link
-                        ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
+                        ? <a href={record.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                         : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>}
                     </div>
                     {record.memo && <span className="text-xs text-zinc-500 dark:text-zinc-400">{record.memo}</span>}

@@ -35,6 +35,12 @@ button {
   cursor: pointer;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
 select {
   background-position: right 0.75rem center !important;
 }

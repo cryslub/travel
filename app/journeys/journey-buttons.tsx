@@ -6,6 +6,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import { deleteJourney } from './actions';
 
 export function JourneyButtons({ id }: { id: string }) {
@@ -62,6 +63,21 @@ export function JourneyButtons({ id }: { id: string }) {
         )}
       </div>
     </div>
+  );
+}
+
+export function ExploreButton() {
+  const router = useRouter();
+
+  return (
+    <button
+      type="button"
+      title="Explore"
+      onClick={() => router.push('/explore')}
+      className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+    >
+      <TravelExploreIcon fontSize="small" />
+    </button>
   );
 }
 

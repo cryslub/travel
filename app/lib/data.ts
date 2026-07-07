@@ -218,6 +218,26 @@ export async function fetchJourneys(userEmail: string, signInType: string): Prom
   return data;
 }
 
+export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null })[]> {
+  noStore();
+  const data = await sql<(Journey & { user_name: string | null })[]>`
+    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
+      array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
+      SUM(dp.value) AS total_price,
+      p.name AS user_name
+    FROM journeys j
+    JOIN users u ON u.id = j.user_id
+    LEFT JOIN preferences p ON p.user_id = u.id
+    LEFT JOIN journey_countries jc ON jc.journey_id = j.id
+    LEFT JOIN destinations dest ON dest.journey_id = j.id
+    LEFT JOIN prices dp ON dp.id = dest.price_id
+    WHERE NOT (u.email = ${userEmail} AND u.sign_in_type = ${signInType})
+    GROUP BY j.id, u.email, p.name
+    ORDER BY j.start_date DESC NULLS LAST, j.created_time DESC
+  `;
+  return data;
+}
+
 export async function fetchLatestDestinationStartDate(): Promise<string | null> {
   const data = await sql<{ latest: string | null }[]>`SELECT MAX(start_date) AS latest FROM destinations`;
   return data[0]?.latest ?? null;
@@ -268,14 +288,14 @@ export async function fetchUnsectionedDestinationCount(journeyId: string): Promi
 }
 
 export async function fetchUserPreferences(userEmail: string, signInType: string) {
-  const [prefs] = await sql<{ destinations_view: string; currency: string }[]>`
-    SELECT p.destinations_view, p.currency
+  const [prefs] = await sql<{ destinations_view: string; currency: string; name: string | null }[]>`
+    SELECT p.destinations_view, p.currency, p.name
     FROM preferences p
     JOIN users u ON u.id = p.user_id
     WHERE u.email = ${userEmail} AND u.sign_in_type = ${signInType}
     LIMIT 1
   `;
-  return prefs ?? { destinations_view: 'summary', currency: 'USD' };
+  return prefs ?? { destinations_view: 'summary', currency: 'USD', name: null };
 }
 
 export async function fetchSectionsByJourneyId(journeyId: string): Promise<Section[]> {

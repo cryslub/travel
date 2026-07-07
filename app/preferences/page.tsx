@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { fetchUserPreferences } from '@/app/lib/data';
 import { PreferenceViewToggle } from './view-toggle';
 import { CurrencySelector } from './currency-selector';
+import { DisplayNameInput } from './display-name-input';
 
 export default async function PreferencesPage() {
   const session = await getServerSession();
@@ -21,6 +22,9 @@ export default async function PreferencesPage() {
           <div className="mb-6 flex flex-col gap-0.5">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Signed in as</span>
             <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{session.user.email}</span>
+          </div>
+          <div className="mb-6">
+            <DisplayNameInput currentName={prefs.name} />
           </div>
           <PreferenceViewToggle currentView={prefs.destinations_view} />
           <div className="mt-6">

@@ -65,7 +65,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     : allDestinations;
 
   return (
-    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-screen flex flex-col pt-6' : 'pt-6 pb-12 min-h-screen'}`}>
+    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col pt-6 overflow-hidden' : 'pt-6 pb-12 min-h-[calc(100vh_-_57px)]'}`}>
       <div className="w-full mb-4">
         <div className="flex items-center justify-between mb-3">
           <BackToJourneysButton />
@@ -220,7 +220,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 {destination.transport?.type && (() => {
                   const Icon = transportIcons[destination.transport!.type!];
                   const label = destination.transport!.link
-                    ? <a href={destination.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.transport!.type}</a>
+                    ? <a href={destination.transport!.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.transport!.type}</a>
                     : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.transport!.type}</span>;
                   return (
                     <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                       <div className="flex items-center gap-2">
                         {(() => { const Icon = (record.type && recordIcons[record.type]) || NoteOutlinedIcon; return <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>; })()}
                         {record.link
-                          ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
+                          ? <a href={record.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>
                         }
                       </div>

@@ -43,7 +43,7 @@ export function AccommodationItem({ accommodation }: { accommodation: Accommodat
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1">
             {accommodation.link
-              ? <a href={accommodation.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{accommodation.name}</a>
+              ? <a href={accommodation.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{accommodation.name}</a>
               : <span className="font-medium text-zinc-700 dark:text-zinc-300">{accommodation.name}</span>}
             {accommodation.memo && <MemoIcon memo={accommodation.memo} className="mr-6" />}
           </div>

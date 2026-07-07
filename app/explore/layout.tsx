@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { SignOutButton } from '@/app/ui/navbar';
 import { fetchUserPreferences } from '@/app/lib/data';
 
-export default async function JourneysLayout({ children }: { children: React.ReactNode }) {
+export default async function ExploreLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
   const prefs = session?.user?.email ? await fetchUserPreferences(session.user.email, signInType) : null;

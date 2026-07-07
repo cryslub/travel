@@ -15,7 +15,6 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
 
   const show = clicked || hovered;
 
-  const TOOLTIP_WIDTH = 192; // w-48
   const MARGIN = 8;
 
   useEffect(() => {
@@ -48,12 +47,11 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
   function updatePos() {
     if (!btnRef.current) return;
     const rect = btnRef.current.getBoundingClientRect();
-    const left = Math.min(rect.left, window.innerWidth - TOOLTIP_WIDTH - MARGIN);
     const spaceBelow = window.innerHeight - rect.bottom - MARGIN;
     if (spaceBelow < 120) {
-      setPos({ bottom: window.innerHeight - rect.top + 4, left });
+      setPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left });
     } else {
-      setPos({ top: rect.bottom + 4, left });
+      setPos({ top: rect.bottom + 4, left: rect.left });
     }
   }
 
@@ -73,7 +71,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
       {show && (
         <div
           style={{ position: 'fixed', top: pos.top, bottom: pos.bottom, left: pos.left }}
-          className="z-[99999] w-48 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 whitespace-pre-wrap"
+          className="z-[99999] w-max max-w-xs rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 whitespace-pre-wrap"
         >
           {memo}
         </div>

@@ -4,7 +4,7 @@ import postgres from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-async function getExchangeRates(): Promise<Record<string, number>> {
+export async function getExchangeRates(): Promise<Record<string, number>> {
   const cached = await sql<{ currency_b: string; rate: number }[]>`
     SELECT currency_b, rate FROM currencies
     WHERE currency_a = 'USD' AND update_date = CURRENT_DATE
