@@ -73,7 +73,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
 
   return (
     <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
-      <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 pb-2 -mx-[13px] px-[13px] sm:mx-0 sm:px-0">
+      <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:mx-0 sm:px-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />

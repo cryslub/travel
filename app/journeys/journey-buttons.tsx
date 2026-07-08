@@ -74,7 +74,7 @@ export function ExploreButton() {
       type="button"
       title="Explore"
       onClick={() => router.push('/explore')}
-      className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-800"
+      className="rounded-full border border-zinc-300 bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:bg-transparent dark:hover:bg-zinc-800"
     >
       <TravelExploreIcon fontSize="small" />
     </button>

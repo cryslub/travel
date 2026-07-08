@@ -10,7 +10,7 @@ import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinat
 import { AccommodationItem } from '@/app/journeys/[id]/destinations/accommodation-item';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import { MemoIcon } from '@/app/ui/memo-icon';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { BackButton } from './back-button';
 import MovingIcon from '@mui/icons-material/Moving';
 import FlightOutlinedIcon from '@mui/icons-material/FlightOutlined';
 import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
@@ -108,27 +108,23 @@ export default async function ExploreDestinationsPage(props: {
   }));
 
   return (
-    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col pt-6 overflow-hidden' : 'pt-6 pb-12 min-h-[calc(100vh_-_57px)]'}`}>
-      <div className="w-full mb-4">
+    <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
+      <div className={`sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:mx-0 sm:px-0 ${sections.length === 0 ? 'pb-1 sm:pb-3' : ''}`}>
         <div className="flex items-center justify-between mb-3">
-          <a
-            href="/explore"
-            className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium leading-6 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
-          >
-            <ChevronLeftIcon fontSize="small" />
-          </a>
-          <Suspense>
-            <ViewToggle journeyId={id} currentView={currentView} />
-          </Suspense>
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+          </div>
+          <span className="sm:mr-2">
+            <Suspense>
+              <ViewToggle journeyId={id} currentView={currentView} />
+            </Suspense>
+          </span>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
-        </div>
+        <Suspense>
+          <SectionTabs sections={sections} currentSection={activeSection} />
+        </Suspense>
       </div>
-
-      <Suspense>
-        <SectionTabs sections={sections} currentSection={activeSection} />
-      </Suspense>
 
       {currentView === 'summary' && (
         <Suspense>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useTransition, useRef, useMemo } from 'react';
+import { useState, useEffect, useTransition, useRef, useMemo } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -45,6 +45,40 @@ export function SearchBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
+  // Restore saved search when landing on /explore with no params
+  useEffect(() => {
+    if (!searchParams.toString()) {
+      const saved = sessionStorage.getItem('explore-search');
+      if (saved) {
+        const p = new URLSearchParams(saved);
+        setQ(p.get('q') ?? '');
+        setLo(Number(p.get('durMin') ?? MIN));
+        setHi(Number(p.get('durMax') ?? MAX));
+        setContinent(p.get('continent') ?? '');
+        const savedCountry = p.get('country') ?? '';
+        setCountry(savedCountry);
+        setLiked(p.get('liked') === '1');
+        if (savedCountry) {
+          const name = allCountries.find((c) => c.code === savedCountry)?.name ?? '';
+          setCountryInput(name);
+        }
+        router.replace(`/explore?${saved}`);
+      }
+    }
+  }, []);
+
+  // Persist search params to sessionStorage on every search
+  function buildParams() {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (lo !== MIN) params.set('durMin', String(lo));
+    if (hi !== MAX) params.set('durMax', String(hi));
+    if (continent) params.set('continent', continent);
+    if (country) params.set('country', country);
+    if (liked) params.set('liked', '1');
+    return params;
+  }
+
   const loLabel = DURATION_STEPS[lo - 1]?.label ?? '';
   const hiLabel = DURATION_STEPS[hi - 1]?.label ?? '';
   const rangeLabel = lo === hi ? loLabel : `${loLabel} – ${hiLabel}`;
@@ -81,19 +115,10 @@ export function SearchBar() {
     clearCountry();
   }
 
-  function buildParams() {
-    const params = new URLSearchParams();
-    if (q) params.set('q', q);
-    if (lo !== MIN) params.set('durMin', String(lo));
-    if (hi !== MAX) params.set('durMax', String(hi));
-    if (continent) params.set('continent', continent);
-    if (country) params.set('country', country);
-    if (liked) params.set('liked', '1');
-    return params;
-  }
-
   function handleSearch() {
-    startTransition(() => router.replace(`/explore?${buildParams().toString()}`));
+    const params = buildParams();
+    sessionStorage.setItem('explore-search', params.toString());
+    startTransition(() => router.replace(`/explore?${params.toString()}`));
   }
 
   function toggleLiked() {
