@@ -72,17 +72,17 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     : allDestinations;
 
   return (
-    <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col pt-6 overflow-hidden' : 'pt-6 pb-12 min-h-[calc(100vh_-_57px)]'}`}>
-      <div className="w-full mb-4">
+    <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
+      <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 pb-2 -mx-[13px] px-[13px] sm:mx-0 sm:px-0">
         <div className="flex items-center justify-between mb-3">
-          <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
-          <CreateDestinationForJourneyButton journeyId={id} />
+          <div className="flex items-center gap-3">
+            <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
+            <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+          </div>
+          <span className="sm:mr-2"><CreateDestinationForJourneyButton journeyId={id} /></span>
         </div>
-        <div className="flex flex-col">
-          <span className="text-lg font-semibold">{journey.name}</span>
-        </div>
+        <SectionFilter sections={sections} journeyId={id} />
       </div>
-      <SectionFilter sections={sections} journeyId={id} />
       {currentView === 'calendar' && (
         <DestinationsCalendarClient
           destinations={destinations.map((d): CalendarDest => ({

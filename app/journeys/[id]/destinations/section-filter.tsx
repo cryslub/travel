@@ -40,7 +40,7 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
   };
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2 mb-2 sm:mb-4">
       <button
         title={expanded ? 'Collapse sections' : 'Show sections'}
         onClick={() => setExpanded((v) => !v)}

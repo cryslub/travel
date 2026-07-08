@@ -48,7 +48,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="w-full pb-12 min-h-[calc(100vh-57px)] bg-zinc-100 dark:bg-zinc-900">
-      <div className="sticky top-[57px] z-10 bg-zinc-100 dark:bg-zinc-900 pt-6 pb-4">
+      <div className="sticky top-0 z-10 bg-zinc-100 dark:bg-zinc-900 pt-6 pb-4">
         <div className="max-w-3xl mx-auto px-4">
           <Suspense>
             <SearchBar />

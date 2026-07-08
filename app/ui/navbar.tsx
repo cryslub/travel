@@ -1,16 +1,15 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import LogoutIcon from '@mui/icons-material/Logout';
 
 export function SignOutButton() {
   return (
     <button
       onClick={() => signOut({ callbackUrl: '/' })}
-      title="Sign out"
-      className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+      className="flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
     >
-      <LogoutIcon fontSize="small" />
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+      Sign out
     </button>
   );
 }
