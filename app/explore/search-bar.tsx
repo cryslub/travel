@@ -45,24 +45,30 @@ export function SearchBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
-  // Restore saved search when landing on /explore with no params
+  // Restore or reset search when landing on /explore with no params
   useEffect(() => {
     if (!searchParams.toString()) {
-      const saved = sessionStorage.getItem('explore-search');
-      if (saved) {
-        const p = new URLSearchParams(saved);
-        setQ(p.get('q') ?? '');
-        setLo(Number(p.get('durMin') ?? MIN));
-        setHi(Number(p.get('durMax') ?? MAX));
-        setContinent(p.get('continent') ?? '');
-        const savedCountry = p.get('country') ?? '';
-        setCountry(savedCountry);
-        setLiked(p.get('liked') === '1');
-        if (savedCountry) {
-          const name = allCountries.find((c) => c.code === savedCountry)?.name ?? '';
-          setCountryInput(name);
+      const returning = sessionStorage.getItem('explore-returning');
+      sessionStorage.removeItem('explore-returning');
+      if (returning) {
+        const saved = sessionStorage.getItem('explore-search');
+        if (saved) {
+          const p = new URLSearchParams(saved);
+          setQ(p.get('q') ?? '');
+          setLo(Number(p.get('durMin') ?? MIN));
+          setHi(Number(p.get('durMax') ?? MAX));
+          setContinent(p.get('continent') ?? '');
+          const savedCountry = p.get('country') ?? '';
+          setCountry(savedCountry);
+          setLiked(p.get('liked') === '1');
+          if (savedCountry) {
+            const name = allCountries.find((c) => c.code === savedCountry)?.name ?? '';
+            setCountryInput(name);
+          }
+          router.replace(`/explore?${saved}`);
         }
-        router.replace(`/explore?${saved}`);
+      } else {
+        sessionStorage.removeItem('explore-search');
       }
     }
   }, []);
