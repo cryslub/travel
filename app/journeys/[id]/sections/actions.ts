@@ -3,6 +3,7 @@
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { del } from '@vercel/blob';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -31,9 +32,15 @@ export async function deleteSection(sectionId: string, journeyId: string) {
 }
 
 export async function deleteSectionAndDestinations(sectionId: string, journeyId: string) {
+  const [destImgs, eventImgs, accImgs] = await Promise.all([
+    sql<{ image_url: string }[]>`SELECT image_url FROM destinations WHERE section_id = ${sectionId} AND image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT e.image_url FROM events e JOIN destinations d ON d.id = e.destination_id WHERE d.section_id = ${sectionId} AND e.image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT a.image_url FROM accommodations a JOIN destinations d ON d.id = a.destination_id WHERE d.section_id = ${sectionId} AND a.image_url IS NOT NULL`,
+  ]);
   await sql`DELETE FROM destinations WHERE section_id = ${sectionId}`;
   await sql`DELETE FROM sections WHERE id = ${sectionId}`;
-
+  const urls = [...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
+  if (urls.length > 0) await del(urls);
   redirect(`/journeys/${journeyId}/sections`);
 }
 

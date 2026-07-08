@@ -2,7 +2,7 @@
 
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -94,8 +94,14 @@ export async function updateDestination(id: string, formData: FormData) {
 }
 
 export async function deleteDestination(id: string, journeyId: string) {
+  const [destImgs, eventImgs, accImgs] = await Promise.all([
+    sql<{ image_url: string }[]>`SELECT image_url FROM destinations WHERE id = ${id} AND image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT image_url FROM events WHERE destination_id = ${id} AND image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT image_url FROM accommodations WHERE destination_id = ${id} AND image_url IS NOT NULL`,
+  ]);
   await sql`DELETE FROM destinations WHERE id = ${id}`;
-
+  const urls = [...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
+  if (urls.length > 0) await del(urls);
   redirect(`/journeys/${journeyId}/destinations`);
 }
 
@@ -200,13 +206,10 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
 }
 
 export async function deleteEvent(eventId: string, journeyId: string) {
-  const [event] = await sql<{ destination_id: string }[]>`SELECT destination_id FROM events WHERE id = ${eventId}`;
+  const [event] = await sql<{ destination_id: string; image_url: string | null }[]>`SELECT destination_id, image_url FROM events WHERE id = ${eventId}`;
   await sql`DELETE FROM events WHERE id = ${eventId}`;
-
-  if (event?.destination_id) {
-    await updateDestinationTotalPrice(event.destination_id);
-  }
-
+  if (event?.destination_id) await updateDestinationTotalPrice(event.destination_id);
+  if (event?.image_url) await del(event.image_url);
   redirect(`/journeys/${journeyId}/destinations`);
 }
 

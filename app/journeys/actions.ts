@@ -2,7 +2,7 @@
 
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
 
@@ -109,6 +109,14 @@ export async function getJourneyCountryCodes(journeyId: string): Promise<string[
 }
 
 export async function deleteJourney(id: string) {
+  const [journeyImgs, destImgs, eventImgs, accImgs] = await Promise.all([
+    sql<{ image_url: string }[]>`SELECT image_url FROM journeys WHERE id = ${id} AND image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT image_url FROM destinations WHERE journey_id = ${id} AND image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT e.image_url FROM events e JOIN destinations d ON d.id = e.destination_id WHERE d.journey_id = ${id} AND e.image_url IS NOT NULL`,
+    sql<{ image_url: string }[]>`SELECT a.image_url FROM accommodations a JOIN destinations d ON d.id = a.destination_id WHERE d.journey_id = ${id} AND a.image_url IS NOT NULL`,
+  ]);
   await sql`DELETE FROM journeys WHERE id = ${id}`;
+  const urls = [...journeyImgs, ...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
+  if (urls.length > 0) await del(urls);
   redirect('/journeys');
 }
