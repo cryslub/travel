@@ -57,13 +57,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           RETURNING id
         ),
         src_dests AS (
-          SELECT id, name, start_date, location_id,
+          SELECT id, name, start_date, location_id, image_url,
                  ROW_NUMBER() OVER (ORDER BY start_date ASC NULLS LAST, created_time ASC NULLS LAST) AS rn
           FROM destinations WHERE journey_id = ${sourceJourneyId} AND section_id IS NULL
         ),
         ins_dests AS (
-          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, created_time)
-          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, NOW()
+          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time)
+          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
           FROM src_dests d ORDER BY d.rn
           RETURNING id
         ),
@@ -80,13 +80,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           FROM transports t JOIN dest_map m ON m.old_id = t.destination_id
         ),
         ins_accs AS (
-          INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id)
-          SELECT m.new_id, a.name, a.check_in, a.check_out, a.link, a.location_id
+          INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id, image_url)
+          SELECT m.new_id, a.name, a.check_in, a.check_out, a.link, a.location_id, a.image_url
           FROM accommodations a JOIN dest_map m ON m.old_id = a.destination_id
         ),
         ins_events AS (
-          INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, created_time)
-          SELECT m.new_id, e.name, e.type, e.start_time, e.end_time, e.link, e.memo, e.location_id, NOW()
+          INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, image_url, created_time)
+          SELECT m.new_id, e.name, e.type, e.start_time, e.end_time, e.link, e.memo, e.location_id, e.image_url, NOW()
           FROM events e JOIN dest_map m ON m.old_id = e.destination_id
         ),
         ins_records AS (
@@ -106,13 +106,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           RETURNING id
         ),
         src_dests AS (
-          SELECT id, name, start_date, location_id,
+          SELECT id, name, start_date, location_id, image_url,
                  ROW_NUMBER() OVER (ORDER BY start_date ASC NULLS LAST, created_time ASC NULLS LAST) AS rn
           FROM destinations WHERE section_id = ${sourceSectionId}
         ),
         ins_dests AS (
-          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, created_time)
-          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, NOW()
+          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time)
+          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
           FROM src_dests d ORDER BY d.rn
           RETURNING id
         ),
@@ -129,13 +129,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           FROM transports t JOIN dest_map m ON m.old_id = t.destination_id
         ),
         ins_accs AS (
-          INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id)
-          SELECT m.new_id, a.name, a.check_in, a.check_out, a.link, a.location_id
+          INSERT INTO accommodations (destination_id, name, check_in, check_out, link, location_id, image_url)
+          SELECT m.new_id, a.name, a.check_in, a.check_out, a.link, a.location_id, a.image_url
           FROM accommodations a JOIN dest_map m ON m.old_id = a.destination_id
         ),
         ins_events AS (
-          INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, created_time)
-          SELECT m.new_id, e.name, e.type, e.start_time, e.end_time, e.link, e.memo, e.location_id, NOW()
+          INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, location_id, image_url, created_time)
+          SELECT m.new_id, e.name, e.type, e.start_time, e.end_time, e.link, e.memo, e.location_id, e.image_url, NOW()
           FROM events e JOIN dest_map m ON m.old_id = e.destination_id
         ),
         ins_records AS (

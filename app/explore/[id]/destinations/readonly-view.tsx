@@ -19,6 +19,7 @@ import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 import { MemoIcon } from '@/app/ui/memo-icon';
 import { AccommodationItem } from '@/app/journeys/[id]/destinations/accommodation-item';
+import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import type { DestinationWithTransport } from '@/app/lib/definitions';
 
 const eventIcons: Record<string, ElementType<SvgIconProps>> = {
@@ -49,9 +50,11 @@ function formatTime(t: string) {
   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export function ReadonlyDestinationsView({ destinations }: { destinations: DestinationWithTransport[] }) {
+export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { destinations: DestinationWithTransport[]; preferredCurrency?: string }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [expandedEventImages, setExpandedEventImages] = useState<Set<string>>(new Set());
   const dest = selectedIdx !== null ? destinations[selectedIdx] : null;
+  const nextDest = selectedIdx !== null ? (destinations[selectedIdx + 1] ?? null) : null;
 
   return (
     <>
@@ -86,11 +89,6 @@ export function ReadonlyDestinationsView({ destinations }: { destinations: Desti
                   <span className="text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">{d.section_name}</span>
                 )}
               </div>
-              {d.price != null && (
-                <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                  {new Intl.NumberFormat('en', { style: 'currency', currency: d.price_currency ?? 'USD' }).format(d.price)}
-                </span>
-              )}
             </div>
           </li>
         ))}
@@ -119,7 +117,7 @@ export function ReadonlyDestinationsView({ destinations }: { destinations: Desti
                 </div>
                 {dest.price != null && (
                   <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    {new Intl.NumberFormat('en', { style: 'currency', currency: dest.price_currency ?? 'USD' }).format(dest.price)}
+                    {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? dest.price_currency ?? 'USD' }).format(dest.price)}
                   </span>
                 )}
               </div>
@@ -194,12 +192,14 @@ export function ReadonlyDestinationsView({ destinations }: { destinations: Desti
                 <div className="mt-2 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700">
                   {dest.events.map((activity) => {
                     const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon;
+                    const imgExpanded = expandedEventImages.has(activity.id);
                     return (
                       <div key={activity.id} className="flex flex-col py-1.5">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0">
-                            <Icon style={{ fontSize: 16 }} className="text-white" />
-                          </div>
+                          {activity.image_url && !imgExpanded
+                            ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer" onClick={() => setExpandedEventImages(s => new Set(s).add(activity.id))} />
+                            : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
+                          }
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <div className="flex items-center gap-1">
                               {activity.link
@@ -222,11 +222,25 @@ export function ReadonlyDestinationsView({ destinations }: { destinations: Desti
                             )}
                           </div>
                         </div>
+                        {imgExpanded && activity.image_url && (
+                          <img src={activity.image_url} alt="" className="w-full rounded-lg object-cover mt-2 cursor-pointer" onClick={() => setExpandedEventImages(s => { const n = new Set(s); n.delete(activity.id); return n; })} />
+                        )}
                       </div>
                     );
                   })}
                 </div>
               </div>
+
+              {dest.latitude != null && dest.longitude != null && (
+                <DestinationCardMap
+                  lat={dest.latitude}
+                  lon={dest.longitude}
+                  eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
+                  accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name, image_url: dest.accommodation.image_url } : null}
+                  transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
+                  transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
+                />
+              )}
 
               {/* Records */}
               <div className="py-3 text-sm">

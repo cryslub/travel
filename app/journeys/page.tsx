@@ -1,6 +1,7 @@
 import { fetchJourneys } from '@/app/lib/data';
 import { JourneyButtons, CreateJourneyButton, ExploreButton } from './journey-buttons';
 import { CountryBadge } from '@/app/ui/country-badge';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
@@ -11,7 +12,7 @@ export default async function JourneysPage() {
   const journeys = await fetchJourneys(session.user.email, signInType);
 
   return (
-    <main className="w-full px-4 py-12 min-h-screen bg-zinc-100 dark:bg-zinc-900">
+    <main className="w-full px-4 py-12 min-h-[calc(100vh-57px)] bg-zinc-100 dark:bg-zinc-900">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-end justify-between mb-8">
           <h1 className="text-3xl font-semibold tracking-tight">Journeys</h1>
@@ -50,6 +51,12 @@ export default async function JourneysPage() {
                       {journey.countries.map((code) => (
                         <CountryBadge key={code} code={code} />
                       ))}
+                    </div>
+                  )}
+                  {(journey.likes ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+                      <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
+                      <span>{journey.likes}</span>
                     </div>
                   )}
                 </div>

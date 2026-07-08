@@ -29,7 +29,7 @@ const VIEWS = [
   { key: 'listWeek',     Icon: ViewListOutlinedIcon },
 ] as const;
 
-export function DestinationsCalendar({ destinations, isReadonly }: { destinations: CalendarDest[]; isReadonly?: boolean }) {
+export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string }) {
   const calendarRef = useRef<FullCalendar>(null);
   const [activeView, setActiveView] = useState<string>('dayGridMonth');
   const [calendarTitle, setCalendarTitle] = useState('');
@@ -181,7 +181,7 @@ export function DestinationsCalendar({ destinations, isReadonly }: { destination
         />
       </div>
       {selectedDest && (
-        <DestinationModal dest={selectedDest} nextDest={null} onClose={() => setSelectedDest(null)} />
+        <DestinationModal dest={selectedDest} nextDest={null} onClose={() => setSelectedDest(null)} preferredCurrency={preferredCurrency} />
       )}
     </>
   );

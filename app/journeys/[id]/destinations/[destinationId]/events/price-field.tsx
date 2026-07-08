@@ -2,6 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+function readCurrencyCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+  const m = document.cookie.match(/(?:^|;\s*)preferred_currency=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function writeCurrencyCookie(code: string) {
+  document.cookie = `preferred_currency=${encodeURIComponent(code)}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`;
+}
+
 const CURRENCIES = [
   { code: 'AUD', name: 'Australian Dollar',    country: 'au' },
   { code: 'BRL', name: 'Brazilian Real',        country: 'br' },
@@ -61,6 +71,16 @@ export function PriceField({
       );
 
   useEffect(() => {
+    if (!defaultCurrency) {
+      const cookie = readCurrencyCookie();
+      if (cookie) {
+        const found = CURRENCIES.find(c => c.code === cookie);
+        if (found) setSelected(found);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
@@ -105,7 +125,7 @@ export function PriceField({
                   filtered.map(c => (
                     <li
                       key={c.code}
-                      onMouseDown={() => { setSelected(c); setOpen(false); setQuery(''); }}
+                      onMouseDown={() => { setSelected(c); setOpen(false); setQuery(''); writeCurrencyCookie(c.code); }}
                       className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm ${
                         c.code === selected.code
                           ? 'bg-zinc-100 dark:bg-zinc-800'

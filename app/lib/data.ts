@@ -203,7 +203,7 @@ export async function fetchRecordsByDestinationId(destinationId: string): Promis
 export async function fetchJourneys(userEmail: string, signInType: string): Promise<Journey[]> {
   noStore();
   const data = await sql<Journey[]>`
-    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
+    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency, j.likes,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price
     FROM journeys j
@@ -218,22 +218,28 @@ export async function fetchJourneys(userEmail: string, signInType: string): Prom
   return data;
 }
 
-export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null })[]> {
+export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]> {
   noStore();
-  const data = await sql<(Journey & { user_name: string | null })[]>`
+  const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]>`
     SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price,
-      p.name AS user_name
+      p.name AS user_name,
+      COALESCE(j.likes, 0)::int AS like_count,
+      EXISTS (
+        SELECT 1 FROM likes lk
+        WHERE lk.journey_id = j.id AND lk.user_id = vu.id
+      ) AS viewer_liked
     FROM journeys j
     JOIN users u ON u.id = j.user_id
+    JOIN users vu ON vu.email = ${userEmail} AND vu.sign_in_type = ${signInType}
     LEFT JOIN preferences p ON p.user_id = u.id
     LEFT JOIN journey_countries jc ON jc.journey_id = j.id
     LEFT JOIN destinations dest ON dest.journey_id = j.id
     LEFT JOIN prices dp ON dp.id = dest.price_id
     WHERE NOT (u.email = ${userEmail} AND u.sign_in_type = ${signInType})
-    GROUP BY j.id, u.email, p.name
-    ORDER BY j.start_date DESC NULLS LAST, j.created_time DESC
+    GROUP BY j.id, u.email, p.name, vu.id
+    ORDER BY (10 * COALESCE(j.likes, 0) - (CURRENT_DATE - j.created_time::date)) DESC NULLS LAST
   `;
   return data;
 }

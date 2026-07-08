@@ -1,19 +1,13 @@
 ﻿import { notFound } from 'next/navigation';
-import { fetchEventsByDestinationId, fetchDestinationById, fetchUserPreferences } from '@/app/lib/data';
+import { fetchEventsByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { updateEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../../time-fields';
 import { PriceField } from '../../price-field';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
-import { getServerSession } from 'next-auth';
 
 export default async function EditEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/[eventId]/edit'>) {
   const { id: journeyId, destinationId, eventId } = await props.params;
-  const session = await getServerSession();
-  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
-  const prefs = session?.user?.email
-    ? await fetchUserPreferences(session.user.email, signInType)
-    : { currency: 'USD' };
 
   const [events, destination] = await Promise.all([
     fetchEventsByDestinationId(destinationId),
@@ -79,7 +73,7 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
           defaultEndTime={event.end_time ? (() => { const d = new Date(event.end_time!); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })() : ''}
         />
         <input type="hidden" name="price_id" value={event.price_id ?? ''} />
-        <PriceField defaultPrice={event.price} defaultCurrency={event.price_currency ?? prefs?.currency ?? 'USD'} />
+        <PriceField defaultPrice={event.price} defaultCurrency={event.price_currency} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Link</label>
           <input

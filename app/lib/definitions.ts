@@ -21,6 +21,7 @@ export type Journey = {
   created_time: string | null;
   currency?: string | null;
   total_price?: number | null;
+  likes?: number | null;
 };
 
 export type Transport = {

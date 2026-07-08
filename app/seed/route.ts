@@ -281,6 +281,25 @@ async function createCurrencies() {
 }
 
 
+async function createLikes() {
+
+  await sql`
+    DROP TABLE IF EXISTS likes ;
+  `;
+
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS likes (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      journey_id UUID REFERENCES journeys(id) ON DELETE CASCADE
+    );
+  `;
+
+}
+
+
+
 export async function GET() {
   try {
     await ensureExtension();

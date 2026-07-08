@@ -1,17 +1,11 @@
-﻿import { fetchAccommodationByDestinationId, fetchDestinationById, fetchUserPreferences } from '@/app/lib/data';
+﻿import { fetchAccommodationByDestinationId, fetchDestinationById } from '@/app/lib/data';
 import { upsertAccommodation } from '@/app/journeys/[id]/destinations/actions';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
 import { PriceField } from '../../events/price-field';
-import { getServerSession } from 'next-auth';
 
 export default async function EditAccommodationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/accommodation/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
-  const session = await getServerSession();
-  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
-  const prefs = session?.user?.email
-    ? await fetchUserPreferences(session.user.email, signInType)
-    : { currency: 'USD' };
 
   const [accommodation, destination] = await Promise.all([
     fetchAccommodationByDestinationId(destinationId),

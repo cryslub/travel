@@ -1,4 +1,4 @@
-import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
 import { redirect, notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -62,18 +62,44 @@ export default async function ExploreDestinationsPage(props: {
 
   const session = await getServerSession();
   if (!session?.user?.email) redirect('/');
+  const signInType = (session.user as any)?.sign_in_type ?? 'Google';
 
   const journey = await fetchJourneyById(id);
   if (!journey) notFound();
 
-  const [allDestinations, sections] = await Promise.all([
+  const [allDestinations, sections, prefs] = await Promise.all([
     fetchDestinationsByJourneyId(id),
     fetchSectionsByJourneyId(id),
+    fetchUserPreferences(session.user.email, signInType),
   ]);
+  const preferredCurrency = prefs?.currency ?? 'USD';
 
-  const destinations = activeSection
+  let exchangeRates: Record<string, number> = { [preferredCurrency]: 1 };
+  try {
+    const ratesRes = await fetch(`https://api.frankfurter.app/latest?from=${preferredCurrency}`);
+    if (ratesRes.ok) {
+      const ratesData = await ratesRes.json();
+      exchangeRates = { ...ratesData.rates, [preferredCurrency]: 1 };
+    }
+  } catch {}
+
+  function convertAmount(amount: number | null | undefined, fromCurrency: string | null | undefined): number | null {
+    if (amount == null) return null;
+    const from = fromCurrency ?? preferredCurrency;
+    if (from === preferredCurrency) return amount;
+    const rate = exchangeRates[from];
+    if (!rate) return amount;
+    return amount / rate;
+  }
+
+  const destinations = (activeSection
     ? allDestinations.filter((d) => d.section_id === activeSection)
-    : allDestinations;
+    : allDestinations
+  ).map((d) => ({
+    ...d,
+    price: convertAmount(d.price, d.price_currency),
+    price_currency: d.price != null ? preferredCurrency : d.price_currency,
+  }));
 
   return (
     <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col pt-6 overflow-hidden' : 'pt-6 pb-12 min-h-[calc(100vh_-_57px)]'}`}>
@@ -100,7 +126,7 @@ export default async function ExploreDestinationsPage(props: {
 
       {currentView === 'summary' && (
         <Suspense>
-          <ReadonlyDestinationsView destinations={destinations} />
+          <ReadonlyDestinationsView destinations={destinations} preferredCurrency={preferredCurrency} />
         </Suspense>
       )}
 
@@ -125,7 +151,7 @@ export default async function ExploreDestinationsPage(props: {
           }));
         return (
           <div className="flex-1 min-h-0 pb-4">
-            <DestinationsMapClient destinations={mapDestinations} className="h-full" />
+            <DestinationsMapClient destinations={mapDestinations} className="h-full" preferredCurrency={preferredCurrency} />
           </div>
         );
       })()}
@@ -133,6 +159,7 @@ export default async function ExploreDestinationsPage(props: {
       {currentView === 'calendar' && (
         <DestinationsCalendarClient
           isReadonly
+          preferredCurrency={preferredCurrency}
           destinations={destinations.map((d): CalendarDest => ({
             id: d.id,
             name: d.name,
@@ -141,6 +168,8 @@ export default async function ExploreDestinationsPage(props: {
             journey_id: id,
             lat: d.latitude ?? null,
             lon: d.longitude ?? null,
+            price: d.price ?? null,
+            price_currency: d.price_currency ?? null,
             transport: d.transport ? {
               type: d.transport.type,
               start_time: d.transport.start_time,
@@ -165,6 +194,8 @@ export default async function ExploreDestinationsPage(props: {
               memo: d.accommodation.memo,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
+              price: d.accommodation.price ?? null,
+              price_currency: d.accommodation.price_currency ?? null,
             } : null,
             events: d.events.map((e) => ({
               id: e.id,
@@ -209,7 +240,7 @@ export default async function ExploreDestinationsPage(props: {
                   </div>
                   {destination.price != null && (
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                      {new Intl.NumberFormat('en', { style: 'currency', currency: destination.price_currency ?? 'USD' }).format(destination.price)}
+                      {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? destination.price_currency ?? 'USD' }).format(destination.price)}
                     </span>
                   )}
                 </div>
@@ -272,9 +303,10 @@ export default async function ExploreDestinationsPage(props: {
                       const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon;
                       return (
                         <div key={activity.id} className="flex items-center gap-2 py-1.5 flex-1 min-w-0">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0">
-                            <Icon style={{ fontSize: 16 }} className="text-white" />
-                          </div>
+                          {activity.image_url
+                            ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                            : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
+                          }
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <div className="flex items-center gap-1">
                               {activity.link

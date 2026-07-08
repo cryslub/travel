@@ -7,6 +7,6 @@ const DestinationsMap = dynamic(() => import('./destinations-map').then((m) => m
 
 export type { MapDest };
 
-export function DestinationsMapClient({ destinations, className }: { destinations: MapDest[]; className?: string }) {
-  return <DestinationsMap destinations={destinations} className={className} />;
+export function DestinationsMapClient({ destinations, className, preferredCurrency }: { destinations: MapDest[]; className?: string; preferredCurrency?: string }) {
+  return <DestinationsMap destinations={destinations} className={className} preferredCurrency={preferredCurrency} />;
 }

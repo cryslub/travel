@@ -10,6 +10,6 @@ const DestinationsCalendar = dynamic(
 
 export type { CalendarDest };
 
-export function DestinationsCalendarClient({ destinations, isReadonly }: { destinations: CalendarDest[]; isReadonly?: boolean }) {
-  return <DestinationsCalendar destinations={destinations} isReadonly={isReadonly} />;
+export function DestinationsCalendarClient({ destinations, isReadonly, preferredCurrency }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string }) {
+  return <DestinationsCalendar destinations={destinations} isReadonly={isReadonly} preferredCurrency={preferredCurrency} />;
 }

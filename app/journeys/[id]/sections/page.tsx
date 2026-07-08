@@ -12,7 +12,7 @@ export default async function SectionsPage(props: PageProps<'/journeys/[id]/sect
   if (!journey) notFound();
 
   return (
-    <main className="min-h-screen bg-zinc-100 dark:bg-zinc-900 px-4 py-12 min-w-[350px]">
+    <main className="min-h-[calc(100vh-57px)] bg-zinc-100 dark:bg-zinc-900 px-4 py-12 min-w-[350px]">
       <div className="max-w-3xl mx-auto">
       <div className="mb-8">
         <div className="flex justify-between mb-4">

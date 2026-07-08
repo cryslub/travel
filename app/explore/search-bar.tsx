@@ -3,6 +3,10 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition, useRef, useMemo } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { DURATION_STEPS, STEP_COUNT } from './duration-config';
 import { CONTINENTS, getCountriesForContinent, getAllCountries, COUNTRY_CONTINENT } from './continent-config';
 
@@ -11,11 +15,11 @@ const MAX = STEP_COUNT;
 
 const rangeCls = [
   'absolute inset-x-0 w-full appearance-none bg-transparent pointer-events-none',
-  '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none',
+  '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing',
   '[&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full',
   '[&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-zinc-800 [&::-webkit-slider-thumb]:shadow',
   'dark:[&::-webkit-slider-thumb]:border-zinc-200',
-  '[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none',
+  '[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:active:cursor-grabbing',
   '[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full',
   '[&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-zinc-800',
 ].join(' ');
@@ -30,6 +34,8 @@ export function SearchBar() {
   const [hi, setHi] = useState(Number(searchParams.get('durMax') ?? MAX));
   const [continent, setContinent] = useState(searchParams.get('continent') ?? '');
   const [country, setCountry] = useState(searchParams.get('country') ?? '');
+  const [liked, setLiked] = useState(searchParams.get('liked') === '1');
+  const [collapsed, setCollapsed] = useState(true);
 
   // Autocomplete state
   const initCode = searchParams.get('country') ?? '';
@@ -75,14 +81,23 @@ export function SearchBar() {
     clearCountry();
   }
 
-  function handleSearch() {
+  function buildParams() {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (lo !== MIN) params.set('durMin', String(lo));
     if (hi !== MAX) params.set('durMax', String(hi));
     if (continent) params.set('continent', continent);
     if (country) params.set('country', country);
-    startTransition(() => router.replace(`/explore?${params.toString()}`));
+    if (liked) params.set('liked', '1');
+    return params;
+  }
+
+  function handleSearch() {
+    startTransition(() => router.replace(`/explore?${buildParams().toString()}`));
+  }
+
+  function toggleLiked() {
+    setLiked((prev) => !prev);
   }
 
   return (
@@ -97,105 +112,120 @@ export function SearchBar() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
-            placeholder="Search journeys..."
+            placeholder="Search"
             className="w-full rounded-full border border-zinc-300 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-400"
           />
         </div>
-
-      </div>
-
-      {/* Continent + country autocomplete */}
-      <div className="flex flex-wrap items-center gap-2">
-        {CONTINENTS.map(({ code, name }) => (
-          <button
-            key={code}
-            type="button"
-            onClick={() => toggleContinent(code)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-              continent === code
-                ? 'border-zinc-800 bg-zinc-800 text-white dark:border-zinc-200 dark:bg-zinc-200 dark:text-black'
-                : 'border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
-            }`}
-          >
-            {name}
-          </button>
-        ))}
-
-        {/* Country autocomplete */}
-        <div ref={autocompleteRef} className="relative">
-          <div className={`flex items-center rounded-full border w-40 ${
-            country
-              ? 'border-zinc-800 bg-zinc-800 dark:border-zinc-200 dark:bg-zinc-200'
-              : 'border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-800'
-          }`}>
-            {country && (
-              <img
-                src={`https://flagcdn.com/w20/${country.toLowerCase()}.png`}
-                srcSet={`https://flagcdn.com/w40/${country.toLowerCase()}.png 2x`}
-                width={16} height={12} alt=""
-                className="ml-2.5 flex-shrink-0 rounded-sm"
-              />
-            )}
-            <input
-              type="text"
-              value={countryInput}
-              onChange={(e) => { setCountryInput(e.target.value); setCountry(''); setDropdownOpen(true); }}
-              onFocus={() => setDropdownOpen(true)}
-              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
-              placeholder="Country…"
-              className={`flex-1 min-w-0 bg-transparent py-1 text-xs outline-none ${country ? 'pl-1.5' : 'pl-3'} pr-6 ${
-                country
-                  ? 'text-white dark:text-black placeholder-white dark:placeholder-black'
-                  : 'text-zinc-600 dark:text-zinc-300'
-              }`}
-            />
-            {countryInput && (
-              <button
-                type="button"
-                onMouseDown={(e) => { e.preventDefault(); clearCountry(); }}
-                className={`absolute right-2 top-1/2 -translate-y-1/2 text-xs leading-none ${country ? 'text-zinc-300 hover:text-white dark:text-zinc-600 dark:hover:text-black' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
-              >✕</button>
-            )}
-          </div>
-          {dropdownOpen && filteredCountries.length > 0 && (
-            <ul className="absolute left-0 top-full mt-1 z-50 max-h-48 w-52 overflow-y-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-              {filteredCountries.map(({ code, name }) => (
-                <li key={code}>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); selectCountry(code, name); }}
-                    className="flex items-center gap-2 w-full px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                  >
-                    <img
-                      src={`https://flagcdn.com/w20/${code.toLowerCase()}.png`}
-                      srcSet={`https://flagcdn.com/w40/${code.toLowerCase()}.png 2x`}
-                      width={16} height={12} alt=""
-                      className="flex-shrink-0 rounded-sm"
-                    />
-                    {name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-      </div>
-      <div className="flex w-full items-center gap-3 pt-1">
-        {/* Duration slider */}
-        <div className="flex flex-col gap-1 flex-1">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 text-center truncate">{rangeLabel}</span>
-          <div className="relative h-5 flex items-center">
-            <div className="absolute inset-x-0 h-1 rounded-full bg-zinc-200 dark:bg-zinc-600" />
-            <div className="absolute h-1 rounded-full bg-zinc-800 dark:bg-zinc-200" style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }} />
-            <input type="range" min={MIN} max={MAX} step={1} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - 1))} className={rangeCls} />
-            <input type="range" min={MIN} max={MAX} step={1} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + 1))} className={rangeCls} />
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={toggleLiked}
+          className={`flex-shrink-0 flex items-center justify-center rounded-full border p-2 transition-colors ${liked ? 'border-rose-400 bg-rose-50 text-rose-500 dark:border-rose-500 dark:bg-rose-950 dark:text-rose-400' : 'border-zinc-300 bg-white text-zinc-400 hover:text-rose-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400'}`}
+        >
+          {liked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+        </button>
+        <button
+          type="button"
+          onClick={() => setCollapsed((c) => !c)}
+          className="flex-shrink-0 flex items-center justify-center rounded-full border border-zinc-300 bg-white p-2 text-zinc-400 transition-colors hover:text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300"
+        >
+          {collapsed ? <ExpandMoreIcon fontSize="small" /> : <ExpandLessIcon fontSize="small" />}
+        </button>
         <button type="button" onClick={handleSearch} className="flex-shrink-0 rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
           <SearchIcon fontSize="small" />
         </button>
       </div>
+
+      {!collapsed && (
+        <>
+          {/* Continent + country autocomplete */}
+          <div className="flex flex-wrap items-center gap-2">
+            {CONTINENTS.map(({ code, name }) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => toggleContinent(code)}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  continent === code
+                    ? 'border-zinc-800 bg-zinc-800 text-white dark:border-zinc-200 dark:bg-zinc-200 dark:text-black'
+                    : 'border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
+                }`}
+              >
+                {name}
+              </button>
+            ))}
+
+            {/* Country autocomplete */}
+            <div ref={autocompleteRef} className="relative">
+              <div className={`flex items-center rounded-full border w-40 ${
+                country
+                  ? 'border-zinc-800 bg-zinc-800 dark:border-zinc-200 dark:bg-zinc-200'
+                  : 'border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-800'
+              }`}>
+                {country && (
+                  <img
+                    src={`https://flagcdn.com/w20/${country.toLowerCase()}.png`}
+                    srcSet={`https://flagcdn.com/w40/${country.toLowerCase()}.png 2x`}
+                    width={16} height={12} alt=""
+                    className="ml-2.5 flex-shrink-0 rounded-sm"
+                  />
+                )}
+                <input
+                  type="text"
+                  value={countryInput}
+                  onChange={(e) => { setCountryInput(e.target.value); setCountry(''); setDropdownOpen(true); }}
+                  onFocus={() => setDropdownOpen(true)}
+                  onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
+                  placeholder="Country…"
+                  className={`flex-1 min-w-0 bg-transparent py-1 text-xs outline-none ${country ? 'pl-1.5' : 'pl-3'} pr-6 ${
+                    country
+                      ? 'text-white dark:text-black placeholder-white dark:placeholder-black'
+                      : 'text-zinc-600 dark:text-zinc-300'
+                  }`}
+                />
+                {countryInput && (
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); clearCountry(); }}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 text-xs leading-none ${country ? 'text-zinc-300 hover:text-white dark:text-zinc-600 dark:hover:text-black' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+                  >✕</button>
+                )}
+              </div>
+              {dropdownOpen && filteredCountries.length > 0 && (
+                <ul className="absolute left-0 top-full mt-1 z-50 max-h-48 w-52 overflow-y-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+                  {filteredCountries.map(({ code, name }) => (
+                    <li key={code}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); selectCountry(code, name); }}
+                        className="flex items-center gap-2 w-full px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                      >
+                        <img
+                          src={`https://flagcdn.com/w20/${code.toLowerCase()}.png`}
+                          srcSet={`https://flagcdn.com/w40/${code.toLowerCase()}.png 2x`}
+                          width={16} height={12} alt=""
+                          className="flex-shrink-0 rounded-sm"
+                        />
+                        {name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* Duration slider */}
+          <div className="flex flex-col gap-1 w-full pt-1">
+            <div className="relative h-5 flex items-center">
+              <div className="absolute inset-x-0 h-1 rounded-full bg-zinc-200 dark:bg-zinc-600" />
+              <div className="absolute h-1 rounded-full bg-zinc-800 dark:bg-zinc-200" style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }} />
+              <input type="range" min={MIN} max={MAX} step={1} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - 1))} className={rangeCls} />
+              <input type="range" min={MIN} max={MAX} step={1} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + 1))} className={rangeCls} />
+            </div>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 text-center truncate">{rangeLabel}</span>
+          </div>
+        </>
+      )}
       </div>
     </div>
   );

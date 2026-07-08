@@ -36,7 +36,15 @@ delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 const destinationIconPath = 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z';
 
-function createDestinationIcon() {
+function createDestinationIcon(imageUrl?: string | null) {
+  if (imageUrl) {
+    return L.divIcon({
+      html: `<div style="width:40px;height:40px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);overflow:hidden;"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
+      className: '',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+  }
   return L.divIcon({
     html: `<div style="width:28px;height:28px;border-radius:50%;background:#6366f1;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="${destinationIconPath}"/></svg></div>`,
     className: '',
@@ -96,6 +104,8 @@ export type ModalDest = {
     memo: string | null;
     latitude: number | null;
     longitude: number | null;
+    price?: number | null;
+    price_currency?: string | null;
   } | null;
   events: { id: string; name: string | null; type: string | null; start_time: string | null; end_time: string | null; link: string | null; image_url: string | null; memo: string | null; latitude: number | null; longitude: number | null }[];
   records: { id: string; name: string; type: string | null; link: string | null; memo: string | null }[];
@@ -103,8 +113,6 @@ export type ModalDest = {
 
 export type MapDest = ModalDest & { lat: number; lon: number };
 
-const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjI3NmM3NzYyNTY4YTQzM2JhNGE0ODU0OWQxNmUxNmRhIiwiaCI6Im11cm11cjY0In0=';
-const ORS_ROUTED_TYPES = new Set(['Car', 'Bus', 'Train', 'Combined']);
 const TRANSPORT_LINE_COLORS: Record<string, string> = {
   Flight: '#8b5cf6',
   Train: '#ef4444',
@@ -117,56 +125,21 @@ const TRANSPORT_LINE_COLORS: Record<string, string> = {
 function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; onSelect: (d: MapDest, prevName: string | null) => void }) {
   const map = useMap();
   useEffect(() => {
-    let cancelled = false;
     const layers: L.Layer[] = [];
-    const controllers: AbortController[] = [];
-
-    function addLine(coords: [number, number][], dashed: boolean, color: string, dest: MapDest, prevName: string | null) {
-      if (cancelled) return;
-      const line = L.polyline(coords, { color, weight: 6, opacity: 0.5, dashArray: dashed ? '8 6' : undefined });
-      line.on('click', () => onSelect(dest, prevName));
-      line.addTo(map);
-      layers.push(line);
-    }
-
-    async function drawTransport(dest: MapDest, prevName: string | null, controller: AbortController) {
-      const t = dest.transport!;
-      const { start_latitude: sLat, start_longitude: sLon, end_latitude: eLat, end_longitude: eLon, type } = t;
-      if (sLat == null || sLon == null || eLat == null || eLon == null) return;
-      const color = (type && TRANSPORT_LINE_COLORS[type]) || '#f97316';
-      const straight: [number, number][] = [[sLat, sLon], [eLat, eLon]];
-
-      if (type && ORS_ROUTED_TYPES.has(type)) {
-        try {
-          const res = await fetch(
-            `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${sLon},${sLat}&end=${eLon},${eLat}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) throw new Error('ors');
-          const data = await res.json();
-          const coords: [number, number][] = data.features[0].geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]);
-          addLine(coords, false, color, dest, prevName);
-        } catch (e) {
-          if ((e as Error).name !== 'AbortError') addLine(straight, true, color, dest, prevName);
-        }
-      } else {
-        addLine(straight, true, color, dest, prevName);
-      }
-    }
 
     destinations.forEach((d, i) => {
       if (!d.transport) return;
+      const { start_latitude: sLat, start_longitude: sLon, end_latitude: eLat, end_longitude: eLon, type } = d.transport;
+      if (sLat == null || sLon == null || eLat == null || eLon == null) return;
+      const color = (type && TRANSPORT_LINE_COLORS[type]) || '#f97316';
       const prevName = i > 0 ? destinations[i - 1].name : null;
-      const controller = new AbortController();
-      controllers.push(controller);
-      drawTransport(d, prevName, controller);
+      const line = L.polyline([[sLat, sLon], [eLat, eLon]], { color, weight: 6, opacity: 0.5, dashArray: '8 6' });
+      line.on('click', () => onSelect(d, prevName));
+      line.addTo(map);
+      layers.push(line);
     });
 
-    return () => {
-      cancelled = true;
-      layers.forEach((l) => map.removeLayer(l));
-      controllers.forEach((c) => c.abort());
-    };
+    return () => { layers.forEach((l) => map.removeLayer(l)); };
   }, [map, destinations]);
   return null;
 }
@@ -177,7 +150,7 @@ function ClusteredMarkers({ destinations, onSelect }: { destinations: MapDest[];
     const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     destinations.forEach((d, i) => {
       const next = destinations[i + 1] ?? null;
-      L.marker([d.lat, d.lon], { icon: createDestinationIcon() }).on('click', () => onSelect(d, next)).addTo(cluster);
+      L.marker([d.lat, d.lon], { icon: createDestinationIcon(d.image_url) }).on('click', () => onSelect(d, next)).addTo(cluster);
     });
     map.addLayer(cluster);
     return () => { map.removeLayer(cluster); };
@@ -219,7 +192,7 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
-export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest; nextDest: ModalDest | null; onClose: () => void }) {
+export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }: { dest: ModalDest; nextDest: ModalDest | null; onClose: () => void; preferredCurrency?: string }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" onMouseDown={onClose}>
       <div className="absolute inset-0 bg-black/40" />
@@ -240,7 +213,7 @@ export function DestinationModal({ dest, nextDest, onClose }: { dest: ModalDest;
             </div>
             {dest.price != null && (
               <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                {new Intl.NumberFormat('en', { style: 'currency', currency: dest.price_currency ?? 'USD' }).format(dest.price)}
+                {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? dest.price_currency ?? 'USD' }).format(dest.price)}
               </span>
             )}
           </div>
@@ -431,7 +404,7 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
   );
 }
 
-export function DestinationsMap({ destinations, className }: { destinations: MapDest[]; className?: string }) {
+export function DestinationsMap({ destinations, className, preferredCurrency }: { destinations: MapDest[]; className?: string; preferredCurrency?: string }) {
   const [selected, setSelected] = useState<{ dest: MapDest; nextDest: MapDest | null } | null>(null);
   const [selectedTransport, setSelectedTransport] = useState<{ dest: MapDest; prevDestName: string | null } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -492,7 +465,7 @@ export function DestinationsMap({ destinations, className }: { destinations: Map
           )}
         </button>
       </div>
-      {selected && <DestinationModal dest={selected.dest} nextDest={selected.nextDest} onClose={() => setSelected(null)} />}
+      {selected && <DestinationModal dest={selected.dest} nextDest={selected.nextDest} onClose={() => setSelected(null)} preferredCurrency={preferredCurrency} />}
       {selectedTransport?.dest.transport && <TransportModal dest={selectedTransport.dest} prevDestName={selectedTransport.prevDestName} onClose={() => setSelectedTransport(null)} />}
     </>
   );

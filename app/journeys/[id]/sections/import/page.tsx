@@ -29,7 +29,7 @@ export default async function ImportSectionsPage(props: PageProps<'/journeys/[id
   const action = importSections.bind(null, journeyId);
 
   return (
-    <main className="min-h-screen bg-zinc-100 dark:bg-zinc-900 px-4 py-12">
+    <main className="min-h-[calc(100vh-57px)] bg-zinc-100 dark:bg-zinc-900 px-4 py-12">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
