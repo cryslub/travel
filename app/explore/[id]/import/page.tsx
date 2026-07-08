@@ -8,6 +8,12 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export const NONE_SECTION_ID = '__none__';
 
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey ? `Import · ${journey.name}` : 'Import' };
+}
+
 export default async function ImportJourneyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 

@@ -5,6 +5,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
+export const metadata = { title: 'Journeys' };
+
 export default async function JourneysPage() {
   const session = await getServerSession();
   if (!session?.user?.email) redirect('/');

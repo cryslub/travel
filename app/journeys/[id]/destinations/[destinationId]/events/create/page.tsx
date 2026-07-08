@@ -5,6 +5,8 @@ import { fetchDestinationById, fetchLatestEventEndTimeByDestinationId } from '@/
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
 
+export const metadata = { title: 'Create Event' };
+
 export default async function CreateEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/create'>) {
   const { id: journeyId, destinationId } = await props.params;
   const action = createEvent.bind(null, destinationId);

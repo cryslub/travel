@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { fetchRecordsByDestinationId } from '@/app/lib/data';
 import { updateRecord } from '@/app/journeys/[id]/destinations/actions';
 
+export const metadata = { title: 'Edit Record' };
+
 export default async function EditRecordPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/records/[recordId]/edit'>) {
   const { id: journeyId, destinationId, recordId } = await props.params;
   const records = await fetchRecordsByDestinationId(destinationId);

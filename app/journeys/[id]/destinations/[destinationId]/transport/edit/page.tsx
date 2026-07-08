@@ -4,6 +4,8 @@ import { TransportTimeFields } from '../time-fields';
 import { Location } from '@/app/ui/location-autocomplete';
 import { PriceField } from '../../events/price-field';
 
+export const metadata = { title: 'Edit Transport' };
+
 export default async function EditTransportPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/transport/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
 

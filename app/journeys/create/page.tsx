@@ -5,6 +5,8 @@ import { CurrencySelector } from '@/app/ui/currency-selector';
 import { getServerSession } from 'next-auth';
 import { fetchUserPreferences } from '@/app/lib/data';
 
+export const metadata = { title: 'Create Journey' };
+
 export default async function CreateJourneyPage() {
   const session = await getServerSession();
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';

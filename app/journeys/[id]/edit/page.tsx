@@ -6,6 +6,8 @@ import { CountrySelector } from '@/app/ui/country-selector';
 import { CurrencySelector } from '@/app/ui/currency-selector';
 import { getServerSession } from 'next-auth';
 
+export const metadata = { title: 'Edit Journey' };
+
 export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/edit'>) {
   const { id } = await props.params;
   const session = await getServerSession();

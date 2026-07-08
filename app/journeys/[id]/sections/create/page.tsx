@@ -1,5 +1,7 @@
 import { createSection } from '../actions';
 
+export const metadata = { title: 'Create Section' };
+
 export default async function CreateSectionPage(props: PageProps<'/journeys/[id]/sections/create'>) {
   const { id: journeyId } = await props.params;
   const searchParams = await (props as any).searchParams as { redirectTo?: string } | undefined;

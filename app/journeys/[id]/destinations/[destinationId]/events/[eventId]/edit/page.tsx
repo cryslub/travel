@@ -6,6 +6,8 @@ import { PriceField } from '../../price-field';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
 
+export const metadata = { title: 'Edit Event' };
+
 export default async function EditEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/[eventId]/edit'>) {
   const { id: journeyId, destinationId, eventId } = await props.params;
 

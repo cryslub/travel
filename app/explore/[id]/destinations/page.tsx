@@ -50,6 +50,12 @@ const recordIcons: Record<string, ElementType<SvgIconProps>> = {
   Etc: NoteOutlinedIcon,
 };
 
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey?.name ?? 'Journey' };
+}
+
 export default async function ExploreDestinationsPage(props: {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ view?: string; section?: string }>;

@@ -2,6 +2,12 @@ import { fetchSectionsByJourneyId, fetchJourneyById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { BackToDestinationsButton, CreateSectionButton, ImportSectionButton, OverviewButton, EditSectionButton, DeleteSectionButton } from './sections-buttons';
 
+export async function generateMetadata(props: PageProps<'/journeys/[id]/sections'>) {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey ? `Sections · ${journey.name}` : 'Sections' };
+}
+
 export default async function SectionsPage(props: PageProps<'/journeys/[id]/sections'>) {
   const { id: journeyId } = await props.params;
   const [journey, sections] = await Promise.all([

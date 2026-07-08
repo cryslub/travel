@@ -2,6 +2,12 @@ import { fetchSectionsByJourneyId, fetchDestinationsByJourneyId, fetchJourneyByI
 import { notFound } from 'next/navigation';
 import { SectionsAccordion } from './sections-accordion';
 
+export async function generateMetadata(props: PageProps<'/journeys/[id]/sections/overview'>) {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey ? `Overview · ${journey.name}` : 'Overview' };
+}
+
 export default async function SectionsOverviewPage(props: PageProps<'/journeys/[id]/sections/overview'>) {
   const { id: journeyId } = await props.params;
   const searchParams = await (props as any).searchParams as { from?: string } | undefined;

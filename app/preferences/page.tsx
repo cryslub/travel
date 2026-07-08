@@ -5,6 +5,8 @@ import { PreferenceViewToggle } from './view-toggle';
 import { CurrencySelector } from './currency-selector';
 import { DisplayNameInput } from './display-name-input';
 
+export const metadata = { title: 'Preferences' };
+
 export default async function PreferencesPage() {
   const session = await getServerSession();
   if (!session?.user?.email) redirect('/');

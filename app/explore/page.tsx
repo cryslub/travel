@@ -8,6 +8,8 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
+export const metadata = { title: 'Explore' };
+
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ q?: string; durMin?: string; durMax?: string; continent?: string; country?: string; owner?: string; liked?: string }> }) {
   const session = await getServerSession();
   if (!session?.user?.email) redirect('/');

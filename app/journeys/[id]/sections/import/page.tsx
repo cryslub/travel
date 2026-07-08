@@ -4,6 +4,12 @@ import { notFound, redirect } from 'next/navigation';
 import { ImportSectionsForm } from './import-sections-form';
 import { getServerSession } from 'next-auth';
 
+export async function generateMetadata(props: PageProps<'/journeys/[id]/sections/import'>) {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey ? `Import Sections · ${journey.name}` : 'Import Sections' };
+}
+
 export default async function ImportSectionsPage(props: PageProps<'/journeys/[id]/sections/import'>) {
   const { id: journeyId } = await props.params;
   const session = await getServerSession();

@@ -2,6 +2,8 @@ import { fetchSectionsByJourneyId } from '@/app/lib/data';
 import { updateSection } from '../../actions';
 import { notFound } from 'next/navigation';
 
+export const metadata = { title: 'Edit Section' };
+
 export default async function EditSectionPage(props: PageProps<'/journeys/[id]/sections/[sectionId]/edit'>) {
   const { id: journeyId, sectionId } = await props.params;
   const sections = await fetchSectionsByJourneyId(journeyId);

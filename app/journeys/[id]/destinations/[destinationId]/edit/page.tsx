@@ -4,6 +4,8 @@ import { updateDestination } from '@/app/journeys/[id]/destinations/actions';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
 
+export const metadata = { title: 'Edit Destination' };
+
 export default async function EditDestinationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/edit'>) {
   const { id: journeyId, destinationId } = await props.params;
   const [destination, sections] = await Promise.all([

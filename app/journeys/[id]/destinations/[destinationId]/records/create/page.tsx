@@ -1,5 +1,7 @@
 import { createRecord } from '@/app/journeys/[id]/destinations/actions';
 
+export const metadata = { title: 'Create Record' };
+
 export default async function CreateRecordPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/records/create'>) {
   const { id: journeyId, destinationId } = await props.params;
   const action = createRecord.bind(null, destinationId);

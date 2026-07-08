@@ -4,7 +4,7 @@ import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { EventItem } from './event-item';
 import { AccommodationItem } from './accommodation-item';
-import { BackToJourneysButton, CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
+import { CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
 import { MemoIcon } from '@/app/ui/memo-icon';
 import { SummaryList } from './summary-list';
@@ -22,6 +22,13 @@ import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+
+export async function generateMetadata(props: PageProps<'/journeys/[id]/destinations'>): Promise<Metadata> {
+  const { id } = await props.params;
+  const journey = await fetchJourneyById(id);
+  return { title: journey?.name ?? 'Journey' };
+}
 
 const recordIcons: Record<string, ElementType<SvgIconProps>> = {
   Video: SmartDisplayOutlinedIcon,
@@ -68,14 +75,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     <main className={`w-full px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col pt-6 overflow-hidden' : 'pt-6 pb-12 min-h-[calc(100vh_-_57px)]'}`}>
       <div className="w-full mb-4">
         <div className="flex items-center justify-between mb-3">
-          <BackToJourneysButton />
-          <div className="flex gap-2">
-            <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
-            <CreateDestinationForJourneyButton journeyId={id} />
-          </div>
+          <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
+          <CreateDestinationForJourneyButton journeyId={id} />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm text-zinc-500 dark:text-zinc-400">{journey.name}</span>
+          <span className="text-lg font-semibold">{journey.name}</span>
         </div>
       </div>
       <SectionFilter sections={sections} journeyId={id} />

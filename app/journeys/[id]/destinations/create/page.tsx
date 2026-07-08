@@ -3,6 +3,8 @@ import { fetchJourneyById, fetchLatestDestinationStartDateByJourneyId, fetchSect
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
 
+export const metadata = { title: 'Create Destination' };
+
 export default async function CreateDestinationPage(props: PageProps<'/journeys/[id]/destinations/create'>) {
   const { id } = await props.params;
   const [latestDate, journey, sections] = await Promise.all([
