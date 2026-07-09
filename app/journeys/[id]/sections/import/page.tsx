@@ -3,6 +3,7 @@ import { importSections } from '../actions';
 import { notFound, redirect } from 'next/navigation';
 import { ImportSectionsForm } from './import-sections-form';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 
 export async function generateMetadata(props: PageProps<'/journeys/[id]/sections/import'>) {
   const { id } = await props.params;
@@ -12,7 +13,7 @@ export async function generateMetadata(props: PageProps<'/journeys/[id]/sections
 
 export default async function ImportSectionsPage(props: PageProps<'/journeys/[id]/sections/import'>) {
   const { id: journeyId } = await props.params;
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/');
 
   const journey = await fetchJourneyById(journeyId);

@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { put, del } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -20,7 +21,7 @@ export async function createJourney(formData: FormData) {
     image_url = url;
   }
 
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const userEmail = session?.user?.email ?? null;
   const signInType = (session?.user as any)?.sign_in_type ?? null;
   const [user] = await sql<{ id: string }[]>`SELECT id FROM users WHERE email = ${userEmail} AND sign_in_type = ${signInType} LIMIT 1`;

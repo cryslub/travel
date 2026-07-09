@@ -3,12 +3,13 @@ import { JourneyButtons, CreateJourneyButton, ExploreButton } from './journey-bu
 import { CountryBadge } from '@/app/ui/country-badge';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { redirect } from 'next/navigation';
 
 export const metadata = { title: 'Journeys' };
 
 export default async function JourneysPage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/');
   const signInType = session.user.sign_in_type ?? 'Google';
   const journeys = await fetchJourneys(session.user.email, signInType);

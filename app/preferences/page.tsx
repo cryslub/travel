@@ -1,4 +1,5 @@
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { redirect } from 'next/navigation';
 import { fetchUserPreferences } from '@/app/lib/data';
 import { PreferenceViewToggle } from './view-toggle';
@@ -9,7 +10,7 @@ import { SignOutButton } from '@/app/ui/navbar';
 export const metadata = { title: 'Preferences' };
 
 export default async function PreferencesPage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/');
 
   const signInType = (session.user as any).sign_in_type ?? 'Google';

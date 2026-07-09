@@ -1,9 +1,10 @@
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { fetchUserPreferences, fetchJourneys } from '@/app/lib/data';
 import { Sidebar } from '@/app/ui/sidebar';
 
 export default async function PreferencesLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
   const [prefs, journeys] = session?.user?.email
     ? await Promise.all([

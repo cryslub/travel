@@ -2,12 +2,13 @@
 
 import postgres from 'postgres';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { revalidatePath } from 'next/cache';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function toggleJourneyLike(journeyId: string, currentlyLiked: boolean) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) return;
   const signInType = (session.user as any)?.sign_in_type ?? 'Google';
 
@@ -36,7 +37,7 @@ export async function toggleJourneyLike(journeyId: string, currentlyLiked: boole
 }
 
 export async function importJourney(sourceJourneyId: string, selectedSectionIds?: string[]): Promise<string | null> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) return null;
   const signInType = (session.user as any)?.sign_in_type ?? 'Google';
   const [user] = await sql<{ id: string }[]>`SELECT id FROM users WHERE email = ${session.user.email} AND sign_in_type = ${signInType}`;

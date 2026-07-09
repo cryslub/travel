@@ -1,13 +1,14 @@
 'use server';
 
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import postgres from 'postgres';
 import { revalidatePath } from 'next/cache';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function updateDestinationsView(view: string) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) return;
   const signInType = (session.user as any).sign_in_type ?? 'Google';
 
@@ -24,7 +25,7 @@ export async function updateDestinationsView(view: string) {
 }
 
 export async function updateDisplayName(name: string) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) return;
   const signInType = (session.user as any).sign_in_type ?? 'Google';
 
@@ -41,7 +42,7 @@ export async function updateDisplayName(name: string) {
 }
 
 export async function updateCurrency(currency: string) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) return;
   const signInType = (session.user as any).sign_in_type ?? 'Google';
 

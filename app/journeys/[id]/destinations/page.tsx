@@ -1,5 +1,6 @@
 import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { SectionFilter } from './section-filter';
 import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { EventItem } from './event-item';
@@ -50,7 +51,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const { section: sectionFilter, view: viewParam } = await props.searchParams;
   const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
 
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
   const prefs = session?.user?.email
     ? await fetchUserPreferences(session.user.email, signInType)

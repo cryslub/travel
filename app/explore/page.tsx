@@ -5,13 +5,14 @@ import { JourneyList } from './journey-list';
 import { getDurationFilter } from './duration-config';
 import { journeyMatchesContinent } from './continent-config';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata = { title: 'Explore' };
 
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ q?: string; durMin?: string; durMax?: string; continent?: string; country?: string; owner?: string; liked?: string }> }) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/');
   const signInType = session.user.sign_in_type ?? 'Google';
   const { q, durMin, durMax, continent, country, owner, liked } = await searchParams;

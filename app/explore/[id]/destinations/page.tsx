@@ -1,5 +1,6 @@
 import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { redirect, notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { ReadonlyDestinationsView } from './readonly-view';
@@ -66,7 +67,7 @@ export default async function ExploreDestinationsPage(props: {
   const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : 'summary';
   const activeSection = Array.isArray(sectionParam) ? sectionParam[0] : sectionParam;
 
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/');
   const signInType = (session.user as any)?.sign_in_type ?? 'Google';
 

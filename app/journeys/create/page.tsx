@@ -3,12 +3,13 @@ import { ImageUpload } from '@/app/ui/image-upload';
 import { CountrySelector } from '@/app/ui/country-selector';
 import { CurrencySelector } from '@/app/ui/currency-selector';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { fetchUserPreferences } from '@/app/lib/data';
 
 export const metadata = { title: 'Create Journey' };
 
 export default async function CreateJourneyPage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
   const prefs = session?.user?.email
     ? await fetchUserPreferences(session.user.email, signInType)
