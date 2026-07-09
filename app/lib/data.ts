@@ -92,6 +92,28 @@ export async function fetchDestinationById(id: string): Promise<(Destination & {
   return data[0] ?? null;
 }
 
+export async function fetchPreviousDestination(
+  journeyId: string,
+  destinationId: string,
+  startDate: string | null,
+): Promise<{ location_name: string | null; latitude: number | null; longitude: number | null; location_id: string | null } | null> {
+  const data = await sql<{ location_name: string | null; latitude: number | null; longitude: number | null; location_id: string | null }[]>`
+    SELECT d.location_id, l.name AS location_name, l.latitude, l.longitude
+    FROM destinations d
+    LEFT JOIN locations l ON l.id = d.location_id
+    WHERE d.journey_id = ${journeyId}
+      AND d.id != ${destinationId}
+      AND (
+        ${startDate} IS NULL
+        OR d.start_date < ${startDate}
+        OR (d.start_date = ${startDate} AND d.id < ${destinationId})
+      )
+    ORDER BY d.start_date DESC NULLS LAST, d.id DESC
+    LIMIT 1
+  `;
+  return data[0] ?? null;
+}
+
 export async function fetchAccommodationByDestinationId(destinationId: string): Promise<(Accommodation & { location_name: string | null; latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null }) | null> {
   const data = await sql<(Accommodation & { location_name: string | null; latitude: number | null; longitude: number | null; price: number | null; price_currency: string | null })[]>`
     SELECT a.id, a.destination_id, a.name, a.check_in, a.check_out, a.link, a.memo, a.image_url, a.location_id, a.price_id,

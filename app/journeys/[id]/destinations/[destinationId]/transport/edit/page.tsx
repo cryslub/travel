@@ -1,4 +1,4 @@
-﻿import { fetchTransportByDestinationId, fetchDestinationById } from '@/app/lib/data';
+﻿import { fetchTransportByDestinationId, fetchDestinationById, fetchPreviousDestination } from '@/app/lib/data';
 import { upsertTransport } from '@/app/journeys/[id]/destinations/actions';
 import { TransportTimeFields } from '../time-fields';
 import { Location } from '@/app/ui/location-autocomplete';
@@ -13,6 +13,10 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
     fetchTransportByDestinationId(destinationId),
     fetchDestinationById(destinationId),
   ]);
+
+  const prevDest = (!transport?.start_location_id && destination != null)
+    ? await fetchPreviousDestination(destination.journey_id, destinationId, destination.start_date ?? null)
+    : null;
 
   const action = upsertTransport.bind(null, destinationId);
 
@@ -78,13 +82,13 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             name="start_location"
             placeholder="Search location…"
             syncInputId="start_terminal"
-            defaultLocationName={transport?.start_location_name ?? ''}
-            defaultLat={transport?.start_latitude != null ? String(transport.start_latitude) : ''}
-            defaultLon={transport?.start_longitude != null ? String(transport.start_longitude) : ''}
-            defaultValue={transport?.start_location_name ? transport.start_location_name.split(',')[0].trim() : ''}
+            defaultLocationName={transport?.start_location_name ?? prevDest?.location_name ?? ''}
+            defaultLat={transport?.start_latitude != null ? String(transport.start_latitude) : prevDest?.latitude != null ? String(prevDest.latitude) : ''}
+            defaultLon={transport?.start_longitude != null ? String(transport.start_longitude) : prevDest?.longitude != null ? String(prevDest.longitude) : ''}
+            defaultValue={transport?.start_location_name ? transport.start_location_name.split(',')[0].trim() : prevDest?.location_name ? prevDest.location_name.split(',')[0].trim() : ''}
             fieldNames={{ locationName: 'start_location_name', lat: 'start_latitude', lon: 'start_longitude' }}
             locationIdFieldName="start_location_id"
-            defaultLocationId={transport?.start_location_id ?? ''}
+            defaultLocationId={transport?.start_location_id ?? prevDest?.location_id ?? ''}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -106,13 +110,13 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             name="end_location"
             placeholder="Search location…"
             syncInputId="end_terminal"
-            defaultLocationName={transport?.end_location_name ?? ''}
-            defaultLat={transport?.end_latitude != null ? String(transport.end_latitude) : ''}
-            defaultLon={transport?.end_longitude != null ? String(transport.end_longitude) : ''}
-            defaultValue={transport?.end_location_name ? transport.end_location_name.split(',')[0].trim() : ''}
+            defaultLocationName={transport?.end_location_name ?? destination?.location_name ?? ''}
+            defaultLat={transport?.end_latitude != null ? String(transport.end_latitude) : destination?.latitude != null ? String(destination.latitude) : ''}
+            defaultLon={transport?.end_longitude != null ? String(transport.end_longitude) : destination?.longitude != null ? String(destination.longitude) : ''}
+            defaultValue={transport?.end_location_name ? transport.end_location_name.split(',')[0].trim() : destination?.location_name ? destination.location_name.split(',')[0].trim() : ''}
             fieldNames={{ locationName: 'end_location_name', lat: 'end_latitude', lon: 'end_longitude' }}
             locationIdFieldName="end_location_id"
-            defaultLocationId={transport?.end_location_id ?? ''}
+            defaultLocationId={transport?.end_location_id ?? destination?.location_id ?? ''}
           />
         </div>
         <input type="hidden" name="price_id" value={transport?.price_id ?? ''} />
