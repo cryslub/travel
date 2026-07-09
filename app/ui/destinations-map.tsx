@@ -229,7 +229,7 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 overflow-y-auto p-4">
+        <div className="flex flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
           {dest.image_url && (
             <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
           )}

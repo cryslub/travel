@@ -249,7 +249,7 @@ export default async function ExploreDestinationsPage(props: {
                 {destination.image_url && (
                   <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
                 )}
-                <div className="py-3 text-sm">
+                {destination.transport && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
                   <div className="flex flex-col gap-1 mt-2">
                     {destination.transport?.type && (() => {
@@ -291,14 +291,14 @@ export default async function ExploreDestinationsPage(props: {
                       </span>
                     )}
                   </div>
-                </div>
-                <div className="py-3 text-sm">
+                </div>}
+                {destination.accommodation && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
                   <div className="flex flex-col gap-1 mt-2">
-                    {destination.accommodation && <AccommodationItem accommodation={destination.accommodation} />}
+                    <AccommodationItem accommodation={destination.accommodation} />
                   </div>
-                </div>
-                <div className="py-3 text-sm">
+                </div>}
+                {destination.events.length > 0 && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
                   <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
                     {destination.events.map((activity) => {
@@ -327,7 +327,7 @@ export default async function ExploreDestinationsPage(props: {
                       );
                     })}
                   </div>
-                </div>
+                </div>}
                 {destination.latitude != null && destination.longitude != null && (
                   <DestinationCardMap
                     lat={destination.latitude}
@@ -353,7 +353,7 @@ export default async function ExploreDestinationsPage(props: {
                     })()}
                   />
                 )}
-                <div className="py-3 text-sm">
+                {destination.records.length > 0 && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
                   <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
                     {destination.records.map((record) => {
@@ -372,7 +372,7 @@ export default async function ExploreDestinationsPage(props: {
                       );
                     })}
                   </div>
-                </div>
+                </div>}
               </li>
             ))}
           </ul>

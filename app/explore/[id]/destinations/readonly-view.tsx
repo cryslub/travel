@@ -130,13 +130,13 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
               </button>
             </div>
 
-            <div className="flex flex-col gap-3 overflow-y-auto p-4">
+            <div className="flex flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
               {dest.image_url && (
                 <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
               )}
 
               {/* Transport */}
-              <div className="py-3 text-sm">
+              {dest.transport && <div className="py-3 text-sm">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
                 <div className="mt-2 flex flex-col gap-1">
                   {dest.transport?.type && (() => {
@@ -176,18 +176,18 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                     </span>
                   )}
                 </div>
-              </div>
+              </div>}
 
               {/* Accommodation */}
-              <div className="py-3 text-sm">
+              {dest.accommodation && <div className="py-3 text-sm">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
                 <div className="mt-2 flex flex-col gap-1">
-                  {dest.accommodation && <AccommodationItem accommodation={dest.accommodation} />}
+                  <AccommodationItem accommodation={dest.accommodation} />
                 </div>
-              </div>
+              </div>}
 
               {/* Events */}
-              <div className="py-3 text-sm">
+              {dest.events.length > 0 && <div className="py-3 text-sm">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
                 <div className="mt-2 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700">
                   {dest.events.map((activity) => {
@@ -229,7 +229,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                     );
                   })}
                 </div>
-              </div>
+              </div>}
 
               {dest.latitude != null && dest.longitude != null && (
                 <DestinationCardMap
@@ -243,7 +243,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
               )}
 
               {/* Records */}
-              <div className="py-3 text-sm">
+              {dest.records.length > 0 && <div className="py-3 text-sm">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
                 <div className="mt-2 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700">
                   {dest.records.map((record) => {
@@ -262,7 +262,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                     );
                   })}
                 </div>
-              </div>
+              </div>}
             </div>
           </div>
         </div>
