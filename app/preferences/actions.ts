@@ -24,6 +24,23 @@ export async function updateDestinationsView(view: string) {
   revalidatePath('/preferences');
 }
 
+export async function updateCalendarSubView(subView: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) return;
+  const signInType = (session.user as any).sign_in_type ?? 'Google';
+
+  await sql`
+    UPDATE preferences p
+    SET destinations_view_sub = ${subView}
+    FROM users u
+    WHERE u.id = p.user_id
+      AND u.email = ${session.user.email}
+      AND u.sign_in_type = ${signInType}
+  `;
+
+  revalidatePath('/preferences');
+}
+
 export async function updateDisplayName(name: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return;

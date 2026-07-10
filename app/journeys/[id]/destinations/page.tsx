@@ -55,8 +55,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
   const prefs = session?.user?.email
     ? await fetchUserPreferences(session.user.email, signInType)
-    : { destinations_view: 'summary' };
+    : { destinations_view: 'summary', destinations_view_sub: null as string | null };
   const prefView = prefs.destinations_view.toLowerCase() as 'summary' | 'cards' | 'map' | 'calendar';
+  const prefCalendarView = prefs.destinations_view_sub ?? 'month';
 
   const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : viewStr === 'summary' ? 'summary' : prefView;
   const journey = await fetchJourneyById(id);
@@ -127,6 +128,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               memo: d.accommodation.memo,
               latitude: d.accommodation.latitude,
               longitude: d.accommodation.longitude,
+              price: d.accommodation.price ?? null,
+              price_currency: d.accommodation.price_currency ?? null,
             } : null,
             events: d.events.map((e) => ({
               id: e.id,
@@ -150,7 +153,10 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               memo: r.memo,
             })),
             image_url: d.image_url,
+            price: d.price ?? null,
+            price_currency: d.price_currency ?? null,
           }))}
+          defaultCalendarView={prefCalendarView}
         />
       )}
       {currentView === 'map' && (() => {

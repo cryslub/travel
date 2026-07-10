@@ -23,21 +23,38 @@ import { ModalDest, DestinationModal } from './destinations-map';
 export type CalendarDest = ModalDest;
 
 const VIEWS = [
-  { key: 'dayGridMonth', Icon: CalendarMonthOutlinedIcon },
-  { key: 'timeGridWeek', Icon: ViewWeekOutlinedIcon },
-  { key: 'timeGridDay',  Icon: ViewDayOutlinedIcon },
-  { key: 'listWeek',     Icon: ViewListOutlinedIcon },
+  { key: 'dayGridMonth', Icon: CalendarMonthOutlinedIcon, label: 'Month' },
+  { key: 'timeGridWeek', Icon: ViewWeekOutlinedIcon,      label: 'Week' },
+  { key: 'timeGridDay',  Icon: ViewDayOutlinedIcon,       label: 'Day' },
+  { key: 'listWeek',     Icon: ViewListOutlinedIcon,      label: 'List' },
 ] as const;
 
-export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string }) {
+const PREF_TO_FC: Record<string, string> = {
+  month: 'dayGridMonth',
+  week: 'timeGridWeek',
+  day: 'timeGridDay',
+  list: 'listWeek',
+};
+
+export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency, defaultCalendarView }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string }) {
+  const initialFcView = (() => {
+    const fc = (defaultCalendarView && PREF_TO_FC[defaultCalendarView]) ?? 'dayGridMonth';
+    return fc === 'timeGridWeek' && window.innerWidth < 640 ? 'timeGridDay' : fc;
+  })();
   const calendarRef = useRef<FullCalendar>(null);
-  const [activeView, setActiveView] = useState<string>('dayGridMonth');
+  const [activeView, setActiveView] = useState<string>(initialFcView);
   const [calendarTitle, setCalendarTitle] = useState('');
   const [selectedDest, setSelectedDest] = useState<ModalDest | null>(null);
+  const [localDestinations, setLocalDestinations] = useState<CalendarDest[]>(destinations);
+
+  function updateLocalDest(updater: (d: CalendarDest) => CalendarDest, destId: string) {
+    setLocalDestinations((prev) => prev.map((d) => d.id === destId ? updater(d) : d));
+    setSelectedDest((prev) => prev?.id === destId ? updater(prev) : prev);
+  }
 
   const calendarEvents = useMemo(() => {
     const result: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; extendedProps?: Record<string, unknown> }[] = [];
-    for (const dest of destinations) {
+    for (const dest of localDestinations) {
       if (dest.start_date) {
         result.push({ id: `dest-${dest.id}`, title: dest.name, start: dest.start_date, allDay: true, color: '#6366f1', extendedProps: { transportStartTime: dest.transport?.start_time ?? '' } });
       }
@@ -60,7 +77,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   }, [destinations]);
 
   const initialDate = useMemo(() => {
-    const dates = destinations.flatMap((d) => [
+    const dates = localDestinations.flatMap((d) => [
       d.start_date,
       ...d.events.map((e) => e.start_time?.slice(0, 10) ?? null),
       d.transport?.start_time?.slice(0, 10) ?? null,
@@ -81,11 +98,31 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     if (!start) { info.revert(); return; }
     try {
       if (id.startsWith('dest-')) {
-        await calendarUpdateDestinationDate(id.slice(5), toDateStr(start));
+        const destId = id.slice(5);
+        await calendarUpdateDestinationDate(destId, toDateStr(start));
+        updateLocalDest((d) => ({ ...d, start_date: toDateStr(start) }), destId);
       } else if (id.startsWith('ev-')) {
-        await calendarUpdateEventTimes(id.slice(3), toTimeStr(start), end ? toTimeStr(end) : null);
+        const evId = id.slice(3);
+        const destId = localDestinations.find((d) => d.events.some((e) => e.id === evId))?.id;
+        await calendarUpdateEventTimes(evId, toTimeStr(start), end ? toTimeStr(end) : null);
+        if (destId) updateLocalDest((d) => ({
+          ...d,
+          events: d.events
+            .map((e) => e.id === evId ? { ...e, start_time: toTimeStr(start), end_time: end ? toTimeStr(end) : e.end_time } : e)
+            .sort((a, b) => {
+              if (!a.start_time && !b.start_time) return 0;
+              if (!a.start_time) return 1;
+              if (!b.start_time) return -1;
+              return a.start_time < b.start_time ? -1 : a.start_time > b.start_time ? 1 : 0;
+            }),
+        }), destId);
       } else if (id.startsWith('tr-')) {
-        await calendarUpdateTransportTimes(id.slice(3), toTimeStr(start), end ? toTimeStr(end) : null);
+        const destId = id.slice(3);
+        await calendarUpdateTransportTimes(destId, toTimeStr(start), end ? toTimeStr(end) : null);
+        updateLocalDest((d) => ({
+          ...d,
+          transport: d.transport ? { ...d.transport, start_time: toTimeStr(start), end_time: end ? toTimeStr(end) : d.transport.end_time } : d.transport,
+        }), destId);
       }
     } catch {
       info.revert();
@@ -96,12 +133,12 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     const { id } = info.event;
     let dest: ModalDest | undefined;
     if (id.startsWith('dest-')) {
-      dest = destinations.find((d) => d.id === id.slice(5));
+      dest = localDestinations.find((d) => d.id === id.slice(5));
     } else if (id.startsWith('ev-')) {
       const evId = id.slice(3);
-      dest = destinations.find((d) => d.events.some((e) => e.id === evId));
+      dest = localDestinations.find((d) => d.events.some((e) => e.id === evId));
     } else if (id.startsWith('tr-')) {
-      dest = destinations.find((d) => d.id === id.slice(3));
+      dest = localDestinations.find((d) => d.id === id.slice(3));
     }
     if (dest) setSelectedDest(dest);
   }
@@ -122,10 +159,11 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
         {/* Row 1: view buttons + nav buttons */}
         <div className="flex items-center justify-between">
           <div className="flex overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-700">
-            {VIEWS.map(({ key, Icon }, i) => (
+            {VIEWS.map(({ key, Icon, label }, i) => (
               <button
                 key={key}
                 type="button"
+                title={label}
                 onClick={() => changeView(key)}
                 className={`${i > 0 ? divider : ''} ${btnBase} ${activeView === key ? active : inactive}${key === 'timeGridWeek' ? ' hidden sm:block' : ''}`}
               >
@@ -134,13 +172,13 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
             ))}
           </div>
           <div className="flex overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-700">
-            <button type="button" onClick={() => calendarRef.current?.getApi().prev()} className={`${btnBase} ${inactive}`}>
+            <button type="button" title="Previous" onClick={() => calendarRef.current?.getApi().prev()} className={`${btnBase} ${inactive}`}>
               <ChevronLeftIcon fontSize="small" />
             </button>
-            <button type="button" onClick={() => calendarRef.current?.getApi().today()} className={`${divider} ${btnBase} ${inactive}`}>
+            <button type="button" title="Today" onClick={() => calendarRef.current?.getApi().today()} className={`${divider} ${btnBase} ${inactive}`}>
               <TodayIcon fontSize="small" />
             </button>
-            <button type="button" onClick={() => calendarRef.current?.getApi().next()} className={`${divider} ${btnBase} ${inactive}`}>
+            <button type="button" title="Next" onClick={() => calendarRef.current?.getApi().next()} className={`${divider} ${btnBase} ${inactive}`}>
               <ChevronRightIcon fontSize="small" />
             </button>
           </div>
@@ -150,7 +188,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
+          initialView={initialFcView}
           initialDate={initialDate}
           events={calendarEvents}
           height="auto"

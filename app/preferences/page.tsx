@@ -33,7 +33,7 @@ export default async function PreferencesPage() {
           <div className="mb-6">
             <DisplayNameInput currentName={prefs.name} />
           </div>
-          <PreferenceViewToggle currentView={prefs.destinations_view} />
+          <PreferenceViewToggle currentView={prefs.destinations_view} currentCalendarSubView={prefs.destinations_view_sub ?? null} />
           <div className="mt-6">
             <CurrencySelector currentCurrency={prefs.currency} />
           </div>

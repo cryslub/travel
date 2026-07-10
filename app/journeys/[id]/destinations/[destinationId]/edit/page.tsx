@@ -18,7 +18,7 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
   const action = updateDestination.bind(null, destinationId);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="w-[350px] mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Edit Destination</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />

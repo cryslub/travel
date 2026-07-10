@@ -316,14 +316,14 @@ export async function fetchUnsectionedDestinationCount(journeyId: string): Promi
 }
 
 export async function fetchUserPreferences(userEmail: string, signInType: string) {
-  const [prefs] = await sql<{ destinations_view: string; currency: string; name: string | null }[]>`
-    SELECT p.destinations_view, p.currency, p.name
+  const [prefs] = await sql<{ destinations_view: string; destinations_view_sub: string | null; currency: string; name: string | null }[]>`
+    SELECT p.destinations_view, p.destinations_view_sub, p.currency, p.name
     FROM preferences p
     JOIN users u ON u.id = p.user_id
     WHERE u.email = ${userEmail} AND u.sign_in_type = ${signInType}
     LIMIT 1
   `;
-  return prefs ?? { destinations_view: 'summary', currency: 'USD', name: null };
+  return prefs ?? { destinations_view: 'summary', destinations_view_sub: null as string | null, currency: 'USD', name: null };
 }
 
 export async function fetchSectionsByJourneyId(journeyId: string): Promise<Section[]> {

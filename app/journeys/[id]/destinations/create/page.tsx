@@ -16,7 +16,7 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
   const defaultStartDate = raw ? new Date(raw).toLocaleDateString('en-CA') : '';
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="w-[350px] mx-auto px-4 py-12">
       <h1 className="text-3xl font-semibold mb-8">Create Destination</h1>
       <form action={createDestination} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={id} />
