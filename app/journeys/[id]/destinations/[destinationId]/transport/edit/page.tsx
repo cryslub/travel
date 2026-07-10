@@ -14,7 +14,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
     fetchDestinationById(destinationId),
   ]);
 
-  const prevDest = (!transport?.start_location_id && destination != null)
+  const prevDest = (!transport?.start_location_id && destination?.journey_id != null)
     ? await fetchPreviousDestination(destination.journey_id, destinationId, destination.start_date ?? null)
     : null;
 

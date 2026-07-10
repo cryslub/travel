@@ -72,6 +72,15 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
     ? allDestinations.filter((d) => d.section_id === sectionFilter)
     : allDestinations;
 
+  const sortedSections = [...sections].sort((a, b) => {
+    const aDate = allDestinations.find((d) => d.section_id === a.id)?.start_date ?? null;
+    const bDate = allDestinations.find((d) => d.section_id === b.id)?.start_date ?? null;
+    if (aDate === null && bDate === null) return 0;
+    if (aDate === null) return 1;
+    if (bDate === null) return -1;
+    return aDate < bDate ? -1 : aDate > bDate ? 1 : 0;
+  });
+
   return (
     <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
       <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:mx-0 sm:px-0">
@@ -82,7 +91,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
           </div>
           <span className="sm:mr-2"><CreateDestinationForJourneyButton journeyId={id} /></span>
         </div>
-        <SectionFilter sections={sections} journeyId={id} />
+        <SectionFilter sections={sortedSections} journeyId={id} />
       </div>
       {currentView === 'calendar' && (
         <DestinationsCalendarClient
