@@ -154,6 +154,7 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
   const link = formData.get('link') as string | null;
   const memo = formData.get('memo') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const new_destination_id = (formData.get('destination_id') as string) || destinationId;
   const priceVal = (formData.get('price') as string) ? parseFloat(formData.get('price') as string) : null;
   const price_currency = (formData.get('price_currency') as string) || null;
   const existing_price_id = (formData.get('price_id') as string) || null;
@@ -198,9 +199,10 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
     final_price_id = null;
   }
 
-  await sql`UPDATE events SET name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl}, price_id = ${final_price_id} WHERE id = ${eventId}`;
+  await sql`UPDATE events SET destination_id = ${new_destination_id}, name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl}, price_id = ${final_price_id} WHERE id = ${eventId}`;
 
-  await updateDestinationTotalPrice(destinationId);
+  await updateDestinationTotalPrice(new_destination_id);
+  if (new_destination_id !== destinationId) await updateDestinationTotalPrice(destinationId);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }

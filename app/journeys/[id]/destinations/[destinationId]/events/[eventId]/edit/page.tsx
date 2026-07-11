@@ -1,5 +1,5 @@
 ﻿import { notFound } from 'next/navigation';
-import { fetchEventsByDestinationId, fetchDestinationById } from '@/app/lib/data';
+import { fetchEventsByDestinationId, fetchDestinationById, fetchDestinationsByJourneyId } from '@/app/lib/data';
 import { updateEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../../time-fields';
 import { PriceField } from '../../price-field';
@@ -11,9 +11,10 @@ export const metadata = { title: 'Edit Event' };
 export default async function EditEventPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/events/[eventId]/edit'>) {
   const { id: journeyId, destinationId, eventId } = await props.params;
 
-  const [events, destination] = await Promise.all([
+  const [events, destination, allDestinations] = await Promise.all([
     fetchEventsByDestinationId(destinationId),
     fetchDestinationById(destinationId),
+    fetchDestinationsByJourneyId(journeyId),
   ]);
   const event = events.find((e) => e.id === eventId);
 
@@ -26,6 +27,19 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
       <h1 className="text-3xl font-semibold mb-8">Edit Event</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="destination_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Destination</label>
+          <select
+            id="destination_id"
+            name="destination_id"
+            defaultValue={destinationId}
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          >
+            {allDestinations.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name</label>
           <input
