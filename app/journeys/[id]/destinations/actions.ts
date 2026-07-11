@@ -113,6 +113,7 @@ export async function createEvent(destinationId: string, formData: FormData) {
   const link = formData.get('link') as string | null;
   const memo = formData.get('memo') as string | null;
   const journey_id = formData.get('journey_id') as string;
+  const final_destination_id = (formData.get('destination_id') as string) || destinationId;
   const location_name = (formData.get('location_name') as string) || null;
   const latitude = (formData.get('latitude') as string) ? parseFloat(formData.get('latitude') as string) : null;
   const longitude = (formData.get('longitude') as string) ? parseFloat(formData.get('longitude') as string) : null;
@@ -139,9 +140,9 @@ export async function createEvent(destinationId: string, formData: FormData) {
     imageUrl = url;
   }
 
-  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, price_id, created_time) VALUES (${destinationId}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${price_id}, NOW())`;
+  await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, price_id, created_time) VALUES (${final_destination_id}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${price_id}, NOW())`;
 
-  await updateDestinationTotalPrice(destinationId);
+  await updateDestinationTotalPrice(final_destination_id);
 
   redirect(`/journeys/${journey_id}/destinations`);
 }
@@ -378,6 +379,12 @@ export async function calendarUpdateDestinationDate(destinationId: string, start
 
 export async function calendarUpdateEventTimes(eventId: string, startTime: string, endTime: string | null) {
   await sql`UPDATE events SET start_time = ${startTime}, end_time = ${endTime} WHERE id = ${eventId}`;
+}
+
+export async function calendarMoveEvent(eventId: string, oldDestId: string, newDestId: string, startTime: string, endTime: string | null) {
+  await sql`UPDATE events SET destination_id = ${newDestId}, start_time = ${startTime}, end_time = ${endTime} WHERE id = ${eventId}`;
+  await updateDestinationTotalPrice(newDestId);
+  if (newDestId !== oldDestId) await updateDestinationTotalPrice(oldDestId);
 }
 
 export async function calendarUpdateTransportTimes(destinationId: string, startTime: string, endTime: string | null) {

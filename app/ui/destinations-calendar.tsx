@@ -10,6 +10,7 @@ import {
   calendarUpdateDestinationDate,
   calendarUpdateEventTimes,
   calendarUpdateTransportTimes,
+  calendarMoveEvent,
 } from '@/app/journeys/[id]/destinations/actions';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import ViewWeekOutlinedIcon from '@mui/icons-material/ViewWeekOutlined';
@@ -21,6 +22,18 @@ import TodayIcon from '@mui/icons-material/Today';
 import { ModalDest, DestinationModal } from './destinations-map';
 
 export type CalendarDest = ModalDest;
+
+type PendingCrossDestMove = {
+  revert: () => void;
+  evId: string;
+  eventObj: CalendarDest['events'][0];
+  currentDestId: string;
+  currentDestName: string;
+  newDestId: string;
+  newDestName: string;
+  newStartTime: string;
+  newEndTime: string | null;
+};
 
 const VIEWS = [
   { key: 'dayGridMonth', Icon: CalendarMonthOutlinedIcon, label: 'Month' },
@@ -54,6 +67,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   const [calendarTitle, setCalendarTitle] = useState('');
   const [selectedDest, setSelectedDest] = useState<ModalDest | null>(null);
   const [localDestinations, setLocalDestinations] = useState<CalendarDest[]>(destinations);
+  const [pendingCrossDestMove, setPendingCrossDestMove] = useState<PendingCrossDestMove | null>(null);
 
   function updateLocalDest(updater: (d: CalendarDest) => CalendarDest, destId: string) {
     setLocalDestinations((prev) => prev.map((d) => d.id === destId ? updater(d) : d));
@@ -101,6 +115,44 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     return `${toDateStr(d)}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
 
+  function sortEvents(events: CalendarDest['events']): CalendarDest['events'] {
+    return [...events].sort((a, b) => {
+      if (!a.start_time && !b.start_time) return 0;
+      if (!a.start_time) return 1;
+      if (!b.start_time) return -1;
+      return a.start_time < b.start_time ? -1 : a.start_time > b.start_time ? 1 : 0;
+    });
+  }
+
+  function destEffective(d: CalendarDest): string {
+    const date = destDateStr(d.start_date);
+    const tTime = d.transport?.start_time;
+    return tTime && tTime.slice(0, 10) === date ? tTime : `${date}T00:00`;
+  }
+
+  function detectDestinationForDate(targetStr: string): string | undefined {
+    const targetDate = targetStr.slice(0, 10);
+    const hasTime = targetStr.length > 10;
+    const sorted = [...localDestinations]
+      .filter((d) => d.start_date)
+      .sort((a, b) => (destEffective(a) < destEffective(b) ? -1 : 1));
+    if (hasTime) {
+      let found = sorted[0];
+      for (const d of sorted) {
+        if (destEffective(d) <= targetStr) found = d;
+      }
+      return found?.id;
+    }
+    let lastBefore: CalendarDest | undefined;
+    let firstOfDay: CalendarDest | undefined;
+    for (const d of sorted) {
+      const date = destDateStr(d.start_date);
+      if (date < targetDate) lastBefore = d;
+      else if (date === targetDate && !firstOfDay) firstOfDay = d;
+    }
+    return (firstOfDay ?? lastBefore)?.id;
+  }
+
   async function handleEventChange(info: { event: { id: string; start: Date | null; end: Date | null; allDay: boolean }; revert: () => void }) {
     const { id, start, end } = info.event;
     if (!start) { info.revert(); return; }
@@ -111,19 +163,22 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
         updateLocalDest((d) => ({ ...d, start_date: toDateStr(start) }), destId);
       } else if (id.startsWith('ev-')) {
         const evId = id.slice(3);
-        const destId = localDestinations.find((d) => d.events.some((e) => e.id === evId))?.id;
-        await calendarUpdateEventTimes(evId, toTimeStr(start), end ? toTimeStr(end) : null);
-        if (destId) updateLocalDest((d) => ({
+        const currentDest = localDestinations.find((d) => d.events.some((e) => e.id === evId));
+        if (!currentDest) { info.revert(); return; }
+        const eventObj = currentDest.events.find((e) => e.id === evId)!;
+        const newStartTime = toTimeStr(start);
+        const newEndTime = end ? toTimeStr(end) : null;
+        const newDestId = detectDestinationForDate(newStartTime);
+        if (newDestId && newDestId !== currentDest.id) {
+          const newDest = localDestinations.find((d) => d.id === newDestId)!;
+          setPendingCrossDestMove({ revert: info.revert, evId, eventObj, currentDestId: currentDest.id, currentDestName: currentDest.name, newDestId, newDestName: newDest.name, newStartTime, newEndTime });
+          return;
+        }
+        await calendarUpdateEventTimes(evId, newStartTime, newEndTime);
+        updateLocalDest((d) => ({
           ...d,
-          events: d.events
-            .map((e) => e.id === evId ? { ...e, start_time: toTimeStr(start), end_time: end ? toTimeStr(end) : e.end_time } : e)
-            .sort((a, b) => {
-              if (!a.start_time && !b.start_time) return 0;
-              if (!a.start_time) return 1;
-              if (!b.start_time) return -1;
-              return a.start_time < b.start_time ? -1 : a.start_time > b.start_time ? 1 : 0;
-            }),
-        }), destId);
+          events: sortEvents(d.events.map((e) => e.id === evId ? { ...e, start_time: newStartTime, end_time: newEndTime ?? e.end_time } : e)),
+        }), currentDest.id);
       } else if (id.startsWith('tr-')) {
         const destId = id.slice(3);
         await calendarUpdateTransportTimes(destId, toTimeStr(start), end ? toTimeStr(end) : null);
@@ -135,6 +190,82 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     } catch {
       info.revert();
     }
+  }
+
+  async function handleConfirmCrossDestMove() {
+    if (!pendingCrossDestMove) return;
+    const { evId, eventObj, currentDestId, newDestId, newStartTime, newEndTime } = pendingCrossDestMove;
+    setPendingCrossDestMove(null);
+    try {
+      await calendarMoveEvent(evId, currentDestId, newDestId, newStartTime, newEndTime);
+      setLocalDestinations((prev) => prev.map((d) => {
+        if (d.id === currentDestId) return { ...d, events: d.events.filter((e) => e.id !== evId) };
+        if (d.id === newDestId) return { ...d, events: sortEvents([...d.events, { ...eventObj, start_time: newStartTime, end_time: newEndTime }]) };
+        return d;
+      }));
+    } catch {
+      pendingCrossDestMove.revert();
+    }
+  }
+
+  async function handleKeepCurrentDest() {
+    if (!pendingCrossDestMove) return;
+    const { evId, currentDestId, newStartTime, newEndTime } = pendingCrossDestMove;
+    setPendingCrossDestMove(null);
+    try {
+      await calendarUpdateEventTimes(evId, newStartTime, newEndTime);
+      updateLocalDest((d) => ({
+        ...d,
+        events: sortEvents(d.events.map((e) => e.id === evId ? { ...e, start_time: newStartTime, end_time: newEndTime ?? e.end_time } : e)),
+      }), currentDestId);
+    } catch {
+      pendingCrossDestMove.revert();
+    }
+  }
+
+  function handleCancelCrossDestMove() {
+    if (!pendingCrossDestMove) return;
+    pendingCrossDestMove.revert();
+    setPendingCrossDestMove(null);
+  }
+
+  function destDateStr(v: unknown) {
+    return new Date(v as string).toLocaleDateString('en-CA');
+  }
+
+  function handleDateClick(info: { dateStr: string; view: { type: string } }) {
+    if (info.view.type !== 'dayGridMonth') return;
+    const journeyId = localDestinations[0]?.journey_id;
+    if (!journeyId) return;
+    const sorted = [...localDestinations]
+      .filter((d) => d.start_date)
+      .sort((a, b) => (destDateStr(a.start_date) < destDateStr(b.start_date) ? -1 : 1));
+    let dest = sorted[0];
+    for (const d of sorted) {
+      if (destDateStr(d.start_date) <= info.dateStr) dest = d;
+    }
+    if (!dest) return;
+    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?date=${info.dateStr}`;
+  }
+
+  function handleSelect(info: { start: Date; end: Date; allDay: boolean }) {
+    // In month view a single click fires select with a 1-day range — skip it (dateClick handles that).
+    if (info.allDay && info.end.getTime() - info.start.getTime() <= 24 * 60 * 60 * 1000) return;
+    const journeyId = localDestinations[0]?.journey_id;
+    if (!journeyId) return;
+    const sorted = [...localDestinations]
+      .filter((d) => d.start_date)
+      .sort((a, b) => (destDateStr(a.start_date) < destDateStr(b.start_date) ? -1 : 1));
+    const dateStr = toDateStr(info.start);
+    let dest = sorted[0];
+    for (const d of sorted) {
+      if (destDateStr(d.start_date) <= dateStr) dest = d;
+    }
+    if (!dest) return;
+    const startTime = toTimeStr(info.start);
+    const effectiveEnd = info.allDay ? new Date(info.end.getTime() - 24 * 60 * 60 * 1000) : info.end;
+    const endTime = toTimeStr(effectiveEnd);
+    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?startTime=${startTime}&endTime=${endTime}`;
   }
 
   function handleEventClick(info: { event: { id: string } }) {
@@ -221,13 +352,49 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
             return 0;
           }}
           editable={!isReadonly}
+          selectable={!isReadonly}
           eventDrop={isReadonly ? undefined : handleEventChange}
           eventResize={isReadonly ? undefined : handleEventChange}
           eventClick={handleEventClick}
+          dateClick={isReadonly ? undefined : handleDateClick}
+          select={isReadonly ? undefined : handleSelect}
         />
       </div>
       {selectedDest && (
         <DestinationModal dest={selectedDest} nextDest={null} onClose={() => setSelectedDest(null)} preferredCurrency={preferredCurrency} />
+      )}
+      {pendingCrossDestMove && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={handleCancelCrossDestMove} />
+          <div className="relative z-10 rounded-xl bg-white dark:bg-zinc-800 p-6 shadow-xl max-w-sm w-full mx-4">
+            <p className="text-sm text-zinc-700 dark:text-zinc-200 mb-5">
+              This date belongs to <strong>{pendingCrossDestMove.newDestName}</strong>. Move the event there?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmCrossDestMove}
+                className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+              >
+                Move to {pendingCrossDestMove.newDestName}
+              </button>
+              <button
+                type="button"
+                onClick={handleKeepCurrentDest}
+                className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800 dark:text-zinc-200"
+              >
+                Keep in {pendingCrossDestMove.currentDestName}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelCrossDestMove}
+                className="text-sm text-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
