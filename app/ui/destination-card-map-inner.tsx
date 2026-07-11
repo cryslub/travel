@@ -19,6 +19,14 @@ const categoryColors: Record<MarkerCategory, string> = {
   transport: '#f97316',
 };
 
+const eventTypeColors: Record<string, string> = {
+  Site:     '#3b82f6',
+  Meal:     '#f59e0b',
+  Tour:     '#10b981',
+  Activity: '#8b5cf6',
+  Transfer: '#64748b',
+};
+
 const svgPaths: Record<string, string> = {
   Site: 'M12 6.5c1.38 0 2.5 1.12 2.5 2.5 0 1.38-1.12 2.5-2.5 2.5S9.5 10.38 9.5 9c0-1.38 1.12-2.5 2.5-2.5M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 15c-1.87-2.34-5-6.51-5-8 0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.49-3.13 5.66-5 8z',
   Meal: 'M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z',
@@ -35,16 +43,10 @@ const svgPaths: Record<string, string> = {
   Combined: 'M19.71 9.71 22 12V6h-6l2.29 2.29-4.17 4.17c-.39.39-1.02.39-1.41 0l-1.17-1.17c-1.17-1.17-3.07-1.17-4.24 0L2 16.59 3.41 18l5.29-5.29c.39-.39 1.02-.39 1.41 0l1.17 1.17c1.17 1.17 3.07 1.17 4.24 0z',
 };
 
-function createIcon(category: MarkerCategory, eventType?: string | null, transportType?: string | null, imageUrl?: string | null) {
-  if (imageUrl) {
-    return L.divIcon({
-      html: `<div style="width:44px;height:44px;border-radius:4px;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.5);overflow:hidden;"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
-      className: '',
-      iconSize: [44, 44],
-      iconAnchor: [22, 22],
-    });
-  }
-  const color = categoryColors[category];
+function createIcon(category: MarkerCategory, eventType?: string | null, transportType?: string | null) {
+  const color = category === 'event' && eventType
+    ? (eventTypeColors[eventType] ?? categoryColors.event)
+    : categoryColors[category];
   let pathKey: string;
   if (category === 'event' && eventType) pathKey = eventType;
   else if (category === 'transport' && transportType) pathKey = transportType;
@@ -58,13 +60,22 @@ function createIcon(category: MarkerCategory, eventType?: string | null, transpo
   });
 }
 
+function buildPopupContent(label: string | null, imageUrl?: string | null): string {
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const img = imageUrl
+    ? `<img src="${esc(imageUrl)}" style="width:140px;height:90px;object-fit:cover;border-radius:6px;display:block;margin:0 auto${label ? ';margin-bottom:4px' : ''}">`
+    : '';
+  const text = label ? `<div style="text-align:center;font-size:13px">${esc(label)}</div>` : '';
+  return `<div style="min-width:${imageUrl ? '140px' : 'auto'}">${img}${text}</div>`;
+}
+
 function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
   const map = useMap();
   useEffect(() => {
     const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     markers.forEach((m) => {
-      const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType, m.imageUrl) });
-      if (m.label) marker.bindPopup(m.label);
+      const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType) });
+      if (m.label || m.imageUrl) marker.bindPopup(buildPopupContent(m.label, m.imageUrl));
       marker.addTo(cluster);
     });
     map.addLayer(cluster);

@@ -19,6 +19,14 @@ const eventIcons: Record<string, ElementType<SvgIconProps>> = {
   Transfer: MovingIcon,
 };
 
+const eventTypeColors: Record<string, string> = {
+  Site:     '#3b82f6',
+  Meal:     '#f59e0b',
+  Tour:     '#10b981',
+  Activity: '#8b5cf6',
+  Transfer: '#64748b',
+};
+
 type EventActivity = {
   id: string;
   name: string | null;
@@ -58,7 +66,7 @@ export function EventItem({ activity, journeyId, destinationId }: {
                 onClick={() => setImageExpanded(true)}
               />
             ) : (
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: (activity.type && eventTypeColors[activity.type]) || '#3b82f6' }}>
                 <Icon style={{ fontSize: 16 }} className="text-white" />
               </div>
             )}

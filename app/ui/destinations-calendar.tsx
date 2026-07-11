@@ -36,6 +36,14 @@ const PREF_TO_FC: Record<string, string> = {
   list: 'listWeek',
 };
 
+const EVENT_TYPE_COLOR: Record<string, string> = {
+  Site:     '#3b82f6',
+  Meal:     '#f59e0b',
+  Tour:     '#10b981',
+  Activity: '#8b5cf6',
+  Transfer: '#64748b',
+};
+
 export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency, defaultCalendarView }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string }) {
   const initialFcView = (() => {
     const fc = (defaultCalendarView && PREF_TO_FC[defaultCalendarView]) ?? 'dayGridMonth';
@@ -60,7 +68,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       }
       for (const ev of dest.events) {
         if (ev.start_time) {
-          result.push({ id: `ev-${ev.id}`, title: ev.name ?? dest.name, start: ev.start_time, end: ev.end_time ?? undefined, color: '#3b82f6' });
+          result.push({ id: `ev-${ev.id}`, title: ev.name ?? dest.name, start: ev.start_time, end: ev.end_time ?? undefined, color: (ev.type && EVENT_TYPE_COLOR[ev.type]) || '#3b82f6' });
         }
       }
       if (dest.transport?.start_time) {
