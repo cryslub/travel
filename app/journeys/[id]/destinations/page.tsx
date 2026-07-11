@@ -96,6 +96,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
       </div>
       {currentView === 'calendar' && (
         <DestinationsCalendarClient
+          key={Array.isArray(sectionFilter) ? sectionFilter[0] : (sectionFilter ?? 'all')}
           destinations={destinations.map((d): CalendarDest => ({
             id: d.id,
             name: d.name,

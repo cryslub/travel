@@ -62,7 +62,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
             <option value="Transfer">Transfer</option>
           </select>
         </div>
-        <EventTimeFields defaultStartTime={defaultDateTime} defaultEndTime={defaultDateTime} />
+        <EventTimeFields defaultStartTime={defaultDateTime} defaultEndTime={defaultDateTime} autoEndHours={1} />
         <PriceField />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Link</label>

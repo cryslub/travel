@@ -2,20 +2,33 @@
 
 import { useState } from 'react';
 
+function addHours(datetimeLocal: string, hours: number): string {
+  const d = new Date(datetimeLocal);
+  d.setHours(d.getHours() + hours);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function EventTimeFields({
   defaultStartTime = '',
   defaultEndTime = '',
+  autoEndHours,
 }: {
   defaultStartTime?: string;
   defaultEndTime?: string;
+  autoEndHours?: number;
 }) {
   const [startTime, setStartTime] = useState(defaultStartTime);
-  const [endTime, setEndTime] = useState(defaultEndTime);
+  const [endTime, setEndTime] = useState(
+    defaultEndTime || (defaultStartTime && autoEndHours ? addHours(defaultStartTime, autoEndHours) : defaultStartTime),
+  );
 
   function handleStartTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
     const newStart = e.target.value;
     setStartTime(newStart);
-    if (!endTime || endTime < newStart) {
+    if (newStart && autoEndHours) {
+      setEndTime(addHours(newStart, autoEndHours));
+    } else if (!endTime || endTime < newStart) {
       setEndTime(newStart);
     }
   }
