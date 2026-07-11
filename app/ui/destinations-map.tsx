@@ -300,8 +300,8 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
               lon={dest.lon}
               eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
               accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name, image_url: dest.accommodation.image_url } : null}
-              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: dest.transport.end_terminal ?? null, type: dest.transport.type } : null}
-              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: nextDest.transport.start_terminal ?? null, type: nextDest.transport.type } : null}
+              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: `${dest.transport.type ?? 'Transport'} → ${dest.name}`, type: dest.transport.type } : null}
+              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: `${nextDest.transport.type ?? 'Transport'} → ${nextDest.name}`, type: nextDest.transport.type } : null}
             />
           )}
 

@@ -316,13 +316,13 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                 }
                 transportEndMarker={
                   destination.transport?.end_latitude != null && destination.transport?.end_longitude != null
-                    ? { lat: destination.transport.end_latitude, lon: destination.transport.end_longitude, name: destination.transport.end_terminal ?? null, type: destination.transport.type }
+                    ? { lat: destination.transport.end_latitude, lon: destination.transport.end_longitude, name: `${destination.transport.type ?? 'Transport'} → ${destination.name}`, type: destination.transport.type }
                     : null
                 }
                 transportStartMarker={(() => {
                   const next = destinations[index + 1];
                   return next?.transport?.start_latitude != null && next?.transport?.start_longitude != null
-                    ? { lat: next.transport.start_latitude, lon: next.transport.start_longitude, name: next.transport.start_terminal ?? null, type: next.transport.type }
+                    ? { lat: next.transport.start_latitude, lon: next.transport.start_longitude, name: `${next.transport.type ?? 'Transport'} → ${next.name}`, type: next.transport.type }
                     : null;
                 })()}
               />
