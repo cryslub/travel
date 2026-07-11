@@ -4,6 +4,8 @@ import { updateEvent } from '@/app/journeys/[id]/destinations/actions';
 import { EventTimeFields } from '../../time-fields';
 import { PriceField } from '../../price-field';
 import { Location } from '@/app/ui/location-autocomplete';
+import { EventTypeSelect } from '@/app/ui/event-type-select';
+import { DestinationSelect } from '@/app/ui/destination-select';
 import { ImageUpload } from '@/app/ui/image-upload';
 
 export const metadata = { title: 'Edit Event' };
@@ -28,17 +30,8 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
         <div className="flex flex-col gap-2">
-          <label htmlFor="destination_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Destination</label>
-          <select
-            id="destination_id"
-            name="destination_id"
-            defaultValue={destinationId}
-            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
-          >
-            {allDestinations.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Destination</label>
+          <DestinationSelect options={allDestinations.map((d) => ({ id: d.id, name: d.name, start_date: d.start_date ? new Date(d.start_date).toLocaleDateString('en-CA') : null }))} defaultId={destinationId} />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name</label>
@@ -69,20 +62,8 @@ export default async function EditEventPage(props: PageProps<'/journeys/[id]/des
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="type" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Type</label>
-          <select
-            id="type"
-            name="type"
-            defaultValue={event.type ?? ''}
-            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
-          >
-            <option value="">Select type</option>
-            <option value="Site">Site</option>
-            <option value="Meal">Meal</option>
-            <option value="Tour">Tour</option>
-            <option value="Activity">Activity</option>
-            <option value="Transfer">Transfer</option>
-          </select>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Type</label>
+          <EventTypeSelect defaultValue={event.type ?? 'Site'} />
         </div>
         <EventTimeFields
           defaultStartTime={event.start_time ? (() => { const d = new Date(event.start_time!); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })() : ''}

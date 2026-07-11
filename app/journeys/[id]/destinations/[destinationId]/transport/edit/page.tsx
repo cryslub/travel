@@ -47,10 +47,9 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
           <select
             id="type"
             name="type"
-            defaultValue={transport?.type ?? ''}
+            defaultValue={transport?.type ?? 'Flight'}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           >
-            <option value="">Select type</option>
             <option value="Flight">Flight</option>
             <option value="Train">Train</option>
             <option value="Bus">Bus</option>
