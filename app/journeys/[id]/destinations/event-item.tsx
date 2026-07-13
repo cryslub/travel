@@ -45,10 +45,11 @@ function formatTime(t: string) {
   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export function EventItem({ activity, journeyId, destinationId }: {
+export function EventItem({ activity, journeyId, destinationId, isReadonly }: {
   activity: EventActivity;
   journeyId: string;
   destinationId: string;
+  isReadonly?: boolean;
 }) {
   const [imageExpanded, setImageExpanded] = useState(false);
   const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon;
@@ -98,7 +99,7 @@ export function EventItem({ activity, journeyId, destinationId }: {
             )}
           </div>
         </div>
-        <MoreOptionsEventButton journeyId={journeyId} destinationId={destinationId} eventId={activity.id} />
+        {!isReadonly && <MoreOptionsEventButton journeyId={journeyId} destinationId={destinationId} eventId={activity.id} />}
       </div>
       {imageExpanded && activity.image_url && (
         <img

@@ -24,7 +24,7 @@ const rangeCls = [
   '[&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-zinc-800',
 ].join(' ');
 
-export function SearchBar() {
+export function SearchBar({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
@@ -147,13 +147,15 @@ export function SearchBar() {
             className="w-full rounded-full border border-zinc-300 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-400"
           />
         </div>
-        <button
-          type="button"
-          onClick={toggleLiked}
-          className={`flex-shrink-0 flex items-center justify-center rounded-full border p-2 transition-colors ${liked ? 'border-rose-400 bg-rose-50 text-rose-500 dark:border-rose-500 dark:bg-rose-950 dark:text-rose-400' : 'border-zinc-300 bg-white text-zinc-400 hover:text-rose-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400'}`}
-        >
-          {liked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
-        </button>
+        {isLoggedIn && (
+          <button
+            type="button"
+            onClick={toggleLiked}
+            className={`flex-shrink-0 flex items-center justify-center rounded-full border p-2 transition-colors ${liked ? 'border-rose-400 bg-rose-50 text-rose-500 dark:border-rose-500 dark:bg-rose-950 dark:text-rose-400' : 'border-zinc-300 bg-white text-zinc-400 hover:text-rose-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400'}`}
+          >
+            {liked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setCollapsed((c) => !c)}

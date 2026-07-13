@@ -64,6 +64,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
 
   if (!journey) notFound();
 
+  const isReadonly = !session?.user?.email || journey.user_email !== session.user.email || journey.user_sign_in_type !== signInType;
+
   const [allDestinations, sections] = await Promise.all([
     fetchDestinationsByJourneyId(id),
     fetchSectionsByJourneyId(id),
@@ -90,7 +92,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
             <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
           </div>
-          <span className="sm:mr-2"><CreateDestinationForJourneyButton journeyId={id} /></span>
+          <span className="sm:mr-2">{!isReadonly && <CreateDestinationForJourneyButton journeyId={id} />}</span>
         </div>
         <SectionFilter sections={sortedSections} journeyId={id} />
       </div>
@@ -158,6 +160,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             price_currency: d.price_currency ?? null,
           }))}
           defaultCalendarView={prefCalendarView}
+          isReadonly={isReadonly}
         />
       )}
       {currentView === 'map' && (() => {
@@ -227,7 +230,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                   </span>
                 )}
               </div>
-              <MoreOptionsDestinationButton journeyId={id} id={destination.id} />
+              {!isReadonly && <MoreOptionsDestinationButton journeyId={id} id={destination.id} />}
             </div>
             {destination.image_url && (
               <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
@@ -235,7 +238,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
-                <EditTransportButton journeyId={id} destinationId={destination.id} />
+                {!isReadonly && <EditTransportButton journeyId={id} destinationId={destination.id} />}
               </div>
               <div className="flex flex-col gap-1 mt-2">
                 {destination.transport?.type && (() => {
@@ -285,7 +288,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
-                <EditAccommodationButton journeyId={id} destinationId={destination.id} />
+                {!isReadonly && <EditAccommodationButton journeyId={id} destinationId={destination.id} />}
               </div>
               <div className="flex flex-col gap-1 mt-2">
                 {destination.accommodation && <AccommodationItem accommodation={destination.accommodation} />}
@@ -294,11 +297,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
-                <CreateEventButton journeyId={id} destinationId={destination.id} />
+                {!isReadonly && <CreateEventButton journeyId={id} destinationId={destination.id} />}
               </div>
               <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
                 {destination.events.map((activity) => (
-                  <EventItem key={activity.id} activity={activity} journeyId={id} destinationId={destination.id} />
+                  <EventItem key={activity.id} activity={activity} journeyId={id} destinationId={destination.id} isReadonly={isReadonly} />
                 ))}
               </div>
             </div>
@@ -330,7 +333,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Records</span>
-                <CreateRecordButton journeyId={id} destinationId={destination.id} />
+                {!isReadonly && <CreateRecordButton journeyId={id} destinationId={destination.id} />}
               </div>
               <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
                 {destination.records.map((record) => (
@@ -345,7 +348,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
                       </div>
                       {record.memo && <span className="text-xs text-zinc-500 dark:text-zinc-400">{record.memo}</span>}
                     </div>
-                    <MoreOptionsRecordButton journeyId={id} destinationId={destination.id} recordId={record.id} />
+                    {!isReadonly && <MoreOptionsRecordButton journeyId={id} destinationId={destination.id} recordId={record.id} />}
                   </div>
                 ))}
               </div>

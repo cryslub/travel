@@ -266,6 +266,27 @@ export async function fetchExploreJourneys(userEmail: string, signInType: string
   return data;
 }
 
+export async function fetchExploreJourneysPublic(): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]> {
+  noStore();
+  const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]>`
+    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
+      array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
+      SUM(dp.value) AS total_price,
+      p.name AS user_name,
+      COALESCE(j.likes, 0)::int AS like_count,
+      FALSE AS viewer_liked
+    FROM journeys j
+    JOIN users u ON u.id = j.user_id
+    LEFT JOIN preferences p ON p.user_id = u.id
+    LEFT JOIN journey_countries jc ON jc.journey_id = j.id
+    LEFT JOIN destinations dest ON dest.journey_id = j.id
+    LEFT JOIN prices dp ON dp.id = dest.price_id
+    GROUP BY j.id, u.email, p.name
+    ORDER BY (10 * COALESCE(j.likes, 0) - (CURRENT_DATE - j.created_time::date)) DESC NULLS LAST
+  `;
+  return data;
+}
+
 export async function fetchLatestDestinationStartDate(): Promise<string | null> {
   const data = await sql<{ latest: string | null }[]>`SELECT MAX(start_date) AS latest FROM destinations`;
   return data[0]?.latest ?? null;
@@ -276,14 +297,16 @@ export async function fetchEarliestJourneyStartDate(): Promise<string | null> {
   return data[0]?.earliest ?? null;
 }
 
-export async function fetchJourneyById(id: string): Promise<Journey | null> {
-  const data = await sql<Journey[]>`
+export async function fetchJourneyById(id: string): Promise<(Journey & { user_email: string | null; user_sign_in_type: string | null }) | null> {
+  const data = await sql<(Journey & { user_email: string | null; user_sign_in_type: string | null })[]>`
     SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.currency, j.created_time,
-      array_remove(array_agg(jc.country_code ORDER BY jc.country_code), NULL) AS countries
+      array_remove(array_agg(jc.country_code ORDER BY jc.country_code), NULL) AS countries,
+      u.email AS user_email, u.sign_in_type AS user_sign_in_type
     FROM journeys j
+    LEFT JOIN users u ON u.id = j.user_id
     LEFT JOIN journey_countries jc ON jc.journey_id = j.id
     WHERE j.id = ${id}
-    GROUP BY j.id
+    GROUP BY j.id, u.email, u.sign_in_type
   `;
   return data[0] ?? null;
 }

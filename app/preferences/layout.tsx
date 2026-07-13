@@ -16,7 +16,7 @@ export default async function PreferencesLayout({ children }: { children: React.
 
   return (
     <div className="sm:flex">
-      <Sidebar displayLabel={displayLabel} journeys={journeys} />
+      <Sidebar displayLabel={displayLabel} journeys={journeys} isLoggedIn={!!session?.user?.email} />
       <div className="pb-[57px] sm:pb-0 sm:flex-1 sm:min-w-0 min-h-[calc(100vh-57px)] sm:min-h-screen">{children}</div>
     </div>
   );

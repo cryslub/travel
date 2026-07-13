@@ -1,5 +1,5 @@
 import { fetchJourneys } from '@/app/lib/data';
-import { JourneyButtons, CreateJourneyButton, ExploreButton } from './journey-buttons';
+import { JourneyButtons, CreateJourneyButton } from './journey-buttons';
 import { CountryBadge } from '@/app/ui/country-badge';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getServerSession } from 'next-auth';
@@ -20,7 +20,6 @@ export default async function JourneysPage() {
         <div className="flex items-end justify-between mb-8">
           <h1 className="text-3xl font-semibold tracking-tight">Journeys</h1>
           <div className="flex items-center gap-2">
-            <ExploreButton />
             <CreateJourneyButton />
           </div>
         </div>

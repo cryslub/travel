@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 
 interface JourneyItem {
   id: string;
@@ -11,9 +11,10 @@ interface JourneyItem {
 interface SidebarProps {
   displayLabel?: string | null;
   journeys?: JourneyItem[];
+  isLoggedIn?: boolean;
 }
 
-export function Sidebar({ displayLabel, journeys }: SidebarProps) {
+export function Sidebar({ displayLabel, journeys, isLoggedIn = true }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(true);
   const textCls = collapsed ? 'hidden' : 'hidden sm:inline';
 
@@ -42,27 +43,34 @@ export function Sidebar({ displayLabel, journeys }: SidebarProps) {
       </div>
 
       {/* Journeys */}
-      <a href="/journeys" className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm240-600h160v-80H400v80Zm-160 80h-80v440h80v-440Zm400 440v-440H320v440h320Zm80-440v440h80v-440h-80ZM480-420Z"/></svg>
-        <span className={textCls}>Journeys</span>
-      </a>
-      {!collapsed && journeys && journeys.length > 0 && (
-        <div className="hidden sm:flex sm:flex-col sm:gap-0.5 sm:pl-7 sm:w-full">
-          {journeys.map(j => (
-            <a
-              key={j.id}
-              href={`/journeys/${j.id}/destinations`}
-              className="truncate text-xs text-zinc-500 transition-colors hover:text-zinc-300 py-0.5"
-            >
-              {j.name}
-            </a>
-          ))}
-        </div>
+      {isLoggedIn && (
+        <>
+          <a href="/journeys" className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm240-600h160v-80H400v80Zm-160 80h-80v440h80v-440Zm400 440v-440H320v440h320Zm80-440v440h80v-440h-80ZM480-420Z"/></svg>
+            <span className={textCls}>Journeys</span>
+          </a>
+          {!collapsed && journeys && journeys.length > 0 && (
+            <div className="hidden sm:flex sm:flex-col sm:gap-0.5 sm:pl-7 sm:w-full">
+              {journeys.map(j => (
+                <a
+                  key={j.id}
+                  href={`/journeys/${j.id}/destinations`}
+                  className="truncate text-xs text-zinc-500 transition-colors hover:text-zinc-300 py-0.5"
+                >
+                  {j.name}
+                </a>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Explore */}
       <a href="/explore" className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm-40-200 160-80-80-160-160 80 80 160Zm40-80q-17 0-28.5-11.5T440-480q0-17 11.5-28.5T480-520q17 0 28.5 11.5T520-480q0 17-11.5 28.5T480-440Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
         <span className={textCls}>Explore</span>
       </a>
 
@@ -75,15 +83,30 @@ export function Sidebar({ displayLabel, journeys }: SidebarProps) {
       )}
 
       {/* Sign out — desktop only, pinned to bottom */}
-      <div className="hidden sm:block sm:mt-auto">
-        <button
-          onClick={() => signOut({ callbackUrl: '/' })}
-          className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
-          <span className={textCls}>Sign out</span>
-        </button>
-      </div>
+      {isLoggedIn && (
+        <div className="hidden sm:block sm:mt-auto">
+          <button
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+            <span className={textCls}>Sign out</span>
+          </button>
+        </div>
+      )}
+
+      {/* Sign in — mobile and desktop, pinned to bottom on desktop */}
+      {!isLoggedIn && (
+        <div className="sm:mt-auto">
+          <button
+            onClick={() => signIn('google', { callbackUrl: '/journeys' })}
+            className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M480-120v-80h280v-560H480v-80h280q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H480Zm-80-160-55-58 102-102H120v-80h327L345-622l55-58 200 200-200 200Z"/></svg>
+            <span className={textCls}>Sign in</span>
+          </button>
+        </div>
+      )}
     </header>
   );
 }

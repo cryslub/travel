@@ -25,10 +25,12 @@ export function JourneyList({
   journeys,
   viewerCurrency,
   rates,
+  isLoggedIn = true,
 }: {
   journeys: Journey[];
   viewerCurrency: string;
   rates: Record<string, number>;
+  isLoggedIn?: boolean;
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -107,8 +109,8 @@ export function JourneyList({
               </div>
             </div>
             <div className="flex flex-col items-center justify-center gap-3 px-4 border-l border-zinc-100 dark:border-zinc-700">
-              <LikeButton journeyId={journey.id} initialLiked={journey.viewer_liked} initialCount={journey.like_count} />
-              <ImportButton journeyId={journey.id} />
+              {isLoggedIn && <LikeButton journeyId={journey.id} initialLiked={journey.viewer_liked} initialCount={journey.like_count} />}
+              {isLoggedIn && <ImportButton journeyId={journey.id} />}
             </div>
           </li>
         );

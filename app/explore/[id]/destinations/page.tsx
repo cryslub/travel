@@ -1,7 +1,7 @@
 import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { ReadonlyDestinationsView } from './readonly-view';
 import { ViewToggle } from './view-toggle';
@@ -68,8 +68,7 @@ export default async function ExploreDestinationsPage(props: {
   const activeSection = Array.isArray(sectionParam) ? sectionParam[0] : sectionParam;
 
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect('/');
-  const signInType = (session.user as any)?.sign_in_type ?? 'Google';
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
 
   const journey = await fetchJourneyById(id);
   if (!journey) notFound();
@@ -77,7 +76,9 @@ export default async function ExploreDestinationsPage(props: {
   const [allDestinations, sections, prefs] = await Promise.all([
     fetchDestinationsByJourneyId(id),
     fetchSectionsByJourneyId(id),
-    fetchUserPreferences(session.user.email, signInType),
+    session?.user?.email
+      ? fetchUserPreferences(session.user.email, signInType)
+      : Promise.resolve({ currency: 'USD' } as { currency: string }),
   ]);
   const preferredCurrency = prefs?.currency ?? 'USD';
 
