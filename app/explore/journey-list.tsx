@@ -60,10 +60,12 @@ export function JourneyList({
     <ul className="flex flex-col gap-4">
       {shown.map((journey) => {
         const fromCurrency = journey.currency ?? 'USD';
-        const converted =
-          journey.total_price != null
+        const displayPrice = journey.total_price != null
+          ? isLoggedIn
             ? (journey.total_price / (rates[fromCurrency] ?? 1)) * (rates[viewerCurrency] ?? 1)
-            : null;
+            : journey.total_price
+          : null;
+        const displayCurrency = isLoggedIn ? viewerCurrency : fromCurrency;
 
         return (
           <li key={journey.id} className="flex items-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
@@ -94,9 +96,9 @@ export function JourneyList({
                     {journey.user_name}
                   </a>
                 )}
-                {converted != null && (
+                {displayPrice != null && (
                   <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    {new Intl.NumberFormat('en', { style: 'currency', currency: viewerCurrency }).format(converted)}
+                    {new Intl.NumberFormat('en', { style: 'currency', currency: displayCurrency }).format(displayPrice)}
                   </span>
                 )}
                 {journey.countries.length > 0 && (

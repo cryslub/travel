@@ -91,8 +91,10 @@ export default async function ExploreDestinationsPage(props: {
     }
   } catch {}
 
+  const isLoggedIn = !!session?.user?.email;
+
   function convertAmount(amount: number | null | undefined, fromCurrency: string | null | undefined): number | null {
-    if (amount == null) return null;
+    if (amount == null || !isLoggedIn) return amount ?? null;
     const from = fromCurrency ?? preferredCurrency;
     if (from === preferredCurrency) return amount;
     const rate = exchangeRates[from];
@@ -106,7 +108,7 @@ export default async function ExploreDestinationsPage(props: {
   ).map((d) => ({
     ...d,
     price: convertAmount(d.price, d.price_currency),
-    price_currency: d.price != null ? preferredCurrency : d.price_currency,
+    price_currency: d.price != null ? (isLoggedIn ? preferredCurrency : d.price_currency) : d.price_currency,
   }));
 
   return (
@@ -244,7 +246,7 @@ export default async function ExploreDestinationsPage(props: {
                   </div>
                   {destination.price != null && (
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                      {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? destination.price_currency ?? 'USD' }).format(destination.price)}
+                      {new Intl.NumberFormat('en', { style: 'currency', currency: destination.price_currency ?? 'USD' }).format(destination.price)}
                     </span>
                   )}
                 </div>
