@@ -38,7 +38,7 @@ export default async function JourneysPage() {
                       {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
                       {journey.end_date && <>
                         {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                        {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000)}d
+                        {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
                       </>}
                     </span>
                   )}
