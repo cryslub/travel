@@ -58,19 +58,17 @@ export function EventItem({ activity, journeyId, destinationId, isReadonly }: {
     <div className="flex flex-col py-1.5">
       <div className="flex items-center justify-between gap-1">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          {activity.image_url && !imageExpanded
-            ? (
-              <img
-                src={activity.image_url}
-                alt=""
-                className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer"
-                onClick={() => setImageExpanded(true)}
-              />
-            ) : (
-              <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: (activity.type && eventTypeColors[activity.type]) || '#3b82f6' }}>
-                <Icon style={{ fontSize: 16 }} className="text-white" />
-              </div>
-            )}
+          <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: (activity.type && eventTypeColors[activity.type]) || '#3b82f6' }}>
+            <Icon style={{ fontSize: 16 }} className="text-white" />
+          </div>
+          {activity.image_url && !imageExpanded && (
+            <img
+              src={activity.image_url}
+              alt=""
+              className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer"
+              onClick={() => setImageExpanded(true)}
+            />
+          )}
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="flex items-center gap-1">
               {activity.link
