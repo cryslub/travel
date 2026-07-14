@@ -89,6 +89,11 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                   <span className="text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">{d.section_name}</span>
                 )}
               </div>
+              {d.price != null && (
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  {new Intl.NumberFormat('en', { style: 'currency', currency: d.price_currency ?? 'USD' }).format(d.price)}
+                </span>
+              )}
             </div>
           </li>
         ))}
