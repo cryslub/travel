@@ -309,10 +309,10 @@ export default async function ExploreDestinationsPage(props: {
                       const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon;
                       return (
                         <div key={activity.id} className="flex items-center gap-2 py-1.5 flex-1 min-w-0">
-                          {activity.image_url
-                            ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                            : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
-                          }
+                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
+                          {activity.image_url && (
+                            <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                          )}
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <div className="flex items-center gap-1">
                               {activity.link

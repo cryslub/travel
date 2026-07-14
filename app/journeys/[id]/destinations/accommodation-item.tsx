@@ -27,19 +27,17 @@ export function AccommodationItem({ accommodation }: { accommodation: Accommodat
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        {accommodation.image_url && !imageExpanded
-          ? (
-            <img
-              src={accommodation.image_url}
-              alt=""
-              className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer"
-              onClick={() => setImageExpanded(true)}
-            />
-          ) : (
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0">
-              <HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" />
-            </div>
-          )}
+        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 flex-shrink-0">
+          <HotelOutlinedIcon style={{ fontSize: 16 }} className="text-white" />
+        </div>
+        {accommodation.image_url && !imageExpanded && (
+          <img
+            src={accommodation.image_url}
+            alt=""
+            className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer"
+            onClick={() => setImageExpanded(true)}
+          />
+        )}
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1">
             {accommodation.link

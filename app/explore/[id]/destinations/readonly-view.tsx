@@ -201,10 +201,10 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                     return (
                       <div key={activity.id} className="flex flex-col py-1.5">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          {activity.image_url && !imgExpanded
-                            ? <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer" onClick={() => setExpandedEventImages(s => new Set(s).add(activity.id))} />
-                            : <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
-                          }
+                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
+                          {activity.image_url && !imgExpanded && (
+                            <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0 cursor-pointer" onClick={() => setExpandedEventImages(s => new Set(s).add(activity.id))} />
+                          )}
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <div className="flex items-center gap-1">
                               {activity.link
