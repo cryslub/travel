@@ -4,6 +4,7 @@ import { authOptions } from '@/app/lib/auth';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { ReadonlyDestinationsView } from './readonly-view';
+import { ExploreEventItem } from './explore-event-item';
 import { ViewToggle } from './view-toggle';
 import { SectionTabs } from './section-tabs';
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
@@ -21,10 +22,6 @@ import DirectionsBoatOutlinedIcon from '@mui/icons-material/DirectionsBoatOutlin
 import SmartDisplayOutlinedIcon from '@mui/icons-material/SmartDisplayOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
-import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
-import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 
@@ -37,13 +34,6 @@ const transportIcons: Record<string, ElementType<SvgIconProps>> = {
   Combined: MovingIcon,
 };
 
-const eventIcons: Record<string, ElementType<SvgIconProps>> = {
-  Site: LocationOnOutlinedIcon,
-  Meal: RestaurantOutlinedIcon,
-  Tour: TourOutlinedIcon,
-  Activity: StarBorderOutlinedIcon,
-  Transfer: MovingIcon,
-};
 
 const recordIcons: Record<string, ElementType<SvgIconProps>> = {
   Video: SmartDisplayOutlinedIcon,
@@ -305,31 +295,9 @@ export default async function ExploreDestinationsPage(props: {
                 {destination.events.length > 0 && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Events</span>
                   <div className="flex flex-col mt-2 divide-y divide-zinc-200 dark:divide-zinc-700">
-                    {destination.events.map((activity) => {
-                      const Icon = (activity.type && eventIcons[activity.type]) || StarBorderOutlinedIcon;
-                      return (
-                        <div key={activity.id} className="flex items-center gap-2 py-1.5 flex-1 min-w-0">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"><Icon style={{ fontSize: 16 }} className="text-white" /></div>
-                          {activity.image_url && (
-                            <img src={activity.image_url} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                          )}
-                          <div className="flex flex-col gap-0.5 min-w-0">
-                            <div className="flex items-center gap-1">
-                              {activity.link
-                                ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
-                                : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
-                              }
-                              {activity.memo && <MemoIcon memo={activity.memo} />}
-                            </div>
-                            {activity.price != null && (
-                              <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                                {new Intl.NumberFormat('en', { style: 'currency', currency: activity.price_currency ?? 'USD' }).format(activity.price)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {destination.events.map((activity) => (
+                      <ExploreEventItem key={activity.id} activity={activity} />
+                    ))}
                   </div>
                 </div>}
                 {destination.latitude != null && destination.longitude != null && (
