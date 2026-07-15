@@ -1,6 +1,12 @@
 import { GoogleSignInButton } from '@/app/ui/login-button';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.email) redirect('/journeys');
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <span className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">Imagine and Manage your</span>
