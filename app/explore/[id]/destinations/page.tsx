@@ -249,7 +249,7 @@ export default async function ExploreDestinationsPage(props: {
                     {destination.transport?.type && (() => {
                       const Icon = transportIcons[destination.transport!.type!];
                       const label = destination.transport!.link
-                        ? <a href={destination.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.transport!.type}</a>
+                        ? <a href={destination.transport!.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{destination.transport!.type}</a>
                         : <span className="font-medium text-zinc-700 dark:text-zinc-300">{destination.transport!.type}</span>;
                       return (
                         <div className="flex items-center gap-2">
@@ -336,7 +336,7 @@ export default async function ExploreDestinationsPage(props: {
                             <Icon style={{ fontSize: 16 }} className="text-white" />
                           </div>
                           {record.link
-                            ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
+                            ? <a href={record.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                             : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>
                           }
                           {record.memo && <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">{record.memo}</span>}

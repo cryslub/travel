@@ -147,7 +147,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                   {dest.transport?.type && (() => {
                     const Icon = transportIcons[dest.transport!.type!];
                     const label = dest.transport!.link
-                      ? <a href={dest.transport!.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.transport!.type}</a>
+                      ? <a href={dest.transport!.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{dest.transport!.type}</a>
                       : <span className="font-medium text-zinc-700 dark:text-zinc-300">{dest.transport!.type}</span>;
                     return (
                       <div className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <div className="flex items-center gap-1">
                               {activity.link
-                                ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
+                                ? <a href={activity.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
                                 : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
                               }
                               {activity.memo && <MemoIcon memo={activity.memo} />}
@@ -259,7 +259,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                           <Icon style={{ fontSize: 16 }} className="text-white" />
                         </div>
                         {record.link
-                          ? <a href={record.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
+                          ? <a href={record.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{record.name}</a>
                           : <span className="font-medium text-zinc-700 dark:text-zinc-300">{record.name}</span>
                         }
                         {record.memo && <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">{record.memo}</span>}

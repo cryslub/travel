@@ -59,7 +59,7 @@ export function ExploreEventItem({ activity }: { activity: EventActivity }) {
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-1">
             {activity.link
-              ? <a href={activity.link} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
+              ? <a href={activity.link} target="_blank" rel="noopener noreferrer" title="External link" className="font-medium text-blue-600 hover:underline dark:text-blue-400">{activity.name}</a>
               : <span className="font-medium text-zinc-700 dark:text-zinc-300">{activity.name}</span>
             }
             {activity.memo && <MemoIcon memo={activity.memo} />}
