@@ -18,25 +18,32 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
     return rates;
   }
 
-  const res = await fetch(
-    `https://openexchangerates.org/api/latest.json?app_id=${process.env.OPEN_EXCHANGE_RATES_APP_ID}`
-  );
-  const { rates } = await res.json() as { rates: Record<string, number> };
+  try {
+    const res = await fetch(
+      `https://openexchangerates.org/api/latest.json?app_id=${process.env.OPEN_EXCHANGE_RATES_APP_ID}`
+    );
+    if (!res.ok) return { USD: 1 };
+    const body = await res.json() as { rates?: Record<string, number> };
+    const rates = body.rates;
+    if (!rates) return { USD: 1 };
 
-  const today = new Date();
-  const rows = Object.entries(rates).map(([currency_b, rate]) => ({
-    currency_a: 'USD',
-    currency_b,
-    rate,
-    update_date: today,
-  }));
+    const today = new Date();
+    const rows = Object.entries(rates).map(([currency_b, rate]) => ({
+      currency_a: 'USD',
+      currency_b,
+      rate,
+      update_date: today,
+    }));
 
-  await sql`DELETE FROM currencies WHERE currency_a = 'USD'`;
-  if (rows.length > 0) {
-    await sql`INSERT INTO currencies ${sql(rows)}`;
+    await sql`DELETE FROM currencies WHERE currency_a = 'USD'`;
+    if (rows.length > 0) {
+      await sql`INSERT INTO currencies ${sql(rows)}`;
+    }
+
+    return rates;
+  } catch {
+    return { USD: 1 };
   }
-
-  return rates;
 }
 
 export async function updateDestinationTotalPrice(destinationId: string): Promise<void> {
