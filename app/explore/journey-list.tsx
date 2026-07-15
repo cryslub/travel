@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CountryBadge } from '@/app/ui/country-badge';
 import { LikeButton } from './like-button';
 import { ImportButton } from './import-button';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 type Journey = {
   id: string;
@@ -106,6 +107,12 @@ export function JourneyList({
                     {journey.countries.map((code) => (
                       <CountryBadge key={code} code={code} />
                     ))}
+                  </div>
+                )}
+                {journey.like_count > 0 && (
+                  <div className="flex items-center gap-1 mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+                    <FavoriteIcon sx={{ fontSize: 14 }} className="text-rose-400" />
+                    <span>{journey.like_count}</span>
                   </div>
                 )}
               </div>
