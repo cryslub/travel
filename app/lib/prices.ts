@@ -18,14 +18,26 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
     return rates;
   }
 
+  async function fallbackToStaleDb(): Promise<Record<string, number>> {
+    const stale = await sql<{ currency_b: string; rate: number }[]>`
+      SELECT currency_b, rate FROM currencies WHERE currency_a = 'USD'
+    `;
+    if (stale.length > 0) {
+      const rates: Record<string, number> = { USD: 1 };
+      for (const { currency_b, rate } of stale) rates[currency_b] = rate;
+      return rates;
+    }
+    return { USD: 1 };
+  }
+
   try {
     const res = await fetch(
       `https://openexchangerates.org/api/latest.json?app_id=${process.env.OPEN_EXCHANGE_RATES_APP_ID}`
     );
-    if (!res.ok) return { USD: 1 };
+    if (!res.ok) return fallbackToStaleDb();
     const body = await res.json() as { rates?: Record<string, number> };
     const rates = body.rates;
-    if (!rates) return { USD: 1 };
+    if (!rates) return fallbackToStaleDb();
 
     const today = new Date();
     const rows = Object.entries(rates).map(([currency_b, rate]) => ({
@@ -42,7 +54,7 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
 
     return rates;
   } catch {
-    return { USD: 1 };
+    return fallbackToStaleDb();
   }
 }
 
