@@ -75,7 +75,7 @@ export default async function EditAccommodationPage(props: PageProps<'/journeys/
           />
         </div>
         <input type="hidden" name="price_id" value={accommodation?.price_id ?? ''} />
-        <PriceField defaultPrice={accommodation?.price} defaultCurrency={accommodation?.price_currency ?? 'USD'} />
+        <PriceField defaultPrice={accommodation?.price} defaultCurrency={accommodation?.price_currency} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Link
