@@ -3,6 +3,7 @@ import { upsertTransport } from '@/app/journeys/[id]/destinations/actions';
 import { TransportTimeFields } from '../time-fields';
 import { Location } from '@/app/ui/location-autocomplete';
 import { PriceField } from '../../events/price-field';
+import { cookies } from 'next/headers';
 
 export const metadata = { title: 'Edit Transport' };
 
@@ -17,6 +18,8 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
   const prevDest = (!transport?.start_location_id && destination?.journey_id != null)
     ? await fetchPreviousDestination(destination.journey_id, destinationId, destination.start_date ?? null)
     : null;
+
+  const cookieCurrency = (await cookies()).get('preferred_currency')?.value ?? null;
 
   const action = upsertTransport.bind(null, destinationId);
 
@@ -119,7 +122,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
           />
         </div>
         <input type="hidden" name="price_id" value={transport?.price_id ?? ''} />
-        <PriceField defaultPrice={transport?.price} defaultCurrency={transport?.price_currency} />
+        <PriceField defaultPrice={transport?.price} defaultCurrency={transport?.price_currency ?? cookieCurrency} />
         <div className="flex flex-col gap-2">
           <label htmlFor="link" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Link
