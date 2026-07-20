@@ -245,7 +245,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       if (destDateStr(d.start_date) <= info.dateStr) dest = d;
     }
     if (!dest) return;
-    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?date=${info.dateStr}`;
+    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?date=${info.dateStr}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   }
 
   function handleSelect(info: { start: Date; end: Date; allDay: boolean }) {
@@ -265,7 +265,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     const startTime = toTimeStr(info.start);
     const effectiveEnd = info.allDay ? new Date(info.end.getTime() - 24 * 60 * 60 * 1000) : info.end;
     const endTime = toTimeStr(effectiveEnd);
-    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?startTime=${startTime}&endTime=${endTime}`;
+    window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?startTime=${startTime}&endTime=${endTime}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   }
 
   function handleEventClick(info: { event: { id: string } }) {

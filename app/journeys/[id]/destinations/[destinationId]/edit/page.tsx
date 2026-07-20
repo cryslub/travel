@@ -6,8 +6,9 @@ import { ImageUpload } from '@/app/ui/image-upload';
 
 export const metadata = { title: 'Edit Destination' };
 
-export default async function EditDestinationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/edit'>) {
+export default async function EditDestinationPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/edit'> & { searchParams?: Promise<Record<string, string>> }) {
   const { id: journeyId, destinationId } = await props.params;
+  const from = (await props.searchParams)?.from ?? null;
   const [destination, sections] = await Promise.all([
     fetchDestinationById(destinationId),
     fetchSectionsByJourneyId(journeyId),
@@ -22,6 +23,7 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
       <h1 className="text-3xl font-semibold mb-8">Edit Destination</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
+        <input type="hidden" name="return_url" value={from ?? ''} />
         <input type="hidden" name="previous_start_date" value={destination.start_date ? new Date(destination.start_date).toLocaleDateString('en-CA') : ''} />
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -94,7 +96,7 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
             Save
           </button>
           <a
-            href={`/journeys/${journeyId}/destinations`}
+            href={from ?? `/journeys/${journeyId}/destinations`}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel

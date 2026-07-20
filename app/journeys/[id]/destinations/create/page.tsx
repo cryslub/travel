@@ -5,8 +5,9 @@ import { ImageUpload } from '@/app/ui/image-upload';
 
 export const metadata = { title: 'Create Destination' };
 
-export default async function CreateDestinationPage(props: PageProps<'/journeys/[id]/destinations/create'>) {
+export default async function CreateDestinationPage(props: PageProps<'/journeys/[id]/destinations/create'> & { searchParams?: Promise<Record<string, string>> }) {
   const { id } = await props.params;
+  const from = (await props.searchParams)?.from ?? null;
   const [latestDate, journey, sections] = await Promise.all([
     fetchLatestDestinationStartDateByJourneyId(id),
     fetchJourneyById(id),
@@ -20,6 +21,7 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
       <h1 className="text-3xl font-semibold mb-8">Create Destination</h1>
       <form action={createDestination} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={id} />
+        <input type="hidden" name="return_url" value={from ?? ''} />
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Name
@@ -71,7 +73,7 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
             Create
           </button>
           <a
-            href={`/journeys/${id}/destinations`}
+            href={from ?? `/journeys/${id}/destinations`}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel

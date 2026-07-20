@@ -33,7 +33,7 @@ export function EditDestinationButton({ journeyId, id }: { journeyId: string; id
     <button
       type="button"
       title="Edit destination"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${id}/edit`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${id}/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full border border-zinc-200 px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
     >
       <EditOutlinedIcon fontSize="small" />
@@ -93,7 +93,7 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
         >
           <button
             type="button"
-            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${id}/edit`); }}
+            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${id}/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             <EditOutlinedIcon fontSize="small" /> Edit
@@ -117,7 +117,7 @@ export function EditTransportButton({ journeyId, destinationId }: { journeyId: s
     <button
       type="button"
       title="Edit transport"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
     >
       <EditOutlinedIcon fontSize="small" />
@@ -131,7 +131,7 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
     <button
       type="button"
       title="Edit accommodation"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <EditOutlinedIcon fontSize="small" />
@@ -145,7 +145,7 @@ export function CreateEventButton({ journeyId, destinationId }: { journeyId: str
     <button
       type="button"
       title="Add event"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/create`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/create?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
@@ -159,7 +159,7 @@ export function EditEventButton({ journeyId, destinationId, eventId }: { journey
     <button
       type="button"
       title="Edit event"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <EditOutlinedIcon fontSize="small" />
@@ -217,7 +217,7 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
         >
           <button
             type="button"
-            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit`); }}
+            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/events/${eventId}/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             <EditOutlinedIcon fontSize="small" /> Edit
@@ -258,7 +258,7 @@ export function CreateRecordButton({ journeyId, destinationId }: { journeyId: st
     <button
       type="button"
       title="Add record"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/create`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/create?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 ml-4"
     >
       <AddIcon fontSize="small" />
@@ -316,7 +316,7 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
         >
           <button
             type="button"
-            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/${recordId}/edit`); }}
+            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/records/${recordId}/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             <EditOutlinedIcon fontSize="small" /> Edit

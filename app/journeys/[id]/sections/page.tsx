@@ -8,8 +8,9 @@ export async function generateMetadata(props: PageProps<'/journeys/[id]/sections
   return { title: journey ? `Sections · ${journey.name}` : 'Sections' };
 }
 
-export default async function SectionsPage(props: PageProps<'/journeys/[id]/sections'>) {
+export default async function SectionsPage(props: PageProps<'/journeys/[id]/sections'> & { searchParams?: Promise<Record<string, string>> }) {
   const { id: journeyId } = await props.params;
+  const from = (await props.searchParams)?.from ?? null;
   const [journey, sections] = await Promise.all([
     fetchJourneyById(journeyId),
     fetchSectionsByJourneyId(journeyId),
@@ -22,7 +23,7 @@ export default async function SectionsPage(props: PageProps<'/journeys/[id]/sect
       <div className="max-w-3xl mx-auto">
       <div className="mb-8">
         <div className="flex justify-between mb-4">
-          <BackToDestinationsButton journeyId={journeyId} />
+          <BackToDestinationsButton journeyId={journeyId} from={from} />
           <div className="flex gap-2">
             <OverviewButton journeyId={journeyId} />
             <ImportSectionButton journeyId={journeyId} />

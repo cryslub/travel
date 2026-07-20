@@ -32,7 +32,8 @@ export async function createDestination(formData: FormData) {
 
   await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, ${image_url}, NOW())`;
 
-  redirect(journey_id ? `/journeys/${journey_id}/destinations` : '/destinations');
+  const return_url = (formData.get('return_url') as string) || null;
+  redirect(return_url && return_url.startsWith('/') ? return_url : (journey_id ? `/journeys/${journey_id}/destinations` : '/destinations'));
 }
 
 export async function updateDestination(id: string, formData: FormData) {
@@ -90,7 +91,8 @@ export async function updateDestination(id: string, formData: FormData) {
     }
   }
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url_dest = (formData.get('return_url') as string) || null;
+  redirect(return_url_dest && return_url_dest.startsWith('/') ? return_url_dest : `/journeys/${journey_id}/destinations`);
 }
 
 export async function deleteDestination(id: string, journeyId: string) {
@@ -144,7 +146,8 @@ export async function createEvent(destinationId: string, formData: FormData) {
 
   await updateDestinationTotalPrice(final_destination_id);
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url = (formData.get('return_url') as string) || null;
+  redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
 }
 
 export async function updateEvent(eventId: string, destinationId: string, formData: FormData) {
@@ -205,7 +208,8 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
   await updateDestinationTotalPrice(new_destination_id);
   if (new_destination_id !== destinationId) await updateDestinationTotalPrice(destinationId);
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url = (formData.get('return_url') as string) || null;
+  redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
 }
 
 export async function deleteEvent(eventId: string, journeyId: string) {
@@ -275,7 +279,8 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
 
   await updateDestinationTotalPrice(destinationId);
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url_acc = (formData.get('return_url') as string) || null;
+  redirect(return_url_acc && return_url_acc.startsWith('/') ? return_url_acc : `/journeys/${journey_id}/destinations`);
 }
 
 export async function createRecord(destinationId: string, formData: FormData) {
@@ -287,7 +292,8 @@ export async function createRecord(destinationId: string, formData: FormData) {
 
   await sql`INSERT INTO records (destination_id, name, type, link, memo, created_time) VALUES (${destinationId}, ${name}, ${type}, ${link}, ${memo}, NOW())`;
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url = (formData.get('return_url') as string) || null;
+  redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
 }
 
 export async function updateRecord(recordId: string, formData: FormData) {
@@ -299,7 +305,8 @@ export async function updateRecord(recordId: string, formData: FormData) {
 
   await sql`UPDATE records SET name = ${name}, type = ${type}, link = ${link}, memo = ${memo} WHERE id = ${recordId}`;
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url = (formData.get('return_url') as string) || null;
+  redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
 }
 
 export async function deleteRecord(recordId: string, journeyId: string) {
@@ -370,7 +377,8 @@ export async function upsertTransport(destinationId: string, formData: FormData)
 
   await updateDestinationTotalPrice(destinationId);
 
-  redirect(`/journeys/${journey_id}/destinations`);
+  const return_url_tr = (formData.get('return_url') as string) || null;
+  redirect(return_url_tr && return_url_tr.startsWith('/') ? return_url_tr : `/journeys/${journey_id}/destinations`);
 }
 
 export async function calendarUpdateDestinationDate(destinationId: string, startDate: string) {

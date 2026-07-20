@@ -9,13 +9,13 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { deleteSection, deleteSectionAndDestinations } from './actions';
 
-export function BackToDestinationsButton({ journeyId }: { journeyId: string }) {
+export function BackToDestinationsButton({ journeyId, from }: { journeyId: string; from?: string | null }) {
   const router = useRouter();
   return (
     <button
       type="button"
       title="Back to destinations"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations`)}
+      onClick={() => router.push(from && from.startsWith('/') ? from : `/journeys/${journeyId}/destinations`)}
       className="rounded-full border border-zinc-200 bg-white px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
     >
       <ChevronLeftIcon fontSize="small" />

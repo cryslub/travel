@@ -98,7 +98,7 @@ export function SectionFilter({ sections, journeyId }: { sections: Section[]; jo
         <a title="Overview" href={`/journeys/${journeyId}/sections/overview?from=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className={`hidden sm:flex ${actionBtn}`}>
           <AccountTreeOutlinedIcon fontSize="small" />
         </a>
-        <a title="Manage sections" href={`/journeys/${journeyId}/sections`} className={actionBtn}>
+        <a title="Manage sections" href={`/journeys/${journeyId}/sections?from=${encodeURIComponent(searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname)}`} className={actionBtn}>
           <SettingsOutlinedIcon fontSize="small" />
         </a>
       </div>

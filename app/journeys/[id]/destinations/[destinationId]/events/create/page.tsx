@@ -15,6 +15,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
   const dateFromQuery = searchParams?.date;
   const startTimeFromQuery = searchParams?.startTime;
   const endTimeFromQuery = searchParams?.endTime;
+  const from = searchParams?.from ?? null;
   const action = createEvent.bind(null, destinationId);
 
   const [destination, latestEndTime, allDestinations] = await Promise.all([
@@ -67,6 +68,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
       <h1 className="text-3xl font-semibold mb-8">Create Event</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
+        <input type="hidden" name="return_url" value={from ?? ''} />
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Destination</label>
           <DestinationSelect options={allDestinations.map((d) => ({ id: d.id, name: d.name, start_date: d.start_date ? new Date(d.start_date).toLocaleDateString('en-CA') : null }))} defaultId={defaultDestinationId} />
@@ -124,7 +126,7 @@ export default async function CreateEventPage(props: PageProps<'/journeys/[id]/d
             Create
           </button>
           <a
-            href={`/journeys/${journeyId}/destinations`}
+            href={from ?? `/journeys/${journeyId}/destinations`}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel

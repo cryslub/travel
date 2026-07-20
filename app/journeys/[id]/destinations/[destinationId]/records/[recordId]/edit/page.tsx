@@ -4,8 +4,9 @@ import { updateRecord } from '@/app/journeys/[id]/destinations/actions';
 
 export const metadata = { title: 'Edit Record' };
 
-export default async function EditRecordPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/records/[recordId]/edit'>) {
+export default async function EditRecordPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/records/[recordId]/edit'> & { searchParams?: Promise<Record<string, string>> }) {
   const { id: journeyId, destinationId, recordId } = await props.params;
+  const from = (await props.searchParams)?.from ?? null;
   const records = await fetchRecordsByDestinationId(destinationId);
   const record = records.find((r) => r.id === recordId);
 
@@ -18,6 +19,7 @@ export default async function EditRecordPage(props: PageProps<'/journeys/[id]/de
       <h1 className="text-3xl font-semibold mb-8">Edit Record</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
+        <input type="hidden" name="return_url" value={from ?? ''} />
         <div className="flex flex-col gap-2">
           <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name</label>
           <input
@@ -60,7 +62,7 @@ export default async function EditRecordPage(props: PageProps<'/journeys/[id]/de
             Save
           </button>
           <a
-            href={`/journeys/${journeyId}/destinations`}
+            href={from ?? `/journeys/${journeyId}/destinations`}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel

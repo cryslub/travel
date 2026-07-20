@@ -28,7 +28,7 @@ export function CreateDestinationForJourneyButton({ journeyId }: { journeyId: st
     <button
       type="button"
       title="Add destination"
-      onClick={() => router.push(`/journeys/${journeyId}/destinations/create`)}
+      onClick={() => router.push(`/journeys/${journeyId}/destinations/create?from=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
       className="rounded-full border border-transparent bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
     >
       <AddIcon fontSize="small" />

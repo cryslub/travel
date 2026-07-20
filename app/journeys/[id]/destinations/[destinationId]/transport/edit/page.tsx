@@ -7,8 +7,9 @@ import { cookies } from 'next/headers';
 
 export const metadata = { title: 'Edit Transport' };
 
-export default async function EditTransportPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/transport/edit'>) {
+export default async function EditTransportPage(props: PageProps<'/journeys/[id]/destinations/[destinationId]/transport/edit'> & { searchParams?: Promise<Record<string, string>> }) {
   const { id: journeyId, destinationId } = await props.params;
+  const from = (await props.searchParams)?.from ?? null;
 
   const [transport, destination] = await Promise.all([
     fetchTransportByDestinationId(destinationId),
@@ -43,6 +44,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
       <h1 className="text-3xl font-semibold mb-8">Edit Transport</h1>
       <form action={action} className="flex flex-col gap-6">
         <input type="hidden" name="journey_id" value={journeyId} />
+        <input type="hidden" name="return_url" value={from ?? ''} />
         <div className="flex flex-col gap-2">
           <label htmlFor="type" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Type
@@ -155,7 +157,7 @@ export default async function EditTransportPage(props: PageProps<'/journeys/[id]
             Save
           </button>
           <a
-            href={`/journeys/${journeyId}/destinations`}
+            href={from ?? `/journeys/${journeyId}/destinations`}
             className="rounded-full border border-zinc-200 px-5 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             Cancel
