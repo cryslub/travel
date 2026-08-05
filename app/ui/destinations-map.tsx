@@ -78,6 +78,7 @@ export type ModalDest = {
   start_date: string | null;
   section_name: string | null;
   image_url: string | null;
+  description?: string | null;
   price?: number | null;
   price_currency?: string | null;
   transport: {
@@ -232,6 +233,9 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
         <div className="flex flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
           {dest.image_url && (
             <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
+          )}
+          {dest.description && (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{dest.description}</p>
           )}
           <div className="py-3 text-sm">
             <div className="flex items-center justify-between">

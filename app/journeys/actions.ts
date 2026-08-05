@@ -11,6 +11,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function createJourney(formData: FormData) {
   const name = formData.get('name') as string;
+  const description = (formData.get('description') as string) || null;
   const start_date = (formData.get('start_date') as string) || null;
   const end_date = (formData.get('end_date') as string) || null;
   const imageFile = formData.get('image') as File | null;
@@ -28,7 +29,7 @@ export async function createJourney(formData: FormData) {
 
   const currency = (formData.get('currency') as string) || null;
   const countries = formData.getAll('countries') as string[];
-  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, start_date, end_date, image_url, currency, created_time, user_id) VALUES (${name}, ${start_date}, ${end_date}, ${image_url}, ${currency}, NOW(), ${user?.id ?? null}) RETURNING id`;
+  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, description, start_date, end_date, image_url, currency, created_time, user_id) VALUES (${name}, ${description}, ${start_date}, ${end_date}, ${image_url}, ${currency}, NOW(), ${user?.id ?? null}) RETURNING id`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
   }
@@ -37,6 +38,7 @@ export async function createJourney(formData: FormData) {
 
 export async function updateJourney(id: string, formData: FormData) {
   const name = formData.get('name') as string;
+  const description = (formData.get('description') as string) || null;
   const start_date = (formData.get('start_date') as string) || null;
   const end_date = (formData.get('end_date') as string) || null;
   const previous_start_date = (formData.get('previous_start_date') as string) || null;
@@ -59,7 +61,7 @@ export async function updateJourney(id: string, formData: FormData) {
   const currency = (formData.get('currency') as string) || null;
   const [prev] = await sql<{ currency: string | null }[]>`SELECT currency FROM journeys WHERE id = ${id}`;
   const countries = formData.getAll('countries') as string[];
-  await sql`UPDATE journeys SET name = ${name}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl}, currency = ${currency} WHERE id = ${id}`;
+  await sql`UPDATE journeys SET name = ${name}, description = ${description}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl}, currency = ${currency} WHERE id = ${id}`;
   await sql`DELETE FROM journey_countries WHERE journey_id = ${id}`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;

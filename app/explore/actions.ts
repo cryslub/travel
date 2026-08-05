@@ -47,8 +47,8 @@ export async function importJourney(sourceJourneyId: string, selectedSectionIds?
   await sql.begin(async (sql) => {
     // Journey
     const [newJourney] = await sql<{ id: string }[]>`
-      INSERT INTO journeys (user_id, name, start_date, end_date, image_url, currency)
-      SELECT ${user.id}, name, start_date, end_date, image_url, currency
+      INSERT INTO journeys (user_id, name, description, start_date, end_date, image_url, currency)
+      SELECT ${user.id}, name, description, start_date, end_date, image_url, currency
       FROM journeys WHERE id = ${sourceJourneyId}
       RETURNING id
     `;
@@ -88,7 +88,7 @@ export async function importJourney(sourceJourneyId: string, selectedSectionIds?
           d.id                                                          AS old_dest_id,
           uuid_generate_v4()                                            AS new_dest_id,
           sm.new_id                                                     AS new_section_id,
-          d.location_id, d.name, d.start_date, d.image_url,
+          d.location_id, d.name, d.description, d.start_date, d.image_url,
           CASE WHEN d.price_id IS NOT NULL THEN uuid_generate_v4() END AS new_price_id,
           p.value AS price_value, p.currency AS price_currency
         FROM destinations d
@@ -142,8 +142,8 @@ export async function importJourney(sourceJourneyId: string, selectedSectionIds?
           SELECT new_price_id, price_value, price_currency FROM mapped_events       WHERE new_price_id IS NOT NULL
       ),
       ins_dests AS (
-        INSERT INTO destinations (id, journey_id, section_id, location_id, name, start_date, image_url, price_id)
-        SELECT new_dest_id, ${newJourneyId}, new_section_id, location_id, name, start_date, image_url, new_price_id
+        INSERT INTO destinations (id, journey_id, section_id, location_id, name, description, start_date, image_url, price_id)
+        SELECT new_dest_id, ${newJourneyId}, new_section_id, location_id, name, description, start_date, image_url, new_price_id
         FROM mapped_dests
       ),
       ins_transports AS (

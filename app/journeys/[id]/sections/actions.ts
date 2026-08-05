@@ -64,13 +64,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           RETURNING id
         ),
         src_dests AS (
-          SELECT id, name, start_date, location_id, image_url,
+          SELECT id, name, description, start_date, location_id, image_url,
                  ROW_NUMBER() OVER (ORDER BY start_date ASC NULLS LAST, created_time ASC NULLS LAST) AS rn
           FROM destinations WHERE journey_id = ${sourceJourneyId} AND section_id IS NULL
         ),
         ins_dests AS (
-          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time)
-          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
+          INSERT INTO destinations (name, description, start_date, journey_id, section_id, location_id, image_url, created_time)
+          SELECT d.name, d.description, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
           FROM src_dests d ORDER BY d.rn
           RETURNING id
         ),
@@ -113,13 +113,13 @@ export async function importSections(targetJourneyId: string, formData: FormData
           RETURNING id
         ),
         src_dests AS (
-          SELECT id, name, start_date, location_id, image_url,
+          SELECT id, name, description, start_date, location_id, image_url,
                  ROW_NUMBER() OVER (ORDER BY start_date ASC NULLS LAST, created_time ASC NULLS LAST) AS rn
           FROM destinations WHERE section_id = ${sourceSectionId}
         ),
         ins_dests AS (
-          INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time)
-          SELECT d.name, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
+          INSERT INTO destinations (name, description, start_date, journey_id, section_id, location_id, image_url, created_time)
+          SELECT d.name, d.description, d.start_date, ${targetJourneyId}, (SELECT id FROM new_sec), d.location_id, d.image_url, NOW()
           FROM src_dests d ORDER BY d.rn
           RETURNING id
         ),

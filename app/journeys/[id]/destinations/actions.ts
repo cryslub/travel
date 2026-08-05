@@ -9,6 +9,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function createDestination(formData: FormData) {
   const name = formData.get('name') as string;
+  const description = (formData.get('description') as string) || null;
   const start_date = (formData.get('start_date') as string) || null;
   const journey_id = (formData.get('journey_id') as string) || null;
   const section_id = (formData.get('section_id') as string) || null;
@@ -30,7 +31,7 @@ export async function createDestination(formData: FormData) {
     image_url = url;
   }
 
-  await sql`INSERT INTO destinations (name, start_date, journey_id, section_id, location_id, image_url, created_time) VALUES (${name}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, ${image_url}, NOW())`;
+  await sql`INSERT INTO destinations (name, description, start_date, journey_id, section_id, location_id, image_url, created_time) VALUES (${name}, ${description}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, ${image_url}, NOW())`;
 
   const return_url = (formData.get('return_url') as string) || null;
   redirect(return_url && return_url.startsWith('/') ? return_url : (journey_id ? `/journeys/${journey_id}/destinations` : '/destinations'));
@@ -38,6 +39,7 @@ export async function createDestination(formData: FormData) {
 
 export async function updateDestination(id: string, formData: FormData) {
   const name = formData.get('name') as string;
+  const description = (formData.get('description') as string) || null;
   const start_date = (formData.get('start_date') as string) || null;
   const previous_start_date = (formData.get('previous_start_date') as string) || null;
   const shift_dates = formData.get('shift_dates') === '1';
@@ -73,7 +75,7 @@ export async function updateDestination(id: string, formData: FormData) {
     imageUrl = currentImageUrl;
   }
 
-  await sql`UPDATE destinations SET name = ${name}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${id}`;
+  await sql`UPDATE destinations SET name = ${name}, description = ${description}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${id}`;
 
   if ((shift_dates || shift_following) && start_date && previous_start_date) {
     const offsetDays = Math.round((new Date(start_date).getTime() - new Date(previous_start_date).getTime()) / 86400000);

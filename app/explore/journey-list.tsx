@@ -9,6 +9,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 type Journey = {
   id: string;
   name: string;
+  description?: string | null;
   start_date: string | null;
   end_date: string | null;
   image_url: string | null;
@@ -89,6 +90,9 @@ export function JourneyList({
                   </span>
                 )}
                 <a href={`/explore/${journey.id}/destinations`} className="text-lg font-medium hover:underline">{journey.name}</a>
+                {journey.description && (
+                  <span className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
+                )}
                 {journey.user_name && (
                   <a
                     href={`/explore?owner=${encodeURIComponent(journey.user_name)}`}

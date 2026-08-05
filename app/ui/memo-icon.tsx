@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useId } from 'react';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 
 const MEMO_OPEN_EVENT = 'memo-icon-open';
 
@@ -66,7 +66,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
         onBlur={() => { setClicked(false); setHovered(false); }}
         className="flex items-center text-zinc-400 dark:text-zinc-500"
       >
-        <InfoOutlinedIcon style={{ fontSize: 16 }} />
+        <StickyNote2OutlinedIcon style={{ fontSize: 16 }} />
       </button>
       {show && (
         <div

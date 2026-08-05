@@ -3,6 +3,7 @@ import { fetchDestinationById, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { updateDestination } from '@/app/journeys/[id]/destinations/actions';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { DescriptionField } from '@/app/ui/description-field';
 
 export const metadata = { title: 'Edit Destination' };
 
@@ -40,6 +41,7 @@ export default async function EditDestinationPage(props: PageProps<'/journeys/[i
           />
         </div>
         <ImageUpload currentImageUrl={destination.image_url} />
+        <DescriptionField defaultValue={destination.description ?? ''} />
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
           <Location

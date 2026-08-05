@@ -138,6 +138,7 @@ export default async function ExploreDestinationsPage(props: {
             start_date: d.start_date,
             section_name: d.section_name,
             image_url: d.image_url,
+            description: d.description ?? null,
             price: d.price ?? null,
             price_currency: d.price_currency ?? null,
             transport: d.transport,
@@ -215,6 +216,7 @@ export default async function ExploreDestinationsPage(props: {
               memo: r.memo,
             })),
             image_url: d.image_url,
+            description: d.description ?? null,
           }))}
         />
       )}
@@ -242,6 +244,9 @@ export default async function ExploreDestinationsPage(props: {
                 </div>
                 {destination.image_url && (
                   <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
+                )}
+                {destination.description && (
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{destination.description}</p>
                 )}
                 {destination.transport && <div className="py-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>

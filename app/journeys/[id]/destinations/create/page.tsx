@@ -2,6 +2,7 @@ import { createDestination } from '@/app/journeys/[id]/destinations/actions';
 import { fetchJourneyById, fetchLatestDestinationStartDateByJourneyId, fetchSectionsByJourneyId } from '@/app/lib/data';
 import { Location } from '@/app/ui/location-autocomplete';
 import { ImageUpload } from '@/app/ui/image-upload';
+import { DescriptionField } from '@/app/ui/description-field';
 
 export const metadata = { title: 'Create Destination' };
 
@@ -36,6 +37,7 @@ export default async function CreateDestinationPage(props: PageProps<'/journeys/
           />
         </div>
         <ImageUpload />
+        <DescriptionField />
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Location</label>
           <Location name="location" placeholder="Search location…" syncInputId="name" />

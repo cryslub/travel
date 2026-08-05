@@ -156,6 +156,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
               memo: r.memo,
             })),
             image_url: d.image_url,
+            description: d.description ?? null,
             price: d.price ?? null,
             price_currency: d.price_currency ?? null,
           }))}
@@ -175,6 +176,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             start_date: d.start_date,
             section_name: d.section_name,
             image_url: d.image_url,
+            description: d.description ?? null,
             price: d.price ?? null,
             price_currency: d.price_currency ?? null,
             transport: d.transport,
@@ -200,6 +202,7 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             start_date: d.start_date,
             section_name: d.section_name,
             image_url: d.image_url,
+            description: d.description ?? null,
             price: d.price ?? null,
             price_currency: d.price_currency ?? null,
             transport: d.transport,
@@ -234,6 +237,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             </div>
             {destination.image_url && (
               <img src={destination.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
+            )}
+            {destination.description && (
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{destination.description}</p>
             )}
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">

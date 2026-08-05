@@ -43,6 +43,9 @@ export default async function JourneysPage() {
                     </span>
                   )}
                   <a href={`/journeys/${journey.id}/destinations`} title="Destinations" className="text-lg font-medium hover:underline">{journey.name}</a>
+                  {journey.description && (
+                    <span className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
+                  )}
                   {journey.total_price != null && (
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                       {new Intl.NumberFormat('en', { style: 'currency', currency: journey.currency ?? 'USD' }).format(journey.total_price)}

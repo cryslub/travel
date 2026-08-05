@@ -17,6 +17,7 @@ export type Journey = {
   start_date: string | null;
   end_date: string | null;
   image_url: string | null;
+  description?: string | null;
   countries: string[];
   created_time: string | null;
   currency?: string | null;
@@ -54,6 +55,7 @@ export type Destination = {
   section_id: string | null;
   location_id: string | null;
   image_url: string | null;
+  description?: string | null;
   created_time: string | null;
   price_id?: string | null;
 };

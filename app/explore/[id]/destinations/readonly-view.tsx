@@ -18,6 +18,7 @@ import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
 import { MemoIcon } from '@/app/ui/memo-icon';
+import { TextTooltip } from '@/app/ui/text-tooltip';
 import { AccommodationItem } from '@/app/journeys/[id]/destinations/accommodation-item';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import type { DestinationWithTransport } from '@/app/lib/definitions';
@@ -89,6 +90,9 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                   <span className="text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">{d.section_name}</span>
                 )}
               </div>
+              {d.description && (
+                <TextTooltip text={d.description} className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2" />
+              )}
               {d.price != null && (
                 <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   {new Intl.NumberFormat('en', { style: 'currency', currency: d.price_currency ?? 'USD' }).format(d.price)}
@@ -138,6 +142,9 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
             <div className="flex flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
               {dest.image_url && (
                 <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
+              )}
+              {dest.description && (
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{dest.description}</p>
               )}
 
               {/* Transport */}

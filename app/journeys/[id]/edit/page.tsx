@@ -7,6 +7,7 @@ import { CurrencySelector } from '@/app/ui/currency-selector';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
 import { JourneyDateFields } from '../../date-fields';
+import { DescriptionField } from '@/app/ui/description-field';
 
 export const metadata = { title: 'Edit Journey' };
 
@@ -34,11 +35,13 @@ export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/e
             name="name"
             type="text"
             required
+            maxLength={100}
             defaultValue={journey.name}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
           />
         </div>
         <ImageUpload currentImageUrl={journey.image_url} />
+        <DescriptionField defaultValue={journey.description ?? ''} />
         <JourneyDateFields
           defaultStartDate={journey.start_date ? new Date(journey.start_date).toLocaleDateString('en-CA') : ''}
           defaultEndDate={journey.end_date ? new Date(journey.end_date).toLocaleDateString('en-CA') : ''}

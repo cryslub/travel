@@ -83,7 +83,7 @@ export async function fetchDestinations(): Promise<DestinationWithTransport[]> {
 
 export async function fetchDestinationById(id: string): Promise<(Destination & { location_name: string | null; latitude: number | null; longitude: number | null }) | null> {
   const data = await sql<(Destination & { location_name: string | null; latitude: number | null; longitude: number | null })[]>`
-    SELECT d.id, d.name, d.start_date, d.journey_id, d.section_id, d.location_id, d.image_url,
+    SELECT d.id, d.name, d.start_date, d.journey_id, d.section_id, d.location_id, d.image_url, d.description,
            l.name AS location_name, l.latitude, l.longitude
     FROM destinations d
     LEFT JOIN locations l ON l.id = d.location_id
@@ -157,7 +157,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     section_name: string | null;
   })[]>`
     SELECT
-      d.id, d.name, d.start_date, d.section_id, d.location_id, d.image_url, d.price_id,
+      d.id, d.name, d.description, d.start_date, d.section_id, d.location_id, d.image_url, d.price_id,
       dp.value AS destination_price, dp.currency AS destination_price_currency,
       l.name AS location_name, l.latitude, l.longitude,
       s.name AS section_name,
@@ -198,7 +198,7 @@ export async function fetchDestinationsByJourneyId(journeyId: string): Promise<D
     LEFT JOIN sections s ON s.id = d.section_id
     LEFT JOIN prices dp ON dp.id = d.price_id
     WHERE d.journey_id = ${journeyId}
-    GROUP BY d.id, d.name, d.start_date, d.section_id, d.location_id, d.image_url, d.price_id, d.created_time, l.name, l.latitude, l.longitude, s.name, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, t.memo, sl.latitude, sl.longitude, tl.latitude, tl.longitude, a.name, a.check_in, a.check_out, a.link, a.memo, a.image_url, al.latitude, al.longitude, ap.value, ap.currency, tp.value, tp.currency, dp.value, dp.currency
+    GROUP BY d.id, d.name, d.description, d.start_date, d.section_id, d.location_id, d.image_url, d.price_id, d.created_time, l.name, l.latitude, l.longitude, s.name, t.type, t.start_time, t.end_time, t.start_terminal, t.end_terminal, t.link, t.memo, sl.latitude, sl.longitude, tl.latitude, tl.longitude, a.name, a.check_in, a.check_out, a.link, a.memo, a.image_url, al.latitude, al.longitude, ap.value, ap.currency, tp.value, tp.currency, dp.value, dp.currency
     ORDER BY d.start_date ASC NULLS LAST, d.created_time ASC NULLS LAST, t.start_time ASC NULLS LAST
   `;
   return rows.map(({ transport_type, transport_start_time, transport_end_time, transport_start_terminal, transport_end_terminal, transport_link, transport_memo, transport_start_latitude, transport_start_longitude, transport_end_latitude, transport_end_longitude, transport_price, transport_price_currency, accommodation_name, accommodation_check_in, accommodation_check_out, accommodation_link, accommodation_memo, accommodation_image_url, accommodation_latitude, accommodation_longitude, accommodation_price, accommodation_price_currency, destination_price, destination_price_currency, section_name, events, records, ...d }) => ({
@@ -225,7 +225,7 @@ export async function fetchRecordsByDestinationId(destinationId: string): Promis
 export async function fetchJourneys(userEmail: string, signInType: string): Promise<Journey[]> {
   noStore();
   const data = await sql<Journey[]>`
-    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency, j.likes,
+    SELECT j.id, j.name, j.description, j.start_date, j.end_date, j.image_url, j.created_time, j.currency, j.likes,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price
     FROM journeys j
@@ -243,7 +243,7 @@ export async function fetchJourneys(userEmail: string, signInType: string): Prom
 export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]> {
   noStore();
   const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]>`
-    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
+    SELECT j.id, j.name, j.description, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price,
       p.name AS user_name,
@@ -269,7 +269,7 @@ export async function fetchExploreJourneys(userEmail: string, signInType: string
 export async function fetchExploreJourneysPublic(): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]> {
   noStore();
   const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean })[]>`
-    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
+    SELECT j.id, j.name, j.description, j.start_date, j.end_date, j.image_url, j.created_time, j.currency,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price,
       p.name AS user_name,
@@ -299,7 +299,7 @@ export async function fetchEarliestJourneyStartDate(): Promise<string | null> {
 
 export async function fetchJourneyById(id: string): Promise<(Journey & { user_email: string | null; user_sign_in_type: string | null }) | null> {
   const data = await sql<(Journey & { user_email: string | null; user_sign_in_type: string | null })[]>`
-    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.currency, j.created_time,
+    SELECT j.id, j.name, j.start_date, j.end_date, j.image_url, j.description, j.currency, j.created_time,
       array_remove(array_agg(jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       u.email AS user_email, u.sign_in_type AS user_sign_in_type
     FROM journeys j
