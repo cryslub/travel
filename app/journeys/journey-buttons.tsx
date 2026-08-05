@@ -42,7 +42,7 @@ export function JourneyButtons({ id, isPrivate }: { id: string; isPrivate?: bool
           <MoreVertIcon fontSize="small" />
         </button>
         {open && (
-          <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+          <div className="absolute right-0 top-full mt-1 z-[1002] min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
             {!isPrivate && (
               <button
                 type="button"
