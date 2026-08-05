@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useId } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useId } from 'react';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 
 const MEMO_OPEN_EVENT = 'memo-icon-open';
@@ -11,6 +11,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const btnRef = useRef<HTMLButtonElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLSpanElement>(null);
 
   const show = clicked || hovered;
@@ -55,6 +56,17 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
     }
   }
 
+  useLayoutEffect(() => {
+    if (!show || !tooltipRef.current) return;
+    const rect = tooltipRef.current.getBoundingClientRect();
+    let left = pos.left;
+    if (rect.right > window.innerWidth - MARGIN) {
+      left -= rect.right - (window.innerWidth - MARGIN);
+    }
+    if (left < MARGIN) left = MARGIN;
+    if (left !== pos.left) setPos((p) => ({ ...p, left }));
+  }, [show, pos.left, pos.top, pos.bottom]);
+
   return (
     <span ref={containerRef} className={`relative flex-shrink-0${className ? ` ${className}` : ''}`}>
       <button
@@ -70,6 +82,7 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
       </button>
       {show && (
         <div
+          ref={tooltipRef}
           style={{ position: 'fixed', top: pos.top, bottom: pos.bottom, left: pos.left }}
           className="z-[99999] w-max max-w-xs rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 whitespace-pre-wrap"
         >
