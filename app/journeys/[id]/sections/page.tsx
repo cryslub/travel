@@ -1,5 +1,7 @@
-import { fetchSectionsByJourneyId, fetchJourneyById } from '@/app/lib/data';
-import { notFound } from 'next/navigation';
+import { fetchSectionsByJourneyId, fetchJourneyById, fetchUserId } from '@/app/lib/data';
+import { notFound, redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { BackToDestinationsButton, CreateSectionButton, ImportSectionButton, OverviewButton, EditSectionButton, DeleteSectionButton } from './sections-buttons';
 
 export async function generateMetadata(props: PageProps<'/journeys/[id]/sections'>) {
@@ -17,6 +19,11 @@ export default async function SectionsPage(props: PageProps<'/journeys/[id]/sect
   ]);
 
   if (!journey) notFound();
+
+  const session = await getServerSession(authOptions);
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const viewerId = session?.user?.email ? await fetchUserId(session.user.email, signInType) : null;
+  if (!viewerId || viewerId !== journey.user_id) redirect('/unauthorized');
 
   return (
     <main className="min-h-[calc(100vh-57px)] bg-zinc-100 dark:bg-zinc-900 px-4 py-12 min-w-[350px]">

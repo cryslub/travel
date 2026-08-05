@@ -19,6 +19,9 @@ type Journey = {
   user_name: string | null;
   like_count: number;
   viewer_liked: boolean;
+  allow_import?: boolean | null;
+  original_id?: string | null;
+  original_name?: string | null;
 };
 
 const PAGE_SIZE = 10;
@@ -119,11 +122,23 @@ export function JourneyList({
                     <span>{journey.like_count}</span>
                   </div>
                 )}
+                {journey.original_id && (
+                  journey.original_name ? (
+                    <a
+                      href={`/explore/${journey.original_id}/destinations`}
+                      className="mt-1 text-xs text-zinc-400 hover:underline dark:text-zinc-500"
+                    >
+                      Imported from {journey.original_name}
+                    </a>
+                  ) : (
+                    <span className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">Imported from a deleted journey</span>
+                  )
+                )}
               </div>
             </div>
             <div className="flex flex-col items-center justify-center gap-3 px-4 border-l border-zinc-100 dark:border-zinc-700">
               {isLoggedIn && <LikeButton journeyId={journey.id} initialLiked={journey.viewer_liked} initialCount={journey.like_count} />}
-              {isLoggedIn && <ImportButton journeyId={journey.id} />}
+              {isLoggedIn && journey.allow_import !== false && <ImportButton journeyId={journey.id} />}
               <button
                 type="button"
                 onClick={() => {

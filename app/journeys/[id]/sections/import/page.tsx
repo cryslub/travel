@@ -1,4 +1,4 @@
-import { fetchJourneys, fetchSectionsByJourneyId, fetchUnsectionedDestinationCount, fetchJourneyById } from '@/app/lib/data';
+import { fetchJourneys, fetchSectionsByJourneyId, fetchUnsectionedDestinationCount, fetchJourneyById, fetchUserId } from '@/app/lib/data';
 import { importSections } from '../actions';
 import { notFound, redirect } from 'next/navigation';
 import { ImportSectionsForm } from './import-sections-form';
@@ -20,6 +20,9 @@ export default async function ImportSectionsPage(props: PageProps<'/journeys/[id
   if (!journey) notFound();
 
   const signInType = session.user.sign_in_type ?? 'Google';
+  const viewerId = await fetchUserId(session.user.email, signInType);
+  if (!viewerId || viewerId !== journey.user_id) redirect('/unauthorized');
+
   const allJourneys = await fetchJourneys(session.user.email, signInType);
   const otherJourneys = allJourneys.filter((j) => j.id !== journeyId);
 

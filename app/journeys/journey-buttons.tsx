@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import { deleteJourney } from './actions';
 
-export function JourneyButtons({ id }: { id: string }) {
+export function JourneyButtons({ id, isPrivate }: { id: string; isPrivate?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -43,22 +43,24 @@ export function JourneyButtons({ id }: { id: string }) {
         </button>
         {open && (
           <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                const url = `${window.location.origin}/explore/${id}/destinations`;
-                if (navigator.share) {
-                  navigator.share({ url });
-                } else {
-                  navigator.clipboard.writeText(url);
-                }
-              }}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-            >
-              <IosShareOutlinedIcon fontSize="small" />
-              Share
-            </button>
+            {!isPrivate && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  const url = `${window.location.origin}/explore/${id}/destinations`;
+                  if (navigator.share) {
+                    navigator.share({ url });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                  }
+                }}
+                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              >
+                <IosShareOutlinedIcon fontSize="small" />
+                Share
+              </button>
+            )}
             <button
               type="button"
               onClick={() => { setOpen(false); router.push(`/journeys/${id}/edit`); }}

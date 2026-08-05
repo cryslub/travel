@@ -1,7 +1,7 @@
-import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences, fetchUserId } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { ReadonlyDestinationsView } from './readonly-view';
 import { ExploreEventItem } from './explore-event-item';
@@ -63,6 +63,11 @@ export default async function ExploreDestinationsPage(props: {
   const journey = await fetchJourneyById(id);
   if (!journey) notFound();
 
+  if (journey.privacy === 'private') {
+    const viewerId = session?.user?.email ? await fetchUserId(session.user.email, signInType) : null;
+    if (!viewerId || viewerId !== journey.user_id) redirect('/unauthorized');
+  }
+
   const [allDestinations, sections, prefs] = await Promise.all([
     fetchDestinationsByJourneyId(id),
     fetchSectionsByJourneyId(id),
@@ -107,7 +112,17 @@ export default async function ExploreDestinationsPage(props: {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <BackButton />
-            <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+              {journey.user_name && (
+                <a
+                  href={`/explore?owner=${encodeURIComponent(journey.user_name)}`}
+                  className="text-xs text-zinc-500 hover:underline dark:text-zinc-400"
+                >
+                  by {journey.user_name}
+                </a>
+              )}
+            </div>
           </div>
           <span className="sm:mr-2">
             <Suspense>

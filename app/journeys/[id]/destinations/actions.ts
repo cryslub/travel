@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { put, del } from '@vercel/blob';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
+import { markJourneyChanged, markJourneyChangedByDestination, markJourneyChangedByEvent } from '@/app/lib/journey-state';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -32,6 +33,7 @@ export async function createDestination(formData: FormData) {
   }
 
   await sql`INSERT INTO destinations (name, description, start_date, journey_id, section_id, location_id, image_url, created_time) VALUES (${name}, ${description}, ${start_date}, ${journey_id}, ${section_id}, ${location_id}, ${image_url}, NOW())`;
+  if (journey_id) await markJourneyChanged(journey_id);
 
   const return_url = (formData.get('return_url') as string) || null;
   redirect(return_url && return_url.startsWith('/') ? return_url : (journey_id ? `/journeys/${journey_id}/destinations` : '/destinations'));
@@ -76,6 +78,7 @@ export async function updateDestination(id: string, formData: FormData) {
   }
 
   await sql`UPDATE destinations SET name = ${name}, description = ${description}, start_date = ${start_date}, section_id = ${section_id}, location_id = ${location_id}, image_url = ${imageUrl} WHERE id = ${id}`;
+  await markJourneyChanged(journey_id);
 
   if ((shift_dates || shift_following) && start_date && previous_start_date) {
     const offsetDays = Math.round((new Date(start_date).getTime() - new Date(previous_start_date).getTime()) / 86400000);
@@ -104,6 +107,7 @@ export async function deleteDestination(id: string, journeyId: string) {
     sql<{ image_url: string }[]>`SELECT image_url FROM accommodations WHERE destination_id = ${id} AND image_url IS NOT NULL`,
   ]);
   await sql`DELETE FROM destinations WHERE id = ${id}`;
+  await markJourneyChanged(journeyId);
   const urls = [...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
   if (urls.length > 0) await del(urls);
   redirect(`/journeys/${journeyId}/destinations`);
@@ -145,6 +149,7 @@ export async function createEvent(destinationId: string, formData: FormData) {
   }
 
   await sql`INSERT INTO events (destination_id, name, type, start_time, end_time, link, memo, image_url, location_id, price_id, created_time) VALUES (${final_destination_id}, ${name}, ${type}, ${start_time}, ${end_time}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${price_id}, NOW())`;
+  await markJourneyChanged(journey_id);
 
   await updateDestinationTotalPrice(final_destination_id);
 
@@ -206,6 +211,7 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
   }
 
   await sql`UPDATE events SET destination_id = ${new_destination_id}, name = ${name}, type = ${type}, start_time = ${start_time}, end_time = ${end_time}, link = ${link}, memo = ${memo}, location_id = ${location_id}, image_url = ${imageUrl}, price_id = ${final_price_id} WHERE id = ${eventId}`;
+  await markJourneyChanged(journey_id);
 
   await updateDestinationTotalPrice(new_destination_id);
   if (new_destination_id !== destinationId) await updateDestinationTotalPrice(destinationId);
@@ -217,6 +223,7 @@ export async function updateEvent(eventId: string, destinationId: string, formDa
 export async function deleteEvent(eventId: string, journeyId: string) {
   const [event] = await sql<{ destination_id: string; image_url: string | null }[]>`SELECT destination_id, image_url FROM events WHERE id = ${eventId}`;
   await sql`DELETE FROM events WHERE id = ${eventId}`;
+  await markJourneyChanged(journeyId);
   if (event?.destination_id) await updateDestinationTotalPrice(event.destination_id);
   if (event?.image_url) await del(event.image_url);
   redirect(`/journeys/${journeyId}/destinations`);
@@ -278,6 +285,7 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
     VALUES (${destinationId}, ${name}, ${check_in}, ${check_out}, ${link}, ${memo}, ${imageUrl}, ${location_id}, ${final_price_id})
     ON CONFLICT (destination_id) DO UPDATE SET name = ${name}, check_in = ${check_in}, check_out = ${check_out}, link = ${link}, memo = ${memo}, image_url = ${imageUrl}, location_id = ${location_id}, price_id = ${final_price_id}
   `;
+  await markJourneyChanged(journey_id);
 
   await updateDestinationTotalPrice(destinationId);
 
@@ -293,6 +301,7 @@ export async function createRecord(destinationId: string, formData: FormData) {
   const journey_id = formData.get('journey_id') as string;
 
   await sql`INSERT INTO records (destination_id, name, type, link, memo, created_time) VALUES (${destinationId}, ${name}, ${type}, ${link}, ${memo}, NOW())`;
+  await markJourneyChanged(journey_id);
 
   const return_url = (formData.get('return_url') as string) || null;
   redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
@@ -306,6 +315,7 @@ export async function updateRecord(recordId: string, formData: FormData) {
   const journey_id = formData.get('journey_id') as string;
 
   await sql`UPDATE records SET name = ${name}, type = ${type}, link = ${link}, memo = ${memo} WHERE id = ${recordId}`;
+  await markJourneyChanged(journey_id);
 
   const return_url = (formData.get('return_url') as string) || null;
   redirect(return_url && return_url.startsWith('/') ? return_url : `/journeys/${journey_id}/destinations`);
@@ -313,6 +323,7 @@ export async function updateRecord(recordId: string, formData: FormData) {
 
 export async function deleteRecord(recordId: string, journeyId: string) {
   await sql`DELETE FROM records WHERE id = ${recordId}`;
+  await markJourneyChanged(journeyId);
 
   redirect(`/journeys/${journeyId}/destinations`);
 }
@@ -376,6 +387,7 @@ export async function upsertTransport(destinationId: string, formData: FormData)
     VALUES (${destinationId}, ${type}, ${start_time}, ${end_time}, ${start_terminal}, ${end_terminal}, ${link}, ${memo}, ${start_location_id}, ${end_location_id}, ${final_price_id})
     ON CONFLICT (destination_id) DO UPDATE SET type = ${type}, start_time = ${start_time}, end_time = ${end_time}, start_terminal = ${start_terminal}, end_terminal = ${end_terminal}, link = ${link}, memo = ${memo}, start_location_id = ${start_location_id}, end_location_id = ${end_location_id}, price_id = ${final_price_id}
   `;
+  await markJourneyChanged(journey_id);
 
   await updateDestinationTotalPrice(destinationId);
 
@@ -385,19 +397,23 @@ export async function upsertTransport(destinationId: string, formData: FormData)
 
 export async function calendarUpdateDestinationDate(destinationId: string, startDate: string) {
   await sql`UPDATE destinations SET start_date = ${startDate} WHERE id = ${destinationId}`;
+  await markJourneyChangedByDestination(destinationId);
 }
 
 export async function calendarUpdateEventTimes(eventId: string, startTime: string, endTime: string | null) {
   await sql`UPDATE events SET start_time = ${startTime}, end_time = ${endTime} WHERE id = ${eventId}`;
+  await markJourneyChangedByEvent(eventId);
 }
 
 export async function calendarMoveEvent(eventId: string, oldDestId: string, newDestId: string, startTime: string, endTime: string | null) {
   await sql`UPDATE events SET destination_id = ${newDestId}, start_time = ${startTime}, end_time = ${endTime} WHERE id = ${eventId}`;
+  await markJourneyChangedByDestination(newDestId);
   await updateDestinationTotalPrice(newDestId);
   if (newDestId !== oldDestId) await updateDestinationTotalPrice(oldDestId);
 }
 
 export async function calendarUpdateTransportTimes(destinationId: string, startTime: string, endTime: string | null) {
   await sql`UPDATE transports SET start_time = ${startTime}, end_time = ${endTime} WHERE destination_id = ${destinationId}`;
+  await markJourneyChangedByDestination(destinationId);
 }
 

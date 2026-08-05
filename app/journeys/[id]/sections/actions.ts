@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { del } from '@vercel/blob';
+import { markJourneyChanged } from '@/app/lib/journey-state';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -12,6 +13,7 @@ export async function createSection(journeyId: string, formData: FormData) {
   const redirectTo = formData.get('redirect_to') as string | null;
 
   await sql`INSERT INTO sections (journey_id, name, created_time) VALUES (${journeyId}, ${name}, NOW())`;
+  await markJourneyChanged(journeyId);
 
   redirect(redirectTo || `/journeys/${journeyId}/sections`);
 }
@@ -20,6 +22,7 @@ export async function updateSection(sectionId: string, journeyId: string, formDa
   const name = formData.get('name') as string;
 
   await sql`UPDATE sections SET name = ${name} WHERE id = ${sectionId}`;
+  await markJourneyChanged(journeyId);
 
   redirect(`/journeys/${journeyId}/sections`);
 }
@@ -27,6 +30,7 @@ export async function updateSection(sectionId: string, journeyId: string, formDa
 export async function deleteSection(sectionId: string, journeyId: string) {
   await sql`UPDATE destinations SET section_id = NULL WHERE section_id = ${sectionId}`;
   await sql`DELETE FROM sections WHERE id = ${sectionId}`;
+  await markJourneyChanged(journeyId);
 
   redirect(`/journeys/${journeyId}/sections`);
 }
@@ -39,6 +43,7 @@ export async function deleteSectionAndDestinations(sectionId: string, journeyId:
   ]);
   await sql`DELETE FROM destinations WHERE section_id = ${sectionId}`;
   await sql`DELETE FROM sections WHERE id = ${sectionId}`;
+  await markJourneyChanged(journeyId);
   const urls = [...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
   if (urls.length > 0) await del(urls);
   redirect(`/journeys/${journeyId}/sections`);
@@ -46,6 +51,7 @@ export async function deleteSectionAndDestinations(sectionId: string, journeyId:
 
 export async function moveDestination(destinationId: string, targetSectionId: string | null, journeyId: string) {
   await sql`UPDATE destinations SET section_id = ${targetSectionId} WHERE id = ${destinationId}`;
+  await markJourneyChanged(journeyId);
   revalidatePath(`/journeys/${journeyId}/sections/overview`);
 }
 
@@ -155,5 +161,6 @@ export async function importSections(targetJourneyId: string, formData: FormData
     }
   }
 
+  await markJourneyChanged(targetJourneyId);
   redirect(`/journeys/${targetJourneyId}/sections`);
 }

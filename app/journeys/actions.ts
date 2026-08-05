@@ -6,6 +6,7 @@ import { put, del } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
+import { markJourneyChanged } from '@/app/lib/journey-state';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -14,6 +15,8 @@ export async function createJourney(formData: FormData) {
   const description = (formData.get('description') as string) || null;
   const start_date = (formData.get('start_date') as string) || null;
   const end_date = (formData.get('end_date') as string) || null;
+  const allow_import = formData.get('allow_import') === '1';
+  const privacy = (formData.get('privacy') as string) || 'public';
   const imageFile = formData.get('image') as File | null;
   let image_url: string | null = null;
   if (imageFile && imageFile.size > 0) {
@@ -29,7 +32,7 @@ export async function createJourney(formData: FormData) {
 
   const currency = (formData.get('currency') as string) || null;
   const countries = formData.getAll('countries') as string[];
-  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, description, start_date, end_date, image_url, currency, created_time, user_id) VALUES (${name}, ${description}, ${start_date}, ${end_date}, ${image_url}, ${currency}, NOW(), ${user?.id ?? null}) RETURNING id`;
+  const [{ id }] = await sql<{ id: string }[]>`INSERT INTO journeys (name, description, start_date, end_date, image_url, currency, allow_import, privacy, created_time, user_id) VALUES (${name}, ${description}, ${start_date}, ${end_date}, ${image_url}, ${currency}, ${allow_import}, ${privacy}, NOW(), ${user?.id ?? null}) RETURNING id`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;
   }
@@ -43,6 +46,8 @@ export async function updateJourney(id: string, formData: FormData) {
   const end_date = (formData.get('end_date') as string) || null;
   const previous_start_date = (formData.get('previous_start_date') as string) || null;
   const shift_destinations = formData.get('shift_destinations') === '1';
+  const allow_import = formData.get('allow_import') === '1';
+  const privacy = (formData.get('privacy') as string) || 'public';
 
   const imageFile = formData.get('image') as File | null;
   const removeImage = formData.get('remove_image') === '1';
@@ -61,7 +66,8 @@ export async function updateJourney(id: string, formData: FormData) {
   const currency = (formData.get('currency') as string) || null;
   const [prev] = await sql<{ currency: string | null }[]>`SELECT currency FROM journeys WHERE id = ${id}`;
   const countries = formData.getAll('countries') as string[];
-  await sql`UPDATE journeys SET name = ${name}, description = ${description}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl}, currency = ${currency} WHERE id = ${id}`;
+  await sql`UPDATE journeys SET name = ${name}, description = ${description}, start_date = ${start_date}, end_date = ${end_date}, image_url = ${imageUrl}, currency = ${currency}, allow_import = ${allow_import}, privacy = ${privacy} WHERE id = ${id}`;
+  await markJourneyChanged(id);
   await sql`DELETE FROM journey_countries WHERE journey_id = ${id}`;
   for (const code of countries) {
     await sql`INSERT INTO journey_countries (journey_id, country_code) VALUES (${id}, ${code})`;

@@ -1,4 +1,4 @@
-import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences } from '@/app/lib/data';
+import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyId, fetchUserPreferences, fetchUserId } from '@/app/lib/data';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
 import { SectionFilter } from './section-filter';
@@ -22,7 +22,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import NoteOutlinedIcon from '@mui/icons-material/NoteOutlined';
 import { SvgIconProps } from '@mui/material';
 import { ElementType } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 
 export async function generateMetadata(props: PageProps<'/journeys/[id]/destinations'>): Promise<Metadata> {
@@ -63,6 +63,9 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const journey = await fetchJourneyById(id);
 
   if (!journey) notFound();
+
+  const viewerId = session?.user?.email ? await fetchUserId(session.user.email, signInType) : null;
+  if (!viewerId || viewerId !== journey.user_id) redirect('/unauthorized');
 
   const isReadonly = !session?.user?.email || journey.user_email !== session.user.email || journey.user_sign_in_type !== signInType;
 

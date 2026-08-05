@@ -64,10 +64,22 @@ export default async function JourneysPage() {
                       <span>{journey.likes}</span>
                     </div>
                   )}
+                  {journey.original_id && (
+                    journey.original_name ? (
+                      <a
+                        href={`/explore/${journey.original_id}/destinations`}
+                        className="mt-2 text-xs text-zinc-400 hover:underline dark:text-zinc-500"
+                      >
+                        Imported from {journey.original_name}
+                      </a>
+                    ) : (
+                      <span className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">Imported from a deleted journey</span>
+                    )
+                  )}
                 </div>
               </div>
               <div className="pr-4 flex-shrink-0">
-                <JourneyButtons id={journey.id} />
+                <JourneyButtons id={journey.id} isPrivate={journey.privacy === 'private'} />
               </div>
             </li>
           ))}

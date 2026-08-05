@@ -1,5 +1,7 @@
-import { fetchSectionsByJourneyId, fetchDestinationsByJourneyId, fetchJourneyById } from '@/app/lib/data';
-import { notFound } from 'next/navigation';
+import { fetchSectionsByJourneyId, fetchDestinationsByJourneyId, fetchJourneyById, fetchUserId } from '@/app/lib/data';
+import { notFound, redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import { SectionsAccordion } from './sections-accordion';
 
 export async function generateMetadata(props: PageProps<'/journeys/[id]/sections/overview'>) {
@@ -19,6 +21,11 @@ export default async function SectionsOverviewPage(props: PageProps<'/journeys/[
   ]);
 
   if (!journey) notFound();
+
+  const session = await getServerSession(authOptions);
+  const signInType = (session?.user as any)?.sign_in_type ?? 'Google';
+  const viewerId = session?.user?.email ? await fetchUserId(session.user.email, signInType) : null;
+  if (!viewerId || viewerId !== journey.user_id) redirect('/unauthorized');
 
   const sectionsWithDests = [
     {

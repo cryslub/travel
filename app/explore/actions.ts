@@ -47,8 +47,8 @@ export async function importJourney(sourceJourneyId: string, selectedSectionIds?
   await sql.begin(async (sql) => {
     // Journey
     const [newJourney] = await sql<{ id: string }[]>`
-      INSERT INTO journeys (user_id, name, description, start_date, end_date, image_url, currency)
-      SELECT ${user.id}, name, description, start_date, end_date, image_url, currency
+      INSERT INTO journeys (user_id, name, description, start_date, end_date, image_url, currency, import_state, original_id)
+      SELECT ${user.id}, name, description, start_date, end_date, image_url, currency, 'imported', ${sourceJourneyId}
       FROM journeys WHERE id = ${sourceJourneyId}
       RETURNING id
     `;

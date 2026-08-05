@@ -50,6 +50,23 @@ export default async function EditJourneyPage(props: PageProps<'/journeys/[id]/e
         />
         <CountrySelector name="countries" defaultValue={journey.countries} onAutoGenerate={getJourneyCountryCodes.bind(null, id)} />
         <CurrencySelector defaultCurrency={journey.currency ?? prefs?.currency ?? 'USD'} />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="privacy" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Privacy</label>
+          <select
+            id="privacy"
+            name="privacy"
+            defaultValue={journey.privacy ?? 'public'}
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:focus:ring-white"
+          >
+            <option value="public">Public</option>
+            <option value="unlisted">Unlisted</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <input type="checkbox" name="allow_import" value="1" defaultChecked={journey.allow_import ?? false} className="rounded" />
+          Allow Import
+        </label>
         <div className="flex gap-3">
           <button
             type="submit"

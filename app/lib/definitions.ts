@@ -23,6 +23,9 @@ export type Journey = {
   currency?: string | null;
   total_price?: number | null;
   likes?: number | null;
+  allow_import?: boolean | null;
+  privacy?: string | null;
+  original_id?: string | null;
 };
 
 export type Transport = {
