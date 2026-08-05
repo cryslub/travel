@@ -91,7 +91,7 @@ export function JourneyList({
                 )}
                 <a href={`/explore/${journey.id}/destinations`} className="text-lg font-medium hover:underline">{journey.name}</a>
                 {journey.description && (
-                  <span className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
                 )}
                 {journey.user_name && (
                   <a

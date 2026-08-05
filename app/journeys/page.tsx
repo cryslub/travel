@@ -44,7 +44,7 @@ export default async function JourneysPage() {
                   )}
                   <a href={`/journeys/${journey.id}/destinations`} title="Destinations" className="text-lg font-medium hover:underline">{journey.name}</a>
                   {journey.description && (
-                    <span className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
                   )}
                   {journey.total_price != null && (
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
