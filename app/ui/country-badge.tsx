@@ -4,10 +4,10 @@ import { useState, useRef } from 'react';
 
 const MARGIN = 8;
 
-export function CountryBadge({ code }: { code: string }) {
+export function CountryBadge({ code, href }: { code: string; href?: string }) {
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
-  const ref = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
   const fullName = new Intl.DisplayNames(['en'], { type: 'region' }).of(code.toUpperCase()) ?? code;
 
@@ -22,13 +22,10 @@ export function CountryBadge({ code }: { code: string }) {
     }
   }
 
-  return (
-    <span
-      ref={ref}
-      className="relative flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-700 dark:text-zinc-300 cursor-default"
-      onMouseEnter={() => { updatePos(); setHovered(true); }}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const className = `relative flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-700 dark:text-zinc-300 ${href ? 'hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors' : 'cursor-default'}`;
+
+  const content = (
+    <>
       <img
         src={`https://flagcdn.com/w20/${code.toLowerCase()}.png`}
         srcSet={`https://flagcdn.com/w40/${code.toLowerCase()}.png 2x`}
@@ -45,6 +42,31 @@ export function CountryBadge({ code }: { code: string }) {
           {fullName}
         </div>
       )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        ref={ref as React.RefObject<HTMLAnchorElement>}
+        href={href}
+        className={className}
+        onMouseEnter={() => { updatePos(); setHovered(true); }}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <span
+      ref={ref as React.RefObject<HTMLSpanElement>}
+      className={className}
+      onMouseEnter={() => { updatePos(); setHovered(true); }}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {content}
     </span>
   );
 }

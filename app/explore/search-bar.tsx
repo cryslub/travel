@@ -7,6 +7,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { DURATION_STEPS, STEP_COUNT } from './duration-config';
 import { CONTINENTS, getCountriesForContinent, getAllCountries, COUNTRY_CONTINENT } from './continent-config';
 
@@ -32,7 +33,12 @@ export function SearchBar({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
   const [q, setQ] = useState(searchParams.get('q') ?? '');
   const [lo, setLo] = useState(Number(searchParams.get('durMin') ?? MIN));
   const [hi, setHi] = useState(Number(searchParams.get('durMax') ?? MAX));
-  const [continent, setContinent] = useState(searchParams.get('continent') ?? '');
+  const [continent, setContinent] = useState(() => {
+    const c = searchParams.get('continent');
+    if (c) return c;
+    const initialCountry = searchParams.get('country');
+    return initialCountry ? (COUNTRY_CONTINENT[initialCountry.toUpperCase()] ?? '') : '';
+  });
   const [country, setCountry] = useState(searchParams.get('country') ?? '');
   const [liked, setLiked] = useState(searchParams.get('liked') === '1');
   const [collapsed, setCollapsed] = useState(true);
@@ -131,21 +137,38 @@ export function SearchBar({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
     setLiked((prev) => !prev);
   }
 
+  function resetFilters() {
+    setQ('');
+    setLo(MIN);
+    setHi(MAX);
+    setContinent('');
+    clearCountry();
+    setLiked(false);
+    sessionStorage.removeItem('explore-search');
+    startTransition(() => router.replace('/explore'));
+  }
+
   return (
     <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
       <div className="flex flex-col gap-3 w-full">
       <div className="flex items-center gap-3 w-full">
         {/* Search input */}
         <div className="relative flex-1">
-          <SearchIcon fontSize="small" className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500 pointer-events-none" />
           <input
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
             placeholder="Search"
-            className="w-full rounded-full border border-zinc-300 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-400"
+            className="w-full rounded-full border border-zinc-300 bg-white py-2 pl-4 pr-12 text-sm outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-400"
           />
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="absolute right-0 top-0 h-full flex items-center justify-center rounded-l-none rounded-r-full bg-black px-3 text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            <SearchIcon fontSize="small" />
+          </button>
         </div>
         {isLoggedIn && (
           <button
@@ -158,13 +181,18 @@ export function SearchBar({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
         )}
         <button
           type="button"
+          title="Reset filters"
+          onClick={resetFilters}
+          className="flex-shrink-0 flex items-center justify-center rounded-full bg-white p-2 text-zinc-400 transition-colors hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300"
+        >
+          <RestartAltIcon fontSize="small" />
+        </button>
+        <button
+          type="button"
           onClick={() => setCollapsed((c) => !c)}
-          className="flex-shrink-0 flex items-center justify-center rounded-full border border-zinc-300 bg-white p-2 text-zinc-400 transition-colors hover:text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300"
+          className="flex-shrink-0 flex items-center justify-center rounded-full bg-white p-2 text-zinc-400 transition-colors hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-300"
         >
           {collapsed ? <ExpandMoreIcon fontSize="small" /> : <ExpandLessIcon fontSize="small" />}
-        </button>
-        <button type="button" onClick={handleSearch} className="flex-shrink-0 rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
-          <SearchIcon fontSize="small" />
         </button>
       </div>
 
@@ -172,12 +200,22 @@ export function SearchBar({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
         <>
           {/* Continent + country autocomplete */}
           <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={continent}
+              onChange={(e) => { setContinent(e.target.value); clearCountry(); }}
+              className="sm:hidden rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-600 outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              <option value="">All continents</option>
+              {CONTINENTS.map(({ code, name }) => (
+                <option key={code} value={code}>{name}</option>
+              ))}
+            </select>
             {CONTINENTS.map(({ code, name }) => (
               <button
                 key={code}
                 type="button"
                 onClick={() => toggleContinent(code)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                className={`hidden sm:inline-flex rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   continent === code
                     ? 'border-zinc-800 bg-zinc-800 text-white dark:border-zinc-200 dark:bg-zinc-200 dark:text-black'
                     : 'border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'

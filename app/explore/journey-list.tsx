@@ -112,7 +112,7 @@ export function JourneyList({
                 {journey.countries.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-0.5">
                     {journey.countries.map((code) => (
-                      <CountryBadge key={code} code={code} />
+                      <CountryBadge key={code} code={code} href={`/explore?country=${code}`} />
                     ))}
                   </div>
                 )}
