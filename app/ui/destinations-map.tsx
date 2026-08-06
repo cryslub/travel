@@ -174,18 +174,6 @@ function ZoomControls() {
   );
 }
 
-function ZoomLogger() {
-  const map = useMap();
-  useEffect(() => {
-    function onZoom() {
-      console.log('Map zoom level:', map.getZoom());
-    }
-    map.on('zoomend', onZoom);
-    return () => { map.off('zoomend', onZoom); };
-  }, [map]);
-  return null;
-}
-
 function InvalidateSize({ trigger }: { trigger: boolean }) {
   const map = useMap();
   useEffect(() => {
@@ -466,7 +454,6 @@ export function DestinationsMap({ destinations, className, preferredCurrency }: 
           <FitBounds points={points} />
           <InvalidateSize trigger={isFullscreen} />
           <ZoomControls />
-          <ZoomLogger />
         </MapContainer>
         <button
           type="button"
