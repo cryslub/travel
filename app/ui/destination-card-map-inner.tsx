@@ -62,12 +62,12 @@ function createIcon(category: MarkerCategory, eventType?: string | null, transpo
 
 const POPUP_IMAGE_WIDTH = 140;
 
-function buildPopupContent(label: string | null, imageUrl?: string | null, memo?: string | null): string {
+function buildPopupContent(label: string | null, imageUrl?: string | null, memo?: string | null, maxLines = 2): string {
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const img = imageUrl
     ? `<img src="${esc(imageUrl)}" style="width:${POPUP_IMAGE_WIDTH}px;height:90px;object-fit:cover;border-radius:6px;display:block;margin:0 auto${label ? ';margin-bottom:4px' : ''}">`
     : '';
-  const clampCls = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word';
+  const clampCls = `display:-webkit-box;-webkit-line-clamp:${maxLines};-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word`;
   const text = label
     ? `<div style="text-align:center;font-size:13px;max-width:${POPUP_IMAGE_WIDTH}px;margin-left:auto;margin-right:auto;${clampCls}">${esc(label)}</div>`
     : '';
@@ -77,18 +77,19 @@ function buildPopupContent(label: string | null, imageUrl?: string | null, memo?
   return `<div style="min-width:${imageUrl ? `${POPUP_IMAGE_WIDTH}px` : 'auto'}">${img}${text}${memoText}</div>`;
 }
 
-function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
+function ClusteredMarkers({ markers, isFullscreen }: { markers: MarkerDef[]; isFullscreen: boolean }) {
   const map = useMap();
   useEffect(() => {
     const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
+    const maxLines = isFullscreen ? 4 : 2;
     markers.forEach((m) => {
       const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType) });
-      if (m.label || m.imageUrl || m.memo) marker.bindPopup(buildPopupContent(m.label, m.imageUrl, m.memo));
+      if (m.label || m.imageUrl || m.memo) marker.bindPopup(buildPopupContent(m.label, m.imageUrl, m.memo, maxLines));
       marker.addTo(cluster);
     });
     map.addLayer(cluster);
     return () => { map.removeLayer(cluster); };
-  }, [map, markers]);
+  }, [map, markers, isFullscreen]);
   return null;
 }
 
@@ -190,7 +191,7 @@ export function DestinationCardMapInner({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
-        <ClusteredMarkers markers={markers} />
+        <ClusteredMarkers markers={markers} isFullscreen={isFullscreen} />
         <FitBounds points={allPoints} fallback={fallback} />
         <SyncMapHeight isFullscreen={isFullscreen} />
         <ZoomControls />
