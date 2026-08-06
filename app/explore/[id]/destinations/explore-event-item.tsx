@@ -30,12 +30,19 @@ type EventActivity = {
   id: string;
   name: string | null;
   type: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
   link: string | null;
   image_url: string | null;
   memo: string | null;
   price: number | null;
   price_currency: string | null;
 };
+
+function formatTime(t: string) {
+  const d = new Date(t);
+  return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
 export function ExploreEventItem({ activity }: { activity: EventActivity }) {
   const [imageExpanded, setImageExpanded] = useState(false);
@@ -64,6 +71,19 @@ export function ExploreEventItem({ activity }: { activity: EventActivity }) {
             }
             {activity.memo && <MemoIcon memo={activity.memo} />}
           </div>
+          {(activity.start_time || activity.end_time) && (
+            <div className="flex gap-2 text-xs text-zinc-500 dark:text-zinc-400 flex-wrap">
+              {activity.start_time && <span>{formatTime(activity.start_time)}</span>}
+              {activity.start_time && activity.end_time && <span>~</span>}
+              {activity.end_time && <span>{formatTime(activity.end_time)}</span>}
+              {activity.start_time && activity.end_time && (() => {
+                const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
+                const h = Math.floor(Math.abs(diff) / 60);
+                const m = Math.abs(diff) % 60;
+                return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
+              })()}
+            </div>
+          )}
           {activity.price != null && (
             <span className="text-xs text-emerald-600 dark:text-emerald-400">
               {new Intl.NumberFormat('en', { style: 'currency', currency: activity.price_currency ?? 'USD' }).format(activity.price)}

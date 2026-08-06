@@ -65,7 +65,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
             <button
               type="button"
               onClick={() => setSelectedIdx(i)}
-              className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-md transition-opacity hover:opacity-75"
+              className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md transition-opacity hover:opacity-75"
             >
               {d.image_url
                 ? <img src={d.image_url} alt="" className="w-full h-full object-cover" />
