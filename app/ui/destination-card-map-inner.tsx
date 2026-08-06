@@ -11,7 +11,7 @@ import 'leaflet.markercluster';
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 type MarkerCategory = 'event' | 'accommodation' | 'transport';
-type MarkerDef = { lat: number; lon: number; label: string | null; category: MarkerCategory; eventType?: string | null; transportType?: string | null; imageUrl?: string | null };
+type MarkerDef = { lat: number; lon: number; label: string | null; category: MarkerCategory; eventType?: string | null; transportType?: string | null; imageUrl?: string | null; memo?: string | null };
 
 const categoryColors: Record<MarkerCategory, string> = {
   event: '#3b82f6',
@@ -60,13 +60,21 @@ function createIcon(category: MarkerCategory, eventType?: string | null, transpo
   });
 }
 
-function buildPopupContent(label: string | null, imageUrl?: string | null): string {
+const POPUP_IMAGE_WIDTH = 140;
+
+function buildPopupContent(label: string | null, imageUrl?: string | null, memo?: string | null): string {
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const img = imageUrl
-    ? `<img src="${esc(imageUrl)}" style="width:140px;height:90px;object-fit:cover;border-radius:6px;display:block;margin:0 auto${label ? ';margin-bottom:4px' : ''}">`
+    ? `<img src="${esc(imageUrl)}" style="width:${POPUP_IMAGE_WIDTH}px;height:90px;object-fit:cover;border-radius:6px;display:block;margin:0 auto${label ? ';margin-bottom:4px' : ''}">`
     : '';
-  const text = label ? `<div style="text-align:center;font-size:13px">${esc(label)}</div>` : '';
-  return `<div style="min-width:${imageUrl ? '140px' : 'auto'}">${img}${text}</div>`;
+  const clampCls = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word';
+  const text = label
+    ? `<div style="text-align:center;font-size:13px;max-width:${POPUP_IMAGE_WIDTH}px;margin-left:auto;margin-right:auto;${clampCls}">${esc(label)}</div>`
+    : '';
+  const memoText = memo
+    ? `<div style="text-align:center;font-size:11px;color:#71717a;margin-top:2px;max-width:${POPUP_IMAGE_WIDTH}px;margin-left:auto;margin-right:auto;${clampCls}">${esc(memo)}</div>`
+    : '';
+  return `<div style="min-width:${imageUrl ? `${POPUP_IMAGE_WIDTH}px` : 'auto'}">${img}${text}${memoText}</div>`;
 }
 
 function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
@@ -75,7 +83,7 @@ function ClusteredMarkers({ markers }: { markers: MarkerDef[] }) {
     const cluster = (L as any).markerClusterGroup({ maxClusterRadius: 20 });
     markers.forEach((m) => {
       const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.category, m.eventType, m.transportType) });
-      if (m.label || m.imageUrl) marker.bindPopup(buildPopupContent(m.label, m.imageUrl));
+      if (m.label || m.imageUrl || m.memo) marker.bindPopup(buildPopupContent(m.label, m.imageUrl, m.memo));
       marker.addTo(cluster);
     });
     map.addLayer(cluster);
@@ -139,10 +147,10 @@ export function DestinationCardMapInner({
 }: {
   lat: number;
   lon: number;
-  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null }[];
-  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null } | null;
-  transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
-  transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
+  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null; memo?: string | null }[];
+  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null; memo?: string | null } | null;
+  transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null; memo?: string | null } | null;
+  transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null; memo?: string | null } | null;
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -153,10 +161,10 @@ export function DestinationCardMapInner({
   }, [isFullscreen]);
 
   const markers = useMemo<MarkerDef[]>(() => [
-    ...eventMarkers.map((m) => ({ lat: m.lat, lon: m.lon, label: m.name, category: 'event' as MarkerCategory, eventType: m.type, imageUrl: m.image_url })),
-    ...(accommodationMarker ? [{ lat: accommodationMarker.lat, lon: accommodationMarker.lon, label: accommodationMarker.name, category: 'accommodation' as MarkerCategory, imageUrl: accommodationMarker.image_url }] : []),
-    ...(transportEndMarker ? [{ lat: transportEndMarker.lat, lon: transportEndMarker.lon, label: transportEndMarker.name, category: 'transport' as MarkerCategory, transportType: transportEndMarker.type }] : []),
-    ...(transportStartMarker ? [{ lat: transportStartMarker.lat, lon: transportStartMarker.lon, label: transportStartMarker.name, category: 'transport' as MarkerCategory, transportType: transportStartMarker.type }] : []),
+    ...eventMarkers.map((m) => ({ lat: m.lat, lon: m.lon, label: m.name, category: 'event' as MarkerCategory, eventType: m.type, imageUrl: m.image_url, memo: m.memo })),
+    ...(accommodationMarker ? [{ lat: accommodationMarker.lat, lon: accommodationMarker.lon, label: accommodationMarker.name, category: 'accommodation' as MarkerCategory, imageUrl: accommodationMarker.image_url, memo: accommodationMarker.memo }] : []),
+    ...(transportEndMarker ? [{ lat: transportEndMarker.lat, lon: transportEndMarker.lon, label: transportEndMarker.name, category: 'transport' as MarkerCategory, transportType: transportEndMarker.type, memo: transportEndMarker.memo }] : []),
+    ...(transportStartMarker ? [{ lat: transportStartMarker.lat, lon: transportStartMarker.lon, label: transportStartMarker.name, category: 'transport' as MarkerCategory, transportType: transportStartMarker.type, memo: transportStartMarker.memo }] : []),
   ], [eventMarkers, accommodationMarker, transportEndMarker, transportStartMarker]);
 
   const allPoints = useMemo<[number, number][]>(

@@ -174,6 +174,18 @@ function ZoomControls() {
   );
 }
 
+function ZoomLogger() {
+  const map = useMap();
+  useEffect(() => {
+    function onZoom() {
+      console.log('Map zoom level:', map.getZoom());
+    }
+    map.on('zoomend', onZoom);
+    return () => { map.off('zoomend', onZoom); };
+  }, [map]);
+  return null;
+}
+
 function InvalidateSize({ trigger }: { trigger: boolean }) {
   const map = useMap();
   useEffect(() => {
@@ -302,10 +314,10 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
             <DestinationCardMap
               lat={dest.lat}
               lon={dest.lon}
-              eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
-              accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name, image_url: dest.accommodation.image_url } : null}
-              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: `${dest.transport.type ?? 'Transport'} → ${dest.name}`, type: dest.transport.type } : null}
-              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: `${nextDest.transport.type ?? 'Transport'} → ${nextDest.name}`, type: nextDest.transport.type } : null}
+              eventMarkers={dest.events.filter((e) => e.latitude != null && e.longitude != null).map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url, memo: e.memo }))}
+              accommodationMarker={dest.accommodation?.latitude != null && dest.accommodation?.longitude != null ? { lat: dest.accommodation.latitude, lon: dest.accommodation.longitude, name: dest.accommodation.name, image_url: dest.accommodation.image_url, memo: dest.accommodation.memo } : null}
+              transportEndMarker={dest.transport?.end_latitude != null && dest.transport?.end_longitude != null ? { lat: dest.transport.end_latitude, lon: dest.transport.end_longitude, name: `${dest.transport.type ?? 'Transport'} → ${dest.name}`, type: dest.transport.type, memo: dest.transport.memo } : null}
+              transportStartMarker={nextDest?.transport?.start_latitude != null && nextDest?.transport?.start_longitude != null ? { lat: nextDest.transport.start_latitude, lon: nextDest.transport.start_longitude, name: `${nextDest.transport.type ?? 'Transport'} → ${nextDest.name}`, type: nextDest.transport.type, memo: nextDest.transport.memo } : null}
             />
           )}
 
@@ -390,6 +402,9 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
               })()}
             </div>
           )}
+          {t.memo && (
+            <p className="text-zinc-600 dark:text-zinc-300">{t.memo}</p>
+          )}
           {(t.start_terminal || t.end_terminal) && (
             <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs">
               {t.start_terminal && <span>{t.start_terminal}</span>}
@@ -451,6 +466,7 @@ export function DestinationsMap({ destinations, className, preferredCurrency }: 
           <FitBounds points={points} />
           <InvalidateSize trigger={isFullscreen} />
           <ZoomControls />
+          <ZoomLogger />
         </MapContainer>
         <button
           type="button"

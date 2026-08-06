@@ -14,10 +14,10 @@ export function DestinationCardMap({
 }: {
   lat: number;
   lon: number;
-  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null }[];
-  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null } | null;
-  transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
-  transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null } | null;
+  eventMarkers?: { lat: number; lon: number; name: string | null; type: string | null; image_url?: string | null; memo?: string | null }[];
+  accommodationMarker?: { lat: number; lon: number; name: string | null; image_url?: string | null; memo?: string | null } | null;
+  transportEndMarker?: { lat: number; lon: number; name: string | null; type?: string | null; memo?: string | null } | null;
+  transportStartMarker?: { lat: number; lon: number; name: string | null; type?: string | null; memo?: string | null } | null;
 }) {
-  return <CardMap lat={lat} lon={lon} eventMarkers={eventMarkers as { lat: number; lon: number; name: string | null; type: string | null }[]} accommodationMarker={accommodationMarker} transportEndMarker={transportEndMarker} transportStartMarker={transportStartMarker} />;
+  return <CardMap lat={lat} lon={lon} eventMarkers={eventMarkers as { lat: number; lon: number; name: string | null; type: string | null; memo?: string | null }[]} accommodationMarker={accommodationMarker} transportEndMarker={transportEndMarker} transportStartMarker={transportStartMarker} />;
 }

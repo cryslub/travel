@@ -326,21 +326,21 @@ export default async function ExploreDestinationsPage(props: {
                     lon={destination.longitude}
                     eventMarkers={destination.events
                       .filter((e) => e.latitude != null && e.longitude != null)
-                      .map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url }))}
+                      .map((e) => ({ lat: e.latitude!, lon: e.longitude!, name: e.name, type: e.type, image_url: e.image_url, memo: e.memo }))}
                     accommodationMarker={
                       destination.accommodation?.latitude != null && destination.accommodation?.longitude != null
-                        ? { lat: destination.accommodation.latitude, lon: destination.accommodation.longitude, name: destination.accommodation.name, image_url: destination.accommodation.image_url }
+                        ? { lat: destination.accommodation.latitude, lon: destination.accommodation.longitude, name: destination.accommodation.name, image_url: destination.accommodation.image_url, memo: destination.accommodation.memo }
                         : null
                     }
                     transportEndMarker={
                       destination.transport?.end_latitude != null && destination.transport?.end_longitude != null
-                        ? { lat: destination.transport.end_latitude, lon: destination.transport.end_longitude, name: destination.transport.end_terminal ?? `${destination.transport.type ?? 'Transport'} → ${destination.name}`, type: destination.transport.type }
+                        ? { lat: destination.transport.end_latitude, lon: destination.transport.end_longitude, name: destination.transport.end_terminal ?? `${destination.transport.type ?? 'Transport'} → ${destination.name}`, type: destination.transport.type, memo: destination.transport.memo }
                         : null
                     }
                     transportStartMarker={(() => {
                       const next = destinations[index + 1];
                       return next?.transport?.start_latitude != null && next?.transport?.start_longitude != null
-                        ? { lat: next.transport.start_latitude, lon: next.transport.start_longitude, name: next.transport.start_terminal ?? `${next.transport?.type ?? 'Transport'} → ${next.name}`, type: next.transport?.type }
+                        ? { lat: next.transport.start_latitude, lon: next.transport.start_longitude, name: next.transport.start_terminal ?? `${next.transport?.type ?? 'Transport'} → ${next.name}`, type: next.transport?.type, memo: next.transport?.memo }
                         : null;
                     })()}
                   />
