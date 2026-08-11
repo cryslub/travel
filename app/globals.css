@@ -77,6 +77,20 @@ select {
   .fc-direction-rtl .fc-daygrid-event.fc-event-start {
     margin-right: 0 !important;
   }
+
+  .fc-daygrid-day-bottom {
+    display: none !important;
+  }
+
+  .fc-dayGridMonth-view .fc-daygrid-day-number {
+    padding: 2px 4px !important;
+    line-height: 14px !important;
+  }
+
+  .fc-dayGridMonth-view .fc-daygrid-day-events {
+    min-height: 14px !important;
+    margin-top: 0 !important;
+  }
 }
 
 
@@ -93,6 +107,100 @@ select {
 .fc .fc-scrollgrid-section-header > td,
 .fc .fc-scrollgrid-section-header > th {
   background: transparent !important;
+}
+
+.fc-dayGridMonth-view,
+.fc-dayGridMonth-view .fc-scrollgrid,
+.fc-dayGridMonth-view .fc-scrollgrid-section > td,
+.fc-dayGridMonth-view th,
+.fc-dayGridMonth-view td,
+.fc-dayGridMonth-view .fc-daygrid-day {
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+.fc-dayGridMonth-view .fc-scrollgrid {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+}
+
+.fc-dayGridMonth-view .fc-col-header-cell {
+  border-top-color: transparent !important;
+}
+
+.fc-dayGridMonth-view .fc-day.fc-day-selected .fc-daygrid-day-frame {
+  background: #e4e4e7 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fc-dayGridMonth-view .fc-day.fc-day-selected .fc-daygrid-day-frame {
+    background: #3f3f46 !important;
+  }
+}
+
+.fc-dayGridMonth-view .fc-daygrid-body tr:last-child .fc-daygrid-day {
+  border-bottom-color: transparent !important;
+}
+
+/* Week & Day (timeGrid) views: remove outer frame + vertical lines, keep horizontal slot lines */
+.fc-timeGridWeek-view .fc-scrollgrid,
+.fc-timeGridDay-view .fc-scrollgrid {
+  border-color: transparent !important;
+}
+
+.fc-timeGridWeek-view .fc-col-header-cell,
+.fc-timeGridDay-view .fc-col-header-cell,
+.fc-timeGridWeek-view .fc-timegrid-col,
+.fc-timeGridDay-view .fc-timegrid-col,
+.fc-timeGridWeek-view .fc-timegrid-slot,
+.fc-timeGridDay-view .fc-timegrid-slot,
+.fc-timeGridWeek-view .fc-timegrid-axis,
+.fc-timeGridDay-view .fc-timegrid-axis,
+.fc-timeGridWeek-view .fc-timegrid-divider,
+.fc-timeGridDay-view .fc-timegrid-divider,
+.fc-timeGridWeek-view .fc-daygrid-day,
+.fc-timeGridDay-view .fc-daygrid-day {
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+.fc-timeGridWeek-view .fc-col-header-cell,
+.fc-timeGridDay-view .fc-col-header-cell {
+  border-top-color: transparent !important;
+}
+
+/* Scrollbar-gutter filler cells (unclassed td/th at the end of each row) */
+.fc-timeGridWeek-view .fc-scrollgrid tr > *:last-child,
+.fc-timeGridDay-view .fc-scrollgrid tr > *:last-child {
+  border-right-color: transparent !important;
+}
+
+/* All-day/timed divider: neutralize so only the all-day row's own border shows (avoids a double line) */
+.fc-timeGridWeek-view .fc-timegrid-divider,
+.fc-timeGridDay-view .fc-timegrid-divider {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Remove the time-grid body's own top border (redundant with the all-day row's bottom border) */
+.fc-timeGridWeek-view .fc-timegrid-col,
+.fc-timeGridDay-view .fc-timegrid-col {
+  border-top-color: transparent !important;
+}
+
+.fc-timeGridWeek-view .fc-timegrid-body table > tbody > tr:first-child .fc-timegrid-slot,
+.fc-timeGridDay-view .fc-timegrid-body table > tbody > tr:first-child .fc-timegrid-slot {
+  border-top-color: transparent !important;
+}
+
+/* List view: remove outer frame border (list rows have no vertical lines) */
+.fc-listWeek-view {
+  border-color: transparent !important;
+}
+
+.fc-listWeek-view .fc-list-table th {
+  border-top-color: transparent !important;
 }
 
 .fc-daygrid-dot-event .fc-event-title,

@@ -59,25 +59,37 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
 
   return (
     <>
-      <ul className="divide-y divide-zinc-200 dark:divide-zinc-700 max-w-2xl mx-auto">
+      <ul className="max-w-2xl mx-auto">
         {destinations.map((d, i) => (
-          <li key={d.id} className="flex items-center gap-4 py-3">
-            <button
-              type="button"
-              onClick={() => setSelectedIdx(i)}
-              className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md transition-opacity hover:opacity-75"
-            >
-              {d.image_url
-                ? <img src={d.image_url} alt="" className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center text-zinc-400 dark:text-zinc-500"><LocationOnOutlinedIcon fontSize="small" /></div>
-              }
-            </button>
-            <div className="flex-1 min-w-0">
+          <li key={d.id} className="flex gap-3 py-3">
+            {/* Day */}
+            <div className="w-16 flex-shrink-0 pt-2 text-right">
               {d.start_date && (
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {new Date(d.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </span>
               )}
+            </div>
+
+            {/* Dot + connecting line */}
+            <div className="relative flex-shrink-0 self-stretch flex justify-center w-10">
+              {i < destinations.length - 1 && (
+                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-zinc-200 dark:bg-zinc-700" />
+              )}
+              <button
+                type="button"
+                onClick={() => setSelectedIdx(i)}
+                className="relative z-10 mt-1 w-10 h-10 flex-shrink-0 overflow-hidden rounded-full border-2 border-white dark:border-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-700 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center transition-opacity hover:opacity-75"
+              >
+                {d.image_url
+                  ? <img src={d.image_url} alt="" className="w-full h-full object-cover" />
+                  : <LocationOnOutlinedIcon fontSize="small" className="text-zinc-400 dark:text-zinc-500" />
+                }
+              </button>
+            </div>
+
+            {/* Name, description, cost */}
+            <div className="flex-1 min-w-0 pt-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"

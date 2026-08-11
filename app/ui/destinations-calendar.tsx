@@ -68,6 +68,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   const [selectedDest, setSelectedDest] = useState<ModalDest | null>(null);
   const [localDestinations, setLocalDestinations] = useState<CalendarDest[]>(destinations);
   const [pendingCrossDestMove, setPendingCrossDestMove] = useState<PendingCrossDestMove | null>(null);
+  const [selectedDayStr, setSelectedDayStr] = useState<string | null>(null);
 
   function updateLocalDest(updater: (d: CalendarDest) => CalendarDest, destId: string) {
     setLocalDestinations((prev) => prev.map((d) => d.id === destId ? updater(d) : d));
@@ -75,18 +76,48 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   }
 
   const calendarEvents = useMemo(() => {
-    const result: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; extendedProps?: Record<string, unknown> }[] = [];
+    const result: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; display?: string; extendedProps?: Record<string, unknown> }[] = [];
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const useDotDisplay = isMobile && activeView === 'dayGridMonth';
+
+    function toDayStr(v: string | Date) {
+      const d = new Date(v);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function parseDayStr(s: string) {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function addEntry(entry: { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; extendedProps?: Record<string, unknown> }) {
+      if (useDotDisplay && entry.end) {
+        const startDay = toDayStr(entry.start);
+        const endDay = toDayStr(entry.end);
+        if (startDay !== endDay) {
+          const cur = parseDayStr(startDay);
+          const last = parseDayStr(endDay);
+          while (cur.getTime() <= last.getTime()) {
+            const dStr = toDayStr(cur);
+            result.push({ ...entry, id: `${entry.id}#${dStr}`, start: dStr, end: undefined, allDay: true, display: 'list-item' });
+            cur.setDate(cur.getDate() + 1);
+          }
+          return;
+        }
+      }
+      result.push({ ...entry, display: useDotDisplay ? 'list-item' : undefined });
+    }
+
     for (const dest of localDestinations) {
       if (dest.start_date) {
-        result.push({ id: `dest-${dest.id}`, title: dest.name, start: dest.start_date, allDay: true, color: '#6366f1', extendedProps: { transportStartTime: dest.transport?.start_time ?? '' } });
+        addEntry({ id: `dest-${dest.id}`, title: dest.name, start: dest.start_date, allDay: true, color: '#6366f1', extendedProps: { transportStartTime: dest.transport?.start_time ?? '' } });
       }
       for (const ev of dest.events) {
         if (ev.start_time) {
-          result.push({ id: `ev-${ev.id}`, title: ev.name ?? dest.name, start: ev.start_time, end: ev.end_time ?? undefined, color: (ev.type && EVENT_TYPE_COLOR[ev.type]) || '#3b82f6' });
+          addEntry({ id: `ev-${ev.id}`, title: ev.name ?? dest.name, start: ev.start_time, end: ev.end_time ?? undefined, color: (ev.type && EVENT_TYPE_COLOR[ev.type]) || '#3b82f6' });
         }
       }
       if (dest.transport?.start_time) {
-        result.push({
+        addEntry({
           id: `tr-${dest.id}`,
           title: `${dest.transport.type ?? 'Transport'} → ${dest.name}`,
           start: dest.transport.start_time,
@@ -96,7 +127,18 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       }
     }
     return result;
-  }, [destinations]);
+  }, [destinations, activeView]);
+
+  const dayEvents = useMemo(() => {
+    if (!selectedDayStr) return [];
+    return calendarEvents
+      .filter((ev) => destDateStr(ev.start) === selectedDayStr)
+      .sort((a, b) => {
+        if (a.allDay && !b.allDay) return -1;
+        if (!a.allDay && b.allDay) return 1;
+        return a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
+      });
+  }, [calendarEvents, selectedDayStr]);
 
   const initialDate = useMemo(() => {
     const dates = localDestinations.flatMap((d) => [
@@ -235,6 +277,10 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
 
   function handleDateClick(info: { dateStr: string; view: { type: string } }) {
     if (info.view.type !== 'dayGridMonth') return;
+    if (window.innerWidth < 640) {
+      setSelectedDayStr(info.dateStr);
+      return;
+    }
     const journeyId = localDestinations[0]?.journey_id;
     if (!journeyId) return;
     const sorted = [...localDestinations]
@@ -269,7 +315,7 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   }
 
   function handleEventClick(info: { event: { id: string } }) {
-    const { id } = info.event;
+    const id = info.event.id.split('#')[0];
     let dest: ModalDest | undefined;
     if (id.startsWith('dest-')) {
       dest = localDestinations.find((d) => d.id === id.slice(5));
@@ -282,9 +328,18 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     if (dest) setSelectedDest(dest);
   }
 
+  function handleCalendarEventClick(info: { event: { id: string; start: Date | null } }) {
+    if (activeView === 'dayGridMonth' && window.innerWidth < 640) {
+      if (info.event.start) setSelectedDayStr(toDateStr(info.event.start));
+      return;
+    }
+    handleEventClick(info);
+  }
+
   function changeView(viewKey: string) {
     calendarRef.current?.getApi().changeView(viewKey);
     setActiveView(viewKey);
+    setSelectedDayStr(null);
   }
 
   const btnBase = 'px-3 py-2 transition-colors';
@@ -335,7 +390,9 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
           eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
           slotLabelFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
           headerToolbar={false}
-          datesSet={(arg) => setCalendarTitle(arg.view.title)}
+          dayMaxEvents={activeView === 'dayGridMonth' && typeof window !== 'undefined' && window.innerWidth < 640 ? 4 : undefined}
+          dayCellClassNames={(arg) => selectedDayStr && toDateStr(arg.date) === selectedDayStr ? ['fc-day-selected'] : []}
+          datesSet={(arg) => { setCalendarTitle(arg.view.title); setSelectedDayStr(null); }}
           eventOrder={(a: unknown, b: unknown) => {
             const ea = a as { allDay: boolean; start: unknown; extendedProps: Record<string, unknown> };
             const eb = b as { allDay: boolean; start: unknown; extendedProps: Record<string, unknown> };
@@ -355,11 +412,41 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
           selectable={!isReadonly}
           eventDrop={isReadonly ? undefined : handleEventChange}
           eventResize={isReadonly ? undefined : handleEventChange}
-          eventClick={handleEventClick}
+          eventClick={handleCalendarEventClick}
           dateClick={isReadonly ? undefined : handleDateClick}
           select={isReadonly ? undefined : handleSelect}
         />
       </div>
+      {selectedDayStr && (
+        <div className="mt-4 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800 sm:hidden">
+          <h3 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+            {new Date(`${selectedDayStr}T00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+          </h3>
+          {dayEvents.length === 0 ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">No events</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {dayEvents.map((ev) => (
+                <li key={ev.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleEventClick({ event: { id: ev.id } })}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                  >
+                    <span className="h-2 w-2 flex-shrink-0 rounded-full" style={{ background: ev.color }} />
+                    <span className="flex-1 truncate text-sm text-zinc-700 dark:text-zinc-200">{ev.title}</span>
+                    {!ev.allDay && (
+                      <span className="flex-shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
+                        {new Date(ev.start).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       {selectedDest && (
         <DestinationModal dest={selectedDest} nextDest={null} onClose={() => setSelectedDest(null)} preferredCurrency={preferredCurrency} />
       )}
