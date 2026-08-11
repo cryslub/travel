@@ -39,10 +39,10 @@ const destinationIconPath = 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-1
 function createDestinationIcon(imageUrl?: string | null) {
   if (imageUrl) {
     return L.divIcon({
-      html: `<div style="width:40px;height:40px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);overflow:hidden;"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
+      html: `<div style="width:52px;height:52px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);overflow:hidden;"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
       className: '',
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
+      iconSize: [52, 52],
+      iconAnchor: [26, 26],
     });
   }
   return L.divIcon({
