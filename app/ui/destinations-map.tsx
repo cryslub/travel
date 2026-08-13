@@ -34,7 +34,7 @@ import { MemoIcon } from '@/app/ui/memo-icon';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
-const destinationIconPath = 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z';
+const destinationIconPath = 'M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z';
 
 function createDestinationIcon(imageUrl?: string | null) {
   if (imageUrl) {

@@ -2,6 +2,7 @@
 
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { put, del } from '@vercel/blob';
 import { updateDestinationTotalPrice } from '@/app/lib/prices';
 import { markJourneyChanged, markJourneyChangedByDestination, markJourneyChangedByEvent } from '@/app/lib/journey-state';
@@ -111,6 +112,63 @@ export async function deleteDestination(id: string, journeyId: string) {
   const urls = [...destImgs, ...eventImgs, ...accImgs].map((r) => r.image_url);
   if (urls.length > 0) await del(urls);
   redirect(`/journeys/${journeyId}/destinations`);
+}
+
+export async function removeDestinationImage(id: string, journeyId: string) {
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM destinations WHERE id = ${id}`;
+  await sql`UPDATE destinations SET image_url = NULL WHERE id = ${id}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
+}
+
+export async function removeAccommodationImage(destinationId: string, journeyId: string) {
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM accommodations WHERE destination_id = ${destinationId}`;
+  await sql`UPDATE accommodations SET image_url = NULL WHERE destination_id = ${destinationId}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
+}
+
+export async function removeEventImage(eventId: string, journeyId: string) {
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM events WHERE id = ${eventId}`;
+  await sql`UPDATE events SET image_url = NULL WHERE id = ${eventId}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
+}
+
+export async function changeDestinationImage(id: string, journeyId: string, formData: FormData) {
+  const imageFile = formData.get('image') as File;
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM destinations WHERE id = ${id}`;
+  const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+  const { url } = await put(`destinations/${id}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+  await sql`UPDATE destinations SET image_url = ${url} WHERE id = ${id}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
+}
+
+export async function changeAccommodationImage(destinationId: string, journeyId: string, formData: FormData) {
+  const imageFile = formData.get('image') as File;
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM accommodations WHERE destination_id = ${destinationId}`;
+  const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+  const { url } = await put(`accommodations/${destinationId}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+  await sql`UPDATE accommodations SET image_url = ${url} WHERE destination_id = ${destinationId}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
+}
+
+export async function changeEventImage(eventId: string, journeyId: string, formData: FormData) {
+  const imageFile = formData.get('image') as File;
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM events WHERE id = ${eventId}`;
+  const ext = imageFile.name.slice(imageFile.name.lastIndexOf('.'));
+  const { url } = await put(`events/${eventId}-${Date.now()}${ext}`, imageFile, { access: 'public' });
+  await sql`UPDATE events SET image_url = ${url} WHERE id = ${eventId}`;
+  await markJourneyChanged(journeyId);
+  if (row?.image_url) await del(row.image_url);
+  revalidatePath(`/journeys/${journeyId}/destinations`);
 }
 
 export async function createEvent(destinationId: string, formData: FormData) {

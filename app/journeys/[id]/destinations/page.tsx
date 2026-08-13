@@ -9,6 +9,7 @@ import { CreateDestinationForJourneyButton, ViewToggle } from './journey-destina
 import { DestinationsMapClient, type MapDest } from '@/app/ui/destinations-map-client';
 import { MemoIcon } from '@/app/ui/memo-icon';
 import { SummaryList } from './summary-list';
+import { GalleryView } from './gallery-view';
 import { DestinationsCalendarClient, type CalendarDest } from '@/app/ui/destinations-calendar-client';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
 import MovingIcon from '@mui/icons-material/Moving';
@@ -56,10 +57,10 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
   const prefs = session?.user?.email
     ? await fetchUserPreferences(session.user.email, signInType)
     : { destinations_view: 'summary', destinations_view_sub: null as string | null };
-  const prefView = prefs.destinations_view.toLowerCase() as 'summary' | 'cards' | 'map' | 'calendar';
+  const prefView = prefs.destinations_view.toLowerCase() as 'summary' | 'cards' | 'map' | 'calendar' | 'gallery';
   const prefCalendarView = prefs.destinations_view_sub ?? 'month';
 
-  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : viewStr === 'summary' ? 'summary' : prefView;
+  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : viewStr === 'summary' ? 'summary' : viewStr === 'gallery' ? 'gallery' : prefView;
   const journey = await fetchJourneyById(id);
 
   if (!journey) notFound();
@@ -89,11 +90,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
 
   return (
     <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
-      <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:mx-0 sm:px-0">
+      <div className="sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:-mx-4 sm:px-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <ViewToggle journeyId={id} currentView={currentView} currentSection={Array.isArray(sectionFilter) ? sectionFilter[0] : sectionFilter} />
-            <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+            <span className="truncate text-lg font-semibold">{journey.name}</span>
           </div>
           <span className="sm:mr-2">{!isReadonly && <CreateDestinationForJourneyButton journeyId={id} />}</span>
         </div>
@@ -196,6 +197,27 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
       {currentView === 'summary' && (
         <SummaryList
           journeyId={id}
+          destinations={destinations.map((d) => ({
+            id: d.id,
+            name: d.name,
+            lat: d.latitude ?? null,
+            lon: d.longitude ?? null,
+            journey_id: id,
+            start_date: d.start_date,
+            section_name: d.section_name,
+            image_url: d.image_url,
+            description: d.description ?? null,
+            price: d.price ?? null,
+            price_currency: d.price_currency ?? null,
+            transport: d.transport,
+            accommodation: d.accommodation,
+            events: d.events,
+            records: d.records,
+          }))}
+        />
+      )}
+      {currentView === 'gallery' && (
+        <GalleryView
           destinations={destinations.map((d) => ({
             id: d.id,
             name: d.name,

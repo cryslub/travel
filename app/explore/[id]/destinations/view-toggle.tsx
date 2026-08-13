@@ -4,16 +4,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
+import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
+import PhotoLibraryOutlinedIcon from '@mui/icons-material/PhotoLibraryOutlined';
 
 export function ViewToggle({ journeyId, currentView }: {
   journeyId: string;
-  currentView: 'summary' | 'cards' | 'map' | 'calendar';
+  currentView: 'summary' | 'cards' | 'map' | 'calendar' | 'gallery';
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  function navigate(view: 'summary' | 'cards' | 'map' | 'calendar') {
+  function navigate(view: 'summary' | 'cards' | 'map' | 'calendar' | 'gallery') {
     const params = new URLSearchParams();
     const section = searchParams.get('section');
     if (section) params.set('section', section);
@@ -27,17 +28,20 @@ export function ViewToggle({ journeyId, currentView }: {
 
   return (
     <div className="flex overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-700">
-      <button type="button" title="Summary view" onClick={() => navigate('summary')} className={`px-3 py-2 transition-colors ${currentView === 'summary' ? active : inactive}`}>
-        <TableRowsOutlinedIcon fontSize="small" />
+      <button type="button" title="Summary view" onClick={() => navigate('summary')} className={`px-2 py-1.5 sm:px-3 sm:py-2 transition-colors ${currentView === 'summary' ? active : inactive}`}>
+        <TimelineOutlinedIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
       </button>
-      <button type="button" title="Cards view" onClick={() => navigate('cards')} className={`${border} px-3 py-2 transition-colors ${currentView === 'cards' ? active : inactive}`}>
-        <GridViewOutlinedIcon fontSize="small" />
+      <button type="button" title="Cards view" onClick={() => navigate('cards')} className={`${border} px-2 py-1.5 sm:px-3 sm:py-2 transition-colors ${currentView === 'cards' ? active : inactive}`}>
+        <GridViewOutlinedIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
       </button>
-      <button type="button" title="Calendar view" onClick={() => navigate('calendar')} className={`${border} px-3 py-2 transition-colors ${currentView === 'calendar' ? active : inactive}`}>
-        <CalendarMonthOutlinedIcon fontSize="small" />
+      <button type="button" title="Calendar view" onClick={() => navigate('calendar')} className={`${border} px-2 py-1.5 sm:px-3 sm:py-2 transition-colors ${currentView === 'calendar' ? active : inactive}`}>
+        <CalendarMonthOutlinedIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
       </button>
-      <button type="button" title="Map view" onClick={() => navigate('map')} className={`${border} px-3 py-2 transition-colors ${currentView === 'map' ? active : inactive}`}>
-        <MapOutlinedIcon fontSize="small" />
+      <button type="button" title="Map view" onClick={() => navigate('map')} className={`${border} px-2 py-1.5 sm:px-3 sm:py-2 transition-colors ${currentView === 'map' ? active : inactive}`}>
+        <MapOutlinedIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+      </button>
+      <button type="button" title="Gallery View" onClick={() => navigate('gallery')} className={`${border} px-2 py-1.5 sm:px-3 sm:py-2 transition-colors ${currentView === 'gallery' ? active : inactive}`}>
+        <PhotoLibraryOutlinedIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
       </button>
     </div>
   );

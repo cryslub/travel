@@ -17,7 +17,7 @@ export function ImageUpload({ currentImageUrl }: { currentImageUrl?: string | nu
   }, []);
 
   async function handleFile(file: File) {
-    const resized = await resizeImage(file, 350);
+    const resized = await resizeImage(file, 600);
     if (fileRef.current) {
       const dt = new DataTransfer();
       dt.items.add(resized);
@@ -74,7 +74,7 @@ export function ImageUpload({ currentImageUrl }: { currentImageUrl?: string | nu
           <button
             type="button"
             onClick={clearFile}
-            className="absolute top-2 right-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+            className="absolute top-2 right-2 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
             aria-label="Remove selected image"
           >
             <XIcon />
@@ -99,14 +99,16 @@ export function ImageUpload({ currentImageUrl }: { currentImageUrl?: string | nu
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="rounded-full bg-black/60 px-2 py-1 text-xs text-white hover:bg-black/80"
+              title="Change Image"
+              className="rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
+              aria-label="Change image"
             >
-              Change
+              <PencilIcon />
             </button>
             <button
               type="button"
               onClick={() => setRemoved(true)}
-              className="rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+              className="rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
               aria-label="Remove image"
             >
               <XIcon />
@@ -158,7 +160,7 @@ export function ImageUpload({ currentImageUrl }: { currentImageUrl?: string | nu
   );
 }
 
-function resizeImage(file: File, maxWidth: number): Promise<File> {
+export function resizeImage(file: File, maxWidth: number): Promise<File> {
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -176,6 +178,15 @@ function resizeImage(file: File, maxWidth: number): Promise<File> {
     };
     img.src = url;
   });
+}
+
+function PencilIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+      <path d="m15 5 4 4" />
+    </svg>
+  );
 }
 
 function XIcon() {

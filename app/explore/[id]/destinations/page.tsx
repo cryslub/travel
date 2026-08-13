@@ -4,6 +4,7 @@ import { authOptions } from '@/app/lib/auth';
 import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { ReadonlyDestinationsView } from './readonly-view';
+import { GalleryView } from './gallery-view';
 import { ExploreEventItem } from './explore-event-item';
 import { ViewToggle } from './view-toggle';
 import { SectionTabs } from './section-tabs';
@@ -54,7 +55,7 @@ export default async function ExploreDestinationsPage(props: {
   const { id } = await props.params;
   const { view: viewParam, section: sectionParam } = await props.searchParams;
   const viewStr = Array.isArray(viewParam) ? viewParam[0] : viewParam;
-  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : 'summary';
+  const currentView = viewStr === 'map' ? 'map' : viewStr === 'calendar' ? 'calendar' : viewStr === 'cards' ? 'cards' : viewStr === 'gallery' ? 'gallery' : 'summary';
   const activeSection = Array.isArray(sectionParam) ? sectionParam[0] : sectionParam;
 
   const session = await getServerSession(authOptions);
@@ -108,18 +109,18 @@ export default async function ExploreDestinationsPage(props: {
 
   return (
     <main className={`w-full px-[13px] sm:px-4 bg-zinc-100 dark:bg-zinc-900 ${currentView === 'map' ? 'h-[calc(100vh_-_57px)] flex flex-col overflow-hidden' : 'pb-12 min-h-[calc(100vh_-_57px)]'}`}>
-      <div className={`sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:mx-0 sm:px-0 ${sections.length === 0 ? 'pb-1 sm:pb-3' : ''}`}>
+      <div className={`sticky top-0 z-[2000] bg-zinc-100 dark:bg-zinc-900 pt-3 sm:pt-6 -mx-[13px] px-[13px] sm:-mx-4 sm:px-4 ${sections.length === 0 ? 'pb-1 sm:pb-3' : ''}`}>
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <BackButton />
-            <div className="flex items-baseline gap-2">
-              <span className="hidden sm:inline text-lg font-semibold">{journey.name}</span>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-lg font-semibold">{journey.name}</span>
               {journey.user_name && (
                 <a
                   href={`/explore?owner=${encodeURIComponent(journey.user_name)}`}
-                  className="text-xs text-zinc-500 hover:underline dark:text-zinc-400"
+                  className="truncate text-xs text-zinc-500 hover:underline dark:text-zinc-400"
                 >
-                  by {journey.user_name}
+                  {journey.user_name}
                 </a>
               )}
             </div>
@@ -234,6 +235,10 @@ export default async function ExploreDestinationsPage(props: {
             description: d.description ?? null,
           }))}
         />
+      )}
+
+      {currentView === 'gallery' && (
+        <GalleryView destinations={destinations} preferredCurrency={preferredCurrency} />
       )}
 
       {currentView === 'cards' && (

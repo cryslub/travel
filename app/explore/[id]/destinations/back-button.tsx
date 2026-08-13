@@ -24,9 +24,9 @@ export function BackButton() {
   return (
     <button
       onClick={handleClick}
-      className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium leading-6 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+      className="rounded-full border border-zinc-200 bg-white px-2 py-1.5 sm:px-3 sm:py-2 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
     >
-      <ChevronLeftIcon fontSize="small" />
+      <ChevronLeftIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
     </button>
   );
 }

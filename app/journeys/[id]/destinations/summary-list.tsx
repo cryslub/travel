@@ -5,7 +5,7 @@ import { useState } from 'react';
 import type { ModalDest } from '@/app/ui/destinations-map';
 import { MoreOptionsDestinationButton } from './destination-buttons';
 import { TextTooltip } from '@/app/ui/text-tooltip';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
 
 const DestinationModal = dynamic(
   () => import('@/app/ui/destinations-map').then((m) => m.DestinationModal),
@@ -35,8 +35,10 @@ export function SummaryList({ destinations, journeyId }: {
 
               {/* Dot + connecting line */}
               <div className="relative flex-shrink-0 self-stretch flex justify-center w-14">
-                {i < destinations.length - 1 && (
-                  <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-zinc-200 dark:bg-zinc-700" />
+                {i < destinations.length - 1 ? (
+                  <div className={`absolute ${i > 0 ? '-top-3' : 'top-1'} -bottom-3 left-1/2 -translate-x-1/2 w-px bg-zinc-200 dark:bg-zinc-700`} />
+                ) : i > 0 && (
+                  <div className="absolute -top-3 h-6 left-1/2 -translate-x-1/2 w-px bg-zinc-200 dark:bg-zinc-700" />
                 )}
                 <button
                   type="button"
@@ -45,7 +47,7 @@ export function SummaryList({ destinations, journeyId }: {
                 >
                   {d.image_url
                     ? <img src={d.image_url} alt="" className="w-full h-full object-cover" />
-                    : <LocationOnOutlinedIcon className="text-zinc-400 dark:text-zinc-500" />
+                    : <ExploreOutlinedIcon className="text-zinc-400 dark:text-zinc-500" />
                   }
                 </button>
               </div>

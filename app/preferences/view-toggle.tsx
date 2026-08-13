@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
+import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import PhotoLibraryOutlinedIcon from '@mui/icons-material/PhotoLibraryOutlined';
 import ViewWeekOutlinedIcon from '@mui/icons-material/ViewWeekOutlined';
 import ViewDayOutlinedIcon from '@mui/icons-material/ViewDayOutlined';
 import ViewListOutlinedIcon from '@mui/icons-material/ViewListOutlined';
 import { updateDestinationsView, updateCalendarSubView } from './actions';
 
-type View = 'summary' | 'cards' | 'calendar' | 'map';
+type View = 'summary' | 'cards' | 'calendar' | 'map' | 'gallery';
 type CalendarSubView = 'month' | 'week' | 'day' | 'list';
 
 const CALENDAR_VIEWS: { key: CalendarSubView; Icon: React.ElementType; label: string }[] = [
@@ -25,6 +26,7 @@ function normaliseView(v: string): View {
   if (lower === 'cards') return 'cards';
   if (lower === 'map') return 'map';
   if (lower === 'calendar') return 'calendar';
+  if (lower === 'gallery') return 'gallery';
   return 'summary';
 }
 
@@ -59,7 +61,7 @@ export function PreferenceViewToggle({ currentView, currentCalendarSubView }: { 
       <div className="flex flex-col gap-3 items-start">
         <div className="inline-flex overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-700">
           <button type="button" title="Summary view" onClick={() => handleViewSelect('summary')} className={`px-3 py-2 transition-colors ${view === 'summary' ? active : inactive}`}>
-            <TableRowsOutlinedIcon fontSize="small" />
+            <TimelineOutlinedIcon fontSize="small" />
           </button>
           <button type="button" title="Cards view" onClick={() => handleViewSelect('cards')} className={`${border} px-3 py-2 transition-colors ${view === 'cards' ? active : inactive}`}>
             <GridViewOutlinedIcon fontSize="small" />
@@ -69,6 +71,9 @@ export function PreferenceViewToggle({ currentView, currentCalendarSubView }: { 
           </button>
           <button type="button" title="Map view" onClick={() => handleViewSelect('map')} className={`${border} px-3 py-2 transition-colors ${view === 'map' ? active : inactive}`}>
             <MapOutlinedIcon fontSize="small" />
+          </button>
+          <button type="button" title="Gallery view" onClick={() => handleViewSelect('gallery')} className={`${border} px-3 py-2 transition-colors ${view === 'gallery' ? active : inactive}`}>
+            <PhotoLibraryOutlinedIcon fontSize="small" />
           </button>
         </div>
         {view === 'calendar' && (
