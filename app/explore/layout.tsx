@@ -12,7 +12,7 @@ export default async function ExploreLayout({ children }: { children: React.Reac
         fetchJourneys(session.user.email, signInType),
       ])
     : [null, []];
-  const displayLabel = prefs?.name || session?.user?.email;
+  const displayLabel = prefs?.name;
 
   return (
     <div className="sm:flex">

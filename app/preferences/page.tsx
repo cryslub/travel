@@ -5,6 +5,7 @@ import { fetchUserPreferences } from '@/app/lib/data';
 import { PreferenceViewToggle } from './view-toggle';
 import { CurrencySelector } from './currency-selector';
 import { DisplayNameInput } from './display-name-input';
+import { ProfileImageInput } from './profile-image-input';
 import { SignOutButton } from '@/app/ui/navbar';
 
 export const metadata = { title: 'Preferences' };
@@ -32,6 +33,9 @@ export default async function PreferencesPage() {
           </div>
           <div className="mb-6">
             <DisplayNameInput currentName={prefs.name} />
+          </div>
+          <div className="mb-6">
+            <ProfileImageInput currentImageUrl={prefs.image_url} />
           </div>
           <PreferenceViewToggle currentView={prefs.destinations_view} currentCalendarSubView={prefs.destinations_view_sub ?? null} />
           <div className="mt-6">

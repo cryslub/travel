@@ -242,13 +242,14 @@ export async function fetchJourneys(userEmail: string, signInType: string): Prom
   return data;
 }
 
-export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]> {
+export async function fetchExploreJourneys(userEmail: string, signInType: string): Promise<(Journey & { user_name: string | null; user_image_url: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]> {
   noStore();
-  const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]>`
+  const data = await sql<(Journey & { user_name: string | null; user_image_url: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]>`
     SELECT j.id, j.name, j.description, j.start_date, j.end_date, j.image_url, j.created_time, j.currency, j.allow_import, j.original_id,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price,
       p.name AS user_name,
+      p.image_url AS user_image_url,
       og.name AS original_name,
       COALESCE(j.likes, 0)::int AS like_count,
       EXISTS (
@@ -266,19 +267,20 @@ export async function fetchExploreJourneys(userEmail: string, signInType: string
     WHERE NOT (u.email = ${userEmail} AND u.sign_in_type = ${signInType})
       AND (j.privacy = 'public' OR j.privacy IS NULL)
       AND (j.import_state IS NULL OR j.import_state != 'imported')
-    GROUP BY j.id, u.email, p.name, vu.id, og.name
+    GROUP BY j.id, u.email, p.name, p.image_url, vu.id, og.name
     ORDER BY (10 * COALESCE(j.likes, 0) - (CURRENT_DATE - j.created_time::date)) DESC NULLS LAST
   `;
   return data;
 }
 
-export async function fetchExploreJourneysPublic(): Promise<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]> {
+export async function fetchExploreJourneysPublic(): Promise<(Journey & { user_name: string | null; user_image_url: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]> {
   noStore();
-  const data = await sql<(Journey & { user_name: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]>`
+  const data = await sql<(Journey & { user_name: string | null; user_image_url: string | null; like_count: number; viewer_liked: boolean; original_name: string | null })[]>`
     SELECT j.id, j.name, j.description, j.start_date, j.end_date, j.image_url, j.created_time, j.currency, j.allow_import, j.original_id,
       array_remove(array_agg(DISTINCT jc.country_code ORDER BY jc.country_code), NULL) AS countries,
       SUM(dp.value) AS total_price,
       p.name AS user_name,
+      p.image_url AS user_image_url,
       og.name AS original_name,
       COALESCE(j.likes, 0)::int AS like_count,
       FALSE AS viewer_liked
@@ -291,7 +293,7 @@ export async function fetchExploreJourneysPublic(): Promise<(Journey & { user_na
     LEFT JOIN prices dp ON dp.id = dest.price_id
     WHERE (j.privacy = 'public' OR j.privacy IS NULL)
       AND (j.import_state IS NULL OR j.import_state != 'imported')
-    GROUP BY j.id, u.email, p.name, og.name
+    GROUP BY j.id, u.email, p.name, p.image_url, og.name
     ORDER BY (10 * COALESCE(j.likes, 0) - (CURRENT_DATE - j.created_time::date)) DESC NULLS LAST
   `;
   return data;
@@ -350,14 +352,14 @@ export async function fetchUnsectionedDestinationCount(journeyId: string): Promi
 }
 
 export async function fetchUserPreferences(userEmail: string, signInType: string) {
-  const [prefs] = await sql<{ destinations_view: string; destinations_view_sub: string | null; currency: string; name: string | null }[]>`
-    SELECT p.destinations_view, p.destinations_view_sub, p.currency, p.name
+  const [prefs] = await sql<{ destinations_view: string; destinations_view_sub: string | null; currency: string; name: string | null; image_url: string | null }[]>`
+    SELECT p.destinations_view, p.destinations_view_sub, p.currency, p.name, p.image_url
     FROM preferences p
     JOIN users u ON u.id = p.user_id
     WHERE u.email = ${userEmail} AND u.sign_in_type = ${signInType}
     LIMIT 1
   `;
-  return prefs ?? { destinations_view: 'summary', destinations_view_sub: null as string | null, currency: 'USD', name: null };
+  return prefs ?? { destinations_view: 'summary', destinations_view_sub: null as string | null, currency: 'USD', name: null, image_url: null };
 }
 
 export async function fetchUserId(userEmail: string, signInType: string): Promise<string | null> {
