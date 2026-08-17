@@ -52,7 +52,7 @@ export function AccommodationModal({ accommodation, preferredCurrency, journeyId
             <span className="text-lg font-medium">{accommodation.name}</span>
             {accommodation.price != null && (
               <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? accommodation.price_currency ?? 'USD' }).format(accommodation.price)}
+                {new Intl.NumberFormat('en', { style: 'currency', currency: accommodation.price_currency ?? 'USD' }).format(accommodation.price)}
               </span>
             )}
           </div>

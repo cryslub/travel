@@ -138,7 +138,7 @@ export default async function ExploreDestinationsPage(props: {
 
       {currentView === 'summary' && (
         <Suspense>
-          <ReadonlyDestinationsView destinations={destinations} preferredCurrency={preferredCurrency} />
+          <ReadonlyDestinationsView destinations={destinations} />
         </Suspense>
       )}
 

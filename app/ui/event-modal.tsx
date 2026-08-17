@@ -55,7 +55,7 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
             <span className="text-lg font-medium">{activity.name}</span>
             {activity.price != null && (
               <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                {new Intl.NumberFormat('en', { style: 'currency', currency: preferredCurrency ?? activity.price_currency ?? 'USD' }).format(activity.price)}
+                {new Intl.NumberFormat('en', { style: 'currency', currency: activity.price_currency ?? 'USD' }).format(activity.price)}
               </span>
             )}
           </div>

@@ -108,7 +108,6 @@ export function GalleryView({ destinations, preferredCurrency }: { destinations:
           dest={dest}
           nextDest={nextDest}
           onClose={() => setSelectedIdx(null)}
-          preferredCurrency={preferredCurrency}
         />
       )}
       {selectedAccIdx !== null && destinations[selectedAccIdx].accommodation && (

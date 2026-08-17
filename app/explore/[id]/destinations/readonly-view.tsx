@@ -6,7 +6,7 @@ import { TextTooltip } from '@/app/ui/text-tooltip';
 import type { DestinationWithTransport } from '@/app/lib/definitions';
 import { ReadonlyDestinationModal } from './readonly-destination-modal';
 
-export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { destinations: DestinationWithTransport[]; preferredCurrency?: string }) {
+export function ReadonlyDestinationsView({ destinations }: { destinations: DestinationWithTransport[] }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const dest = selectedIdx !== null ? destinations[selectedIdx] : null;
   const nextDest = selectedIdx !== null ? (destinations[selectedIdx + 1] ?? null) : null;
@@ -82,7 +82,6 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
           dest={dest}
           nextDest={nextDest}
           onClose={() => setSelectedIdx(null)}
-          preferredCurrency={preferredCurrency}
         />
       )}
     </>
