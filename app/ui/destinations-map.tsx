@@ -9,6 +9,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
 import CloseIcon from '@mui/icons-material/Close';
 import { DestinationCardMap } from './destination-card-map';
+import { useLockBodyScroll } from './use-lock-body-scroll';
 import {
   MoreOptionsDestinationButton,
   EditTransportButton,
@@ -195,6 +196,7 @@ function FitBounds({ points }: { points: [number, number][] }) {
 
 export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }: { dest: ModalDest; nextDest: ModalDest | null; onClose: () => void; preferredCurrency?: string }) {
   const [visible, setVisible] = useState(false);
+  useLockBodyScroll();
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -242,7 +244,7 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
           {dest.image_url && (
             <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
           )}
@@ -354,12 +356,24 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
   const Icon = t.type ? transportIcons[t.type] : null;
   const color = (t.type && TRANSPORT_LINE_COLORS[t.type]) || '#f97316';
   const title = prevDestName ? `${prevDestName} → ${dest.name}` : dest.name;
+  const [visible, setVisible] = useState(false);
+  useLockBodyScroll();
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  function handleClose() {
+    setVisible(false);
+    setTimeout(onClose, 200);
+  }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center" onMouseDown={onClose}>
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center" onMouseDown={handleClose}>
+      <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} />
       <div
-        className="relative z-10 mx-4 mb-4 sm:mb-0 w-full max-w-sm rounded-lg border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
+        className={`relative z-10 flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-700">
@@ -386,14 +400,14 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
             <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
             <button
               type="button"
-              onMouseDown={onClose}
+              onMouseDown={handleClose}
               className="rounded-full p-1.5 text-sm text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
             >
               <CloseIcon fontSize="small" />
             </button>
           </div>
         </div>
-        <div className="flex flex-col gap-2 px-4 py-3 text-sm">
+        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 py-3 text-sm">
           {(t.start_time || t.end_time) && (
             <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
               {t.start_time && <span>{t.start_time.split('T')[1]?.slice(0, 5) ?? t.start_time.slice(0, 5)}</span>}

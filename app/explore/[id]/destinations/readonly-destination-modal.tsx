@@ -20,6 +20,7 @@ import { ElementType } from 'react';
 import { MemoIcon } from '@/app/ui/memo-icon';
 import { AccommodationItem } from '@/app/journeys/[id]/destinations/accommodation-item';
 import { DestinationCardMap } from '@/app/ui/destination-card-map';
+import { useLockBodyScroll } from '@/app/ui/use-lock-body-scroll';
 import type { DestinationWithTransport } from '@/app/lib/definitions';
 
 const eventIcons: Record<string, ElementType<SvgIconProps>> = {
@@ -57,6 +58,7 @@ export function ReadonlyDestinationModal({ dest, nextDest, onClose }: {
 }) {
   const [expandedEventImages, setExpandedEventImages] = useState<Set<string>>(new Set());
   const [visible, setVisible] = useState(false);
+  useLockBodyScroll();
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -101,7 +103,7 @@ export function ReadonlyDestinationModal({ dest, nextDest, onClose }: {
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
           {dest.image_url && (
             <img src={dest.image_url} alt="" className="w-full rounded-lg object-cover max-h-48" />
           )}

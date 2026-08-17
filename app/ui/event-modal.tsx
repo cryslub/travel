@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { EditEventButton } from '@/app/journeys/[id]/destinations/destination-buttons';
+import { useLockBodyScroll } from './use-lock-body-scroll';
 
 type EventActivity = {
   id: string;
@@ -30,11 +32,24 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
   onDestinationClick?: () => void;
   onClose: () => void;
 }) {
+  const [visible, setVisible] = useState(false);
+  useLockBodyScroll();
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  function handleClose() {
+    setVisible(false);
+    setTimeout(onClose, 200);
+  }
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center" onMouseDown={onClose}>
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center" onMouseDown={handleClose}>
+      <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} />
       <div
-        className="relative z-10 mx-4 flex w-full max-w-sm flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 max-h-[80vh]"
+        className={`relative z-10 flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-700">
@@ -65,7 +80,7 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
             )}
             <button
               type="button"
-              onMouseDown={onClose}
+              onMouseDown={handleClose}
               className="rounded-full p-1.5 text-sm text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
             >
               <CloseIcon fontSize="small" />
@@ -73,7 +88,7 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-300 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 p-4">
           {activity.image_url && (
             <img src={activity.image_url} alt="" className="w-full rounded-lg object-cover max-h-64" />
           )}

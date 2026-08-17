@@ -245,7 +245,7 @@ export default async function ExploreDestinationsPage(props: {
         <div className="flex justify-center">
           <ul className="flex flex-row flex-wrap gap-4">
             {destinations.map((destination, index) => (
-              <li key={destination.id} className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 min-w-[350px] max-w-[350px]">
+              <li key={destination.id} className="flex w-full flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800 sm:w-[350px]">
                 <div className="flex flex-col">
                   {destination.start_date && (
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">{new Date(destination.start_date).toLocaleDateString()}</span>
