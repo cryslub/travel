@@ -58,7 +58,7 @@ export default async function JourneysPage() {
                   )}
                   {journey.total_price != null && (
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                      <span>Budget </span>
+                      <span className="text-xs">Budget </span>
                       {new Intl.NumberFormat('en', { style: 'currency', currency: journey.currency ?? 'USD' }).format(journey.total_price)}
                     </span>
                   )}
