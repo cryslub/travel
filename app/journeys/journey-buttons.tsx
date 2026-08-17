@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -9,20 +10,40 @@ import AddIcon from '@mui/icons-material/Add';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import { deleteJourney } from './actions';
 
+const MENU_H = 132;
+
 export function JourneyButtons({ id, isPrivate }: { id: string; isPrivate?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        menuRef.current && !menuRef.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) {
         setOpen(false);
       }
     }
     if (open) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen((v) => !v);
+  }
 
   async function handleDelete() {
     setOpen(false);
@@ -34,15 +55,20 @@ export function JourneyButtons({ id, isPrivate }: { id: string; isPrivate?: bool
     <div className="flex gap-2">
       <div ref={menuRef} className="relative">
         <button
+          ref={btnRef}
           type="button"
           title="More options"
-          onClick={() => setOpen((v) => !v)}
+          onClick={handleToggle}
           className="rounded-full px-2 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
         >
           <MoreVertIcon fontSize="small" />
         </button>
-        {open && (
-          <div className="absolute right-0 top-full mt-1 z-[1002] min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+        {open && menuPos && createPortal(
+          <div
+            ref={menuContentRef}
+            style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}
+            className="z-[9999] min-w-[140px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+          >
             {!isPrivate && (
               <button
                 type="button"
@@ -77,7 +103,8 @@ export function JourneyButtons({ id, isPrivate }: { id: string; isPrivate?: bool
               <DeleteOutlinedIcon fontSize="small" />
               Delete
             </button>
-          </div>
+          </div>,
+          document.body,
         )}
       </div>
     </div>

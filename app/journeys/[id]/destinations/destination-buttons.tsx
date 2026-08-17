@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
@@ -47,12 +48,17 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (
+        ref.current && !ref.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) setOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -86,8 +92,9 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && menuPos && (
+      {open && menuPos && createPortal(
         <div
+          ref={menuContentRef}
           className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
           style={{ top: menuPos.top, right: menuPos.right }}
         >
@@ -105,7 +112,8 @@ export function MoreOptionsDestinationButton({ journeyId, id, className }: { jou
           >
             <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -171,12 +179,17 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (
+        ref.current && !ref.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) setOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -210,8 +223,9 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && menuPos && (
+      {open && menuPos && createPortal(
         <div
+          ref={menuContentRef}
           className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
           style={{ top: menuPos.top, right: menuPos.right }}
         >
@@ -229,7 +243,8 @@ export function MoreOptionsEventButton({ journeyId, destinationId, eventId }: { 
           >
             <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -270,12 +285,17 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (
+        ref.current && !ref.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) setOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -309,8 +329,9 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
       >
         <MoreVertIcon fontSize="small" />
       </button>
-      {open && menuPos && (
+      {open && menuPos && createPortal(
         <div
+          ref={menuContentRef}
           className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
           style={{ top: menuPos.top, right: menuPos.right }}
         >
@@ -328,7 +349,8 @@ export function MoreOptionsRecordButton({ journeyId, destinationId, recordId }: 
           >
             <DeleteOutlinedIcon fontSize="small" /> Delete
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

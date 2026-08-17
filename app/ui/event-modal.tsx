@@ -1,9 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { ElementType } from 'react';
+import type { SvgIconProps } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
+import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
+import MovingIcon from '@mui/icons-material/Moving';
 import { EditEventButton } from '@/app/journeys/[id]/destinations/destination-buttons';
 import { useLockBodyScroll } from './use-lock-body-scroll';
+
+const eventTypeIcons: Record<string, ElementType<SvgIconProps>> = {
+  Site: LocationOnOutlinedIcon,
+  Meal: RestaurantOutlinedIcon,
+  Tour: TourOutlinedIcon,
+  Activity: StarBorderOutlinedIcon,
+  Transfer: MovingIcon,
+};
+
+const eventTypeColors: Record<string, string> = {
+  Site: '#3b82f6',
+  Meal: '#f59e0b',
+  Tour: '#10b981',
+  Activity: '#8b5cf6',
+  Transfer: '#64748b',
+};
 
 type EventActivity = {
   id: string;
@@ -34,6 +57,8 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
 }) {
   const [visible, setVisible] = useState(false);
   useLockBodyScroll();
+  const TypeIcon = (activity.type && eventTypeIcons[activity.type]) || StarBorderOutlinedIcon;
+  const typeColor = (activity.type && eventTypeColors[activity.type]) || '#3b82f6';
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -93,16 +118,21 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
             <img src={activity.image_url} alt="" className="w-full rounded-lg object-cover max-h-64" />
           )}
           {(activity.start_time || activity.end_time) && (
-            <div className="flex gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-              {activity.start_time && <span>{formatTime(activity.start_time)}</span>}
-              {activity.start_time && activity.end_time && <span>~</span>}
-              {activity.end_time && <span>{formatTime(activity.end_time)}</span>}
-              {activity.start_time && activity.end_time && (() => {
-                const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
-                const h = Math.floor(Math.abs(diff) / 60);
-                const m = Math.abs(diff) % 60;
-                return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
-              })()}
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: typeColor }}>
+                <TypeIcon style={{ fontSize: 14 }} className="text-white" />
+              </div>
+              <div className="flex gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                {activity.start_time && <span>{formatTime(activity.start_time)}</span>}
+                {activity.start_time && activity.end_time && <span>~</span>}
+                {activity.end_time && <span>{formatTime(activity.end_time)}</span>}
+                {activity.start_time && activity.end_time && (() => {
+                  const diff = (new Date(activity.end_time!).getTime() - new Date(activity.start_time!).getTime()) / 60000;
+                  const h = Math.floor(Math.abs(diff) / 60);
+                  const m = Math.abs(diff) % 60;
+                  return <span>· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
+                })()}
+              </div>
             </div>
           )}
           {activity.link && (

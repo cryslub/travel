@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import type { ModalDest } from '@/app/ui/destinations-map';
 import { MoreOptionsDestinationButton } from './destination-buttons';
-import { TextTooltip } from '@/app/ui/text-tooltip';
 import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
 
 const DestinationModal = dynamic(
@@ -71,7 +70,7 @@ export function SummaryList({ destinations, journeyId }: {
                   <MoreOptionsDestinationButton journeyId={journeyId} id={d.id} className="px-1.5 ml-auto" />
                 </div>
                 {d.description && (
-                  <TextTooltip text={d.description} className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2" />
+                  <span className="block text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">{d.description}</span>
                 )}
                 {d.price != null && (
                   <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">

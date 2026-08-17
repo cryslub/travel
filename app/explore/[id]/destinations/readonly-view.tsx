@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
-import { TextTooltip } from '@/app/ui/text-tooltip';
 import type { DestinationWithTransport } from '@/app/lib/definitions';
 import { ReadonlyDestinationModal } from './readonly-destination-modal';
 
@@ -62,7 +61,7 @@ export function ReadonlyDestinationsView({ destinations }: { destinations: Desti
                 )}
               </div>
               {d.description && (
-                <TextTooltip text={d.description} className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2" />
+                <span className="block text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">{d.description}</span>
               )}
               {d.price != null && (
                 <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">

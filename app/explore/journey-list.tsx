@@ -72,6 +72,17 @@ export function JourneyList({
             : journey.total_price
           : null;
         const displayCurrency = isLoggedIn ? viewerCurrency : fromCurrency;
+        const dateEl = journey.start_date && (
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+            {journey.end_date && (
+              <>
+                {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
+              </>
+            )}
+          </span>
+        );
 
         return (
           <li key={journey.id} className="flex w-[350px] flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
@@ -80,19 +91,9 @@ export function JourneyList({
                 <img src={journey.image_url} alt="" className="h-40 w-full object-cover" />
               </a>
             )}
-            {(journey.start_date || journey.like_count > 0) && (
+            {!isLoggedIn && (journey.start_date || journey.like_count > 0) && (
               <div className="flex w-full items-center gap-2 px-6 pt-4">
-                {journey.start_date && (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                    {journey.end_date && (
-                      <>
-                        {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                        {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
-                      </>
-                    )}
-                  </span>
-                )}
+                {dateEl}
                 {journey.like_count > 0 && (
                   <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
                     <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
@@ -102,7 +103,8 @@ export function JourneyList({
               </div>
             )}
             <div className="flex items-center justify-between">
-              <div className={`flex flex-1 min-w-0 flex-col justify-center pb-4 pl-6 ${(journey.start_date || journey.like_count > 0) ? 'pt-1' : 'pt-4'}`}>
+              <div className={`flex flex-1 min-w-0 flex-col justify-center pb-4 pl-6 ${!isLoggedIn && (journey.start_date || journey.like_count > 0) ? 'pt-1' : 'pt-4'}`}>
+                {isLoggedIn && dateEl}
                 <div className="flex items-center gap-2">
                   {journey.user_image_url && (
                     journey.user_name ? (
@@ -154,7 +156,7 @@ export function JourneyList({
                   )
                 )}
               </div>
-              <div className="flex flex-col items-center justify-center gap-3 pr-4 flex-shrink-0">
+              <div className={`flex flex-col items-center justify-center gap-3 pr-4 flex-shrink-0 ${isLoggedIn ? 'pt-4 pb-4' : ''}`}>
                 {isLoggedIn && <LikeButton journeyId={journey.id} initialLiked={journey.viewer_liked} initialCount={journey.like_count} />}
                 {isLoggedIn && journey.allow_import !== false && <ImportButton journeyId={journey.id} />}
                 <button

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
+import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
 import { EditAccommodationButton } from '@/app/journeys/[id]/destinations/destination-buttons';
 import { useLockBodyScroll } from './use-lock-body-scroll';
 
@@ -90,9 +91,14 @@ export function AccommodationModal({ accommodation, preferredCurrency, journeyId
             <img src={accommodation.image_url} alt="" className="w-full rounded-lg object-cover max-h-64" />
           )}
           {(accommodation.check_in || accommodation.check_out) && (
-            <div className="flex gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-              {accommodation.check_in && <span>Check-in: {formatTime(accommodation.check_in)}</span>}
-              {accommodation.check_out && <span>Check-out: {formatTime(accommodation.check_out)}</span>}
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500">
+                <HotelOutlinedIcon style={{ fontSize: 14 }} className="text-white" />
+              </div>
+              <div className="flex gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                {accommodation.check_in && <span>Check-in: {formatTime(accommodation.check_in)}</span>}
+                {accommodation.check_out && <span>Check-out: {formatTime(accommodation.check_out)}</span>}
+              </div>
             </div>
           )}
           {accommodation.link && (
