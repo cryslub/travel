@@ -80,29 +80,29 @@ export function JourneyList({
                 <img src={journey.image_url} alt="" className="h-40 w-full object-cover" />
               </a>
             )}
-            <div className="flex items-center justify-between">
-              <div className="flex flex-1 min-w-0 flex-col justify-center py-4 pl-6">
-                {(journey.start_date || journey.like_count > 0) && (
-                  <div className="flex items-center gap-2">
-                    {journey.start_date && (
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                        {journey.end_date && (
-                          <>
-                            {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                            {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
-                          </>
-                        )}
-                      </span>
+            {(journey.start_date || journey.like_count > 0) && (
+              <div className="flex w-full items-center gap-2 px-6 pt-4">
+                {journey.start_date && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                    {journey.end_date && (
+                      <>
+                        {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                        {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
+                      </>
                     )}
-                    {journey.like_count > 0 && (
-                      <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
-                        <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
-                        <span>{journey.like_count}</span>
-                      </div>
-                    )}
+                  </span>
+                )}
+                {journey.like_count > 0 && (
+                  <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
+                    <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
+                    <span>{journey.like_count}</span>
                   </div>
                 )}
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <div className={`flex flex-1 min-w-0 flex-col justify-center pb-4 pl-6 ${(journey.start_date || journey.like_count > 0) ? 'pt-1' : 'pt-4'}`}>
                 <div className="flex items-center gap-2">
                   {journey.user_image_url && (
                     journey.user_name ? (

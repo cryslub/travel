@@ -31,27 +31,27 @@ export default async function JourneysPage() {
                   <img src={journey.image_url} alt="" className="h-40 w-full object-cover" />
                 </a>
               )}
-              <div className="flex items-center justify-between">
-                <div className="flex flex-1 min-w-0 flex-col justify-center py-4 pl-6">
-                  {(journey.start_date || (journey.likes ?? 0) > 0) && (
-                    <div className="flex items-center gap-2">
-                      {journey.start_date && (
-                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                          {journey.end_date && <>
-                            {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                            {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
-                          </>}
-                        </span>
-                      )}
-                      {(journey.likes ?? 0) > 0 && (
-                        <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
-                          <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
-                          <span>{journey.likes}</span>
-                        </div>
-                      )}
+              {(journey.start_date || (journey.likes ?? 0) > 0) && (
+                <div className="flex w-full items-center gap-2 px-6 pt-4">
+                  {journey.start_date && (
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {new Date(journey.start_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                      {journey.end_date && <>
+                        {' ~ '}{new Date(journey.end_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                        {' · '}{Math.round((new Date(journey.end_date).getTime() - new Date(journey.start_date).getTime()) / 86400000) + 1}d
+                      </>}
+                    </span>
+                  )}
+                  {(journey.likes ?? 0) > 0 && (
+                    <div className="ml-auto flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
+                      <FavoriteIcon sx={{ fontSize: 12 }} className="text-rose-400" />
+                      <span>{journey.likes}</span>
                     </div>
                   )}
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <div className={`flex flex-1 min-w-0 flex-col justify-center pb-4 pl-6 ${(journey.start_date || (journey.likes ?? 0) > 0) ? 'pt-1' : 'pt-4'}`}>
                   <a href={`/journeys/${journey.id}/destinations`} title="Destinations" className="truncate text-lg font-medium hover:underline">{journey.name}</a>
                   {journey.description && (
                     <span className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 shrink-0">{journey.description}</span>
