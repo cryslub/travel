@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
@@ -57,12 +57,23 @@ export function ReadonlyDestinationModal({ dest, nextDest, onClose, preferredCur
   preferredCurrency?: string;
 }) {
   const [expandedEventImages, setExpandedEventImages] = useState<Set<string>>(new Set());
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  function handleClose() {
+    setVisible(false);
+    setTimeout(onClose, 200);
+  }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center" onMouseDown={onClose}>
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" onMouseDown={handleClose}>
+      <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} />
       <div
-        className="relative z-10 mx-4 flex w-full max-w-sm flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 max-h-[80vh]"
+        className={`relative z-10 mx-4 flex w-full max-w-sm flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 max-h-[80vh] transition-all duration-200 ease-out ${visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-700">
@@ -84,7 +95,7 @@ export function ReadonlyDestinationModal({ dest, nextDest, onClose, preferredCur
           </div>
           <button
             type="button"
-            onMouseDown={onClose}
+            onMouseDown={handleClose}
             className="ml-4 rounded-full p-1.5 text-sm text-zinc-400 hover:bg-zinc-100 dark:text-zinc-500 dark:hover:bg-zinc-700"
           >
             <CloseIcon fontSize="small" />
