@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+import { CurrentLocationMarker } from './current-location-marker';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -175,7 +177,7 @@ export function DestinationCardMapInner({
 
   const fallback = useMemo<[number, number]>(() => [lat, lon], [lat, lon]);
 
-  return (
+  const content = (
     <div
       className="relative"
       style={isFullscreen ? { position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden' } : undefined}
@@ -195,6 +197,7 @@ export function DestinationCardMapInner({
         <FitBounds points={allPoints} fallback={fallback} />
         <SyncMapHeight isFullscreen={isFullscreen} />
         <ZoomControls />
+        <CurrentLocationMarker />
       </MapContainer>
       <button
         type="button"
@@ -214,4 +217,6 @@ export function DestinationCardMapInner({
         </button>
     </div>
   );
+
+  return isFullscreen ? createPortal(content, document.body) : content;
 }

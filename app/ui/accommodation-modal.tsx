@@ -46,7 +46,7 @@ export function AccommodationModal({ accommodation, preferredCurrency, journeyId
     <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center" onMouseDown={handleClose}>
       <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} />
       <div
-        className={`relative z-10 flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
+        className={`relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:max-w-sm sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-700">

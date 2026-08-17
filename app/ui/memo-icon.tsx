@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useLayoutEffect, useId } from 'react';
+import { createPortal } from 'react-dom';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 
 const MEMO_OPEN_EVENT = 'memo-icon-open';
@@ -80,14 +81,15 @@ export function MemoIcon({ memo, className }: { memo: string; className?: string
       >
         <StickyNote2OutlinedIcon style={{ fontSize: 16 }} />
       </button>
-      {show && (
+      {show && createPortal(
         <div
           ref={tooltipRef}
           style={{ position: 'fixed', top: pos.top, bottom: pos.bottom, left: pos.left }}
           className="z-[99999] w-max max-w-xs rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 whitespace-pre-wrap"
         >
           {memo}
-        </div>
+        </div>,
+        document.body,
       )}
     </span>
   );

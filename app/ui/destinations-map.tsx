@@ -10,6 +10,7 @@ import 'leaflet.markercluster';
 import CloseIcon from '@mui/icons-material/Close';
 import { DestinationCardMap } from './destination-card-map';
 import { useLockBodyScroll } from './use-lock-body-scroll';
+import { CurrentLocationMarker } from './current-location-marker';
 import {
   MoreOptionsDestinationButton,
   EditTransportButton,
@@ -124,7 +125,7 @@ const TRANSPORT_LINE_COLORS: Record<string, string> = {
   Combined: '#f59e0b',
 };
 
-function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; onSelect: (d: MapDest, prevName: string | null) => void }) {
+function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; onSelect: (d: MapDest, prevDest: MapDest | null) => void }) {
   const map = useMap();
   useEffect(() => {
     const layers: L.Layer[] = [];
@@ -134,9 +135,9 @@ function TransportLines({ destinations, onSelect }: { destinations: MapDest[]; o
       const { start_latitude: sLat, start_longitude: sLon, end_latitude: eLat, end_longitude: eLon, type } = d.transport;
       if (sLat == null || sLon == null || eLat == null || eLon == null) return;
       const color = (type && TRANSPORT_LINE_COLORS[type]) || '#f97316';
-      const prevName = i > 0 ? destinations[i - 1].name : null;
+      const prevDest = i > 0 ? destinations[i - 1] : null;
       const line = L.polyline([[sLat, sLon], [eLat, eLon]], { color, weight: 6, opacity: 0.5, dashArray: '8 6' });
-      line.on('click', () => onSelect(d, prevName));
+      line.on('click', () => onSelect(d, prevDest));
       line.addTo(map);
       layers.push(line);
     });
@@ -351,11 +352,10 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
   );
 }
 
-function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDestName: string | null; onClose: () => void }) {
+function TransportModal({ dest, prevDest, onClose, onSelectDestination }: { dest: MapDest; prevDest: MapDest | null; onClose: () => void; onSelectDestination: (d: MapDest) => void }) {
   const t = dest.transport!;
   const Icon = t.type ? transportIcons[t.type] : null;
   const color = (t.type && TRANSPORT_LINE_COLORS[t.type]) || '#f97316';
-  const title = prevDestName ? `${prevDestName} → ${dest.name}` : dest.name;
   const [visible, setVisible] = useState(false);
   useLockBodyScroll();
 
@@ -373,28 +373,29 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
     <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center" onMouseDown={handleClose}>
       <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} />
       <div
-        className={`relative z-10 flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
+        className={`relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-800 transition-all duration-200 ease-out sm:mx-4 sm:max-h-[80vh] sm:max-w-sm sm:rounded-lg ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 sm:translate-y-8'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-700">
-          <div className="flex items-center gap-2">
-            {Icon && (
-              <div className="flex items-center justify-center w-7 h-7 rounded-full flex-shrink-0" style={{ backgroundColor: color }}>
-                <Icon style={{ fontSize: 16 }} className="text-white" />
-              </div>
-            )}
-            <div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {t.type ?? 'Transport'}
-                {dest.start_date && <span className="ml-1.5">· {new Date(dest.start_date).toLocaleDateString()}</span>}
-              </p>
-              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{title}</p>
-              {t.price != null && (
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  {new Intl.NumberFormat('en', { style: 'currency', currency: t.price_currency ?? 'USD' }).format(t.price)}
-                </p>
+          <div>
+            <p className="text-lg font-medium">
+              {prevDest && (
+                <>
+                  <button type="button" onClick={() => onSelectDestination(prevDest)} className="hover:underline">
+                    {prevDest.name}
+                  </button>
+                  {' → '}
+                </>
               )}
-            </div>
+              <button type="button" onClick={() => onSelectDestination(dest)} className="hover:underline">
+                {dest.name}
+              </button>
+            </p>
+            {t.price != null && (
+              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                {new Intl.NumberFormat('en', { style: 'currency', currency: t.price_currency ?? 'USD' }).format(t.price)}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
@@ -408,21 +409,34 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
           </div>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 py-3 text-sm">
-          {(t.start_time || t.end_time) && (
-            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
-              {t.start_time && <span>{t.start_time.split('T')[1]?.slice(0, 5) ?? t.start_time.slice(0, 5)}</span>}
-              {t.start_time && t.end_time && <span>→</span>}
-              {t.end_time && <span>{t.end_time.split('T')[1]?.slice(0, 5) ?? t.end_time.slice(0, 5)}</span>}
-              {t.start_time && t.end_time && (() => {
-                const diff = (new Date(t.end_time!).getTime() - new Date(t.start_time!).getTime()) / 60000;
-                const h = Math.floor(Math.abs(diff) / 60);
-                const m = Math.abs(diff) % 60;
-                return <span className="text-zinc-400">· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
-              })()}
+          <div className="flex items-center gap-2">
+            {Icon && (
+              <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: color }}>
+                <Icon style={{ fontSize: 14 }} className="text-white" />
+              </div>
+            )}
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                {t.type ?? 'Transport'}
+                {dest.start_date && <span className="ml-1.5">· {new Date(dest.start_date).toLocaleDateString()}</span>}
+              </p>
+              {(t.start_time || t.end_time) && (
+                <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
+                  {t.start_time && <span>{t.start_time.split('T')[1]?.slice(0, 5) ?? t.start_time.slice(0, 5)}</span>}
+                  {t.start_time && t.end_time && <span>→</span>}
+                  {t.end_time && <span>{t.end_time.split('T')[1]?.slice(0, 5) ?? t.end_time.slice(0, 5)}</span>}
+                  {t.start_time && t.end_time && (() => {
+                    const diff = (new Date(t.end_time!).getTime() - new Date(t.start_time!).getTime()) / 60000;
+                    const h = Math.floor(Math.abs(diff) / 60);
+                    const m = Math.abs(diff) % 60;
+                    return <span className="text-zinc-400">· {h > 0 ? `${h}h ` : ''}{m > 0 ? `${m}m` : ''}</span>;
+                  })()}
+                </div>
+              )}
             </div>
-          )}
+          </div>
           {t.memo && (
-            <p className="text-zinc-600 dark:text-zinc-300">{t.memo}</p>
+            <p className="text-zinc-500 dark:text-zinc-400">{t.memo}</p>
           )}
           {(t.start_terminal || t.end_terminal) && (
             <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs">
@@ -444,7 +458,7 @@ function TransportModal({ dest, prevDestName, onClose }: { dest: MapDest; prevDe
 
 export function DestinationsMap({ destinations, className, preferredCurrency }: { destinations: MapDest[]; className?: string; preferredCurrency?: string }) {
   const [selected, setSelected] = useState<{ dest: MapDest; nextDest: MapDest | null } | null>(null);
-  const [selectedTransport, setSelectedTransport] = useState<{ dest: MapDest; prevDestName: string | null } | null>(null);
+  const [selectedTransport, setSelectedTransport] = useState<{ dest: MapDest; prevDest: MapDest | null } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -480,11 +494,12 @@ export function DestinationsMap({ destinations, className, preferredCurrency }: 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
-          <TransportLines destinations={destinations} onSelect={(d, prevName) => setSelectedTransport({ dest: d, prevDestName: prevName })} />
+          <TransportLines destinations={destinations} onSelect={(d, prevDest) => setSelectedTransport({ dest: d, prevDest })} />
           <ClusteredMarkers destinations={destinations} onSelect={(d, next) => setSelected({ dest: d, nextDest: next })} />
           <FitBounds points={points} />
           <InvalidateSize trigger={isFullscreen} />
           <ZoomControls />
+          <CurrentLocationMarker />
         </MapContainer>
         <button
           type="button"
@@ -504,7 +519,19 @@ export function DestinationsMap({ destinations, className, preferredCurrency }: 
         </button>
       </div>
       {selected && <DestinationModal dest={selected.dest} nextDest={selected.nextDest} onClose={() => setSelected(null)} preferredCurrency={preferredCurrency} />}
-      {selectedTransport?.dest.transport && <TransportModal dest={selectedTransport.dest} prevDestName={selectedTransport.prevDestName} onClose={() => setSelectedTransport(null)} />}
+      {selectedTransport?.dest.transport && (
+        <TransportModal
+          dest={selectedTransport.dest}
+          prevDest={selectedTransport.prevDest}
+          onClose={() => setSelectedTransport(null)}
+          onSelectDestination={(d) => {
+            const idx = destinations.findIndex((x) => x.id === d.id);
+            const next = idx >= 0 ? (destinations[idx + 1] ?? null) : null;
+            setSelectedTransport(null);
+            setSelected({ dest: d, nextDest: next });
+          }}
+        />
+      )}
     </>
   );
 }
