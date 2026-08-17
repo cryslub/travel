@@ -46,6 +46,9 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
 
             {/* Name, description, cost */}
             <div className="flex-1 min-w-0 pt-2">
+              {d.section_name && (
+                <span className="block text-xs text-zinc-500 dark:text-zinc-400 sm:hidden">{d.section_name}</span>
+              )}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -55,7 +58,7 @@ export function ReadonlyDestinationsView({ destinations, preferredCurrency }: { 
                   {d.name}
                 </button>
                 {d.section_name && (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0">{d.section_name}</span>
+                  <span className="hidden text-xs text-zinc-500 dark:text-zinc-400 flex-shrink-0 sm:inline">{d.section_name}</span>
                 )}
               </div>
               {d.description && (
