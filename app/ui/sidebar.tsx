@@ -29,7 +29,10 @@ export function Sidebar({ displayLabel, journeys, isLoggedIn = true }: SidebarPr
       {/* Desktop: hamburger toggle + Journey link */}
       <div className="hidden sm:flex items-center gap-1.5 sm:mb-4">
         <button
-          onClick={() => setCollapsed(c => !c)}
+          onClick={() => {
+            setCollapsed(c => !c);
+            window.dispatchEvent(new Event('sidebar-toggle'));
+          }}
           className="text-white transition-opacity hover:opacity-70"
           aria-label="Toggle sidebar"
         >

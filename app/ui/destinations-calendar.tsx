@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import {
   calendarUpdateDestinationDate,
   calendarUpdateEventTimes,
@@ -69,6 +69,14 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   const [localDestinations, setLocalDestinations] = useState<CalendarDest[]>(destinations);
   const [pendingCrossDestMove, setPendingCrossDestMove] = useState<PendingCrossDestMove | null>(null);
   const [selectedDayStr, setSelectedDayStr] = useState<string | null>(null);
+
+  useEffect(() => {
+    function handleSidebarToggle() {
+      requestAnimationFrame(() => calendarRef.current?.getApi().updateSize());
+    }
+    window.addEventListener('sidebar-toggle', handleSidebarToggle);
+    return () => window.removeEventListener('sidebar-toggle', handleSidebarToggle);
+  }, []);
 
   function updateLocalDest(updater: (d: CalendarDest) => CalendarDest, destId: string) {
     setLocalDestinations((prev) => prev.map((d) => d.id === destId ? updater(d) : d));
