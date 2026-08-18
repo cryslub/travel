@@ -173,6 +173,8 @@ export default async function ExploreDestinationsPage(props: {
         <DestinationsCalendarClient
           isReadonly
           preferredCurrency={preferredCurrency}
+          journeyStartDate={journey.start_date}
+          journeyEndDate={journey.end_date}
           destinations={destinations.map((d): CalendarDest => ({
             id: d.id,
             name: d.name,

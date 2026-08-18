@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import HotelOutlinedIcon from '@mui/icons-material/HotelOutlined';
-import { EditAccommodationButton } from '@/app/journeys/[id]/destinations/destination-buttons';
+import { MoreOptionsAccommodationButton } from '@/app/journeys/[id]/destinations/destination-buttons';
 import { useLockBodyScroll } from './use-lock-body-scroll';
 
 type Accommodation = {
@@ -74,7 +74,7 @@ export function AccommodationModal({ accommodation, preferredCurrency, journeyId
           </div>
           <div className="ml-4 flex shrink-0 items-center gap-1">
             {journeyId && destinationId && (
-              <EditAccommodationButton journeyId={journeyId} destinationId={destinationId} />
+              <MoreOptionsAccommodationButton journeyId={journeyId} destinationId={destinationId} />
             )}
             <button
               type="button"

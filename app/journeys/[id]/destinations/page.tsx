@@ -2,7 +2,7 @@ import { fetchDestinationsByJourneyId, fetchJourneyById, fetchSectionsByJourneyI
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
 import { SectionFilter } from './section-filter';
-import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
+import { MoreOptionsDestinationButton, EditTransportButton, EditAccommodationButton, MoreOptionsTransportButton, MoreOptionsAccommodationButton, CreateEventButton, CreateRecordButton, MoreOptionsRecordButton } from './destination-buttons';
 import { EventItem } from './event-item';
 import { AccommodationItem } from './accommodation-item';
 import { CreateDestinationForJourneyButton, ViewToggle } from './journey-destination-buttons';
@@ -103,6 +103,8 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
       {currentView === 'calendar' && (
         <DestinationsCalendarClient
           key={Array.isArray(sectionFilter) ? sectionFilter[0] : (sectionFilter ?? 'all')}
+          journeyStartDate={journey.start_date}
+          journeyEndDate={journey.end_date}
           destinations={destinations.map((d): CalendarDest => ({
             id: d.id,
             name: d.name,
@@ -269,7 +271,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
-                {!isReadonly && <EditTransportButton journeyId={id} destinationId={destination.id} />}
+                {!isReadonly && (
+                  destination.transport
+                    ? <MoreOptionsTransportButton journeyId={id} destinationId={destination.id} />
+                    : <EditTransportButton journeyId={id} destinationId={destination.id} />
+                )}
               </div>
               <div className="flex flex-col gap-1 mt-2">
                 {destination.transport?.type && (() => {
@@ -319,7 +325,11 @@ export default async function JourneyDestinationsPage(props: PageProps<'/journey
             <div className="py-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
-                {!isReadonly && <EditAccommodationButton journeyId={id} destinationId={destination.id} />}
+                {!isReadonly && (
+                  destination.accommodation
+                    ? <MoreOptionsAccommodationButton journeyId={id} destinationId={destination.id} />
+                    : <EditAccommodationButton journeyId={id} destinationId={destination.id} />
+                )}
               </div>
               <div className="flex flex-col gap-1 mt-2">
                 {destination.accommodation && <AccommodationItem accommodation={destination.accommodation} />}

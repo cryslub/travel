@@ -19,7 +19,9 @@ import ViewListOutlinedIcon from '@mui/icons-material/ViewListOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
-import { ModalDest, DestinationModal } from './destinations-map';
+import AddIcon from '@mui/icons-material/Add';
+import { ModalDest, DestinationModal, TransportModal } from './destinations-map';
+import { EventModal } from './event-modal';
 
 export type CalendarDest = ModalDest;
 
@@ -57,7 +59,7 @@ const EVENT_TYPE_COLOR: Record<string, string> = {
   Transfer: '#64748b',
 };
 
-export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency, defaultCalendarView }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string }) {
+export function DestinationsCalendar({ destinations, isReadonly, preferredCurrency, defaultCalendarView, journeyStartDate, journeyEndDate }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string; journeyStartDate?: string | null; journeyEndDate?: string | null }) {
   const initialFcView = (() => {
     const fc = (defaultCalendarView && PREF_TO_FC[defaultCalendarView]) ?? 'dayGridMonth';
     return fc === 'timeGridWeek' && window.innerWidth < 640 ? 'timeGridDay' : fc;
@@ -66,6 +68,9 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
   const [activeView, setActiveView] = useState<string>(initialFcView);
   const [calendarTitle, setCalendarTitle] = useState('');
   const [selectedDest, setSelectedDest] = useState<ModalDest | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarDest['events'][number] | null>(null);
+  const [selectedEventDestIndex, setSelectedEventDestIndex] = useState<number | null>(null);
+  const [selectedTransport, setSelectedTransport] = useState<{ dest: CalendarDest; prevDest: CalendarDest | null } | null>(null);
   const [localDestinations, setLocalDestinations] = useState<CalendarDest[]>(destinations);
   const [pendingCrossDestMove, setPendingCrossDestMove] = useState<PendingCrossDestMove | null>(null);
   const [selectedDayStr, setSelectedDayStr] = useState<string | null>(null);
@@ -154,8 +159,28 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       ...d.events.map((e) => e.start_time?.slice(0, 10) ?? null),
       d.transport?.start_time?.slice(0, 10) ?? null,
     ]).filter(Boolean) as string[];
-    return dates.sort()[0] ?? undefined;
-  }, [destinations]);
+    const earliest = dates.sort()[0] ?? undefined;
+
+    const destStartDates = (localDestinations.map((d) => d.start_date).filter(Boolean) as string[])
+      .map((v) => toDateStr(new Date(v)))
+      .sort();
+    const latestDestDate = destStartDates[destStartDates.length - 1];
+
+    const rangeStart = journeyStartDate ? toDateStr(new Date(journeyStartDate)) : earliest;
+    let rangeEnd = journeyEndDate ? toDateStr(new Date(journeyEndDate)) : undefined;
+    if (!rangeEnd && latestDestDate) {
+      const d = new Date(`${latestDestDate}T00:00:00`);
+      d.setDate(d.getDate() + 1);
+      rangeEnd = toDateStr(d);
+    }
+
+    if (rangeStart && rangeEnd) {
+      const todayStr = toDateStr(new Date());
+      if (todayStr >= rangeStart && todayStr <= rangeEnd) return todayStr;
+    }
+
+    return earliest;
+  }, [destinations, journeyStartDate, journeyEndDate]);
 
   function toDateStr(d: Date) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -302,6 +327,15 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
     window.location.href = `/journeys/${journeyId}/destinations/${dest.id}/events/create?date=${info.dateStr}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   }
 
+  function handleCreateEventForDay() {
+    if (!selectedDayStr) return;
+    const journeyId = localDestinations[0]?.journey_id;
+    if (!journeyId) return;
+    const destId = detectDestinationForDate(selectedDayStr);
+    if (!destId) return;
+    window.location.href = `/journeys/${journeyId}/destinations/${destId}/events/create?date=${selectedDayStr}&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+  }
+
   function handleSelect(info: { start: Date; end: Date; allDay: boolean }) {
     // In month view a single click fires select with a 1-day range — skip it (dateClick handles that).
     if (info.allDay && info.end.getTime() - info.start.getTime() <= 24 * 60 * 60 * 1000) return;
@@ -324,16 +358,26 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
 
   function handleEventClick(info: { event: { id: string } }) {
     const id = info.event.id.split('#')[0];
-    let dest: ModalDest | undefined;
     if (id.startsWith('dest-')) {
-      dest = localDestinations.find((d) => d.id === id.slice(5));
+      const dest = localDestinations.find((d) => d.id === id.slice(5));
+      if (dest) setSelectedDest(dest);
     } else if (id.startsWith('ev-')) {
       const evId = id.slice(3);
-      dest = localDestinations.find((d) => d.events.some((e) => e.id === evId));
+      const destIndex = localDestinations.findIndex((d) => d.events.some((e) => e.id === evId));
+      const dest = destIndex >= 0 ? localDestinations[destIndex] : undefined;
+      const ev = dest?.events.find((e) => e.id === evId);
+      if (dest && ev) {
+        setSelectedEvent(ev);
+        setSelectedEventDestIndex(destIndex);
+      }
     } else if (id.startsWith('tr-')) {
-      dest = localDestinations.find((d) => d.id === id.slice(3));
+      const destIndex = localDestinations.findIndex((d) => d.id === id.slice(3));
+      const dest = destIndex >= 0 ? localDestinations[destIndex] : undefined;
+      if (dest?.transport) {
+        const prevDest = destIndex > 0 ? localDestinations[destIndex - 1] : null;
+        setSelectedTransport({ dest, prevDest });
+      }
     }
-    if (dest) setSelectedDest(dest);
   }
 
   function handleCalendarEventClick(info: { event: { id: string; start: Date | null } }) {
@@ -427,9 +471,21 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       </div>
       {selectedDayStr && (
         <div className="mt-4 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800 sm:hidden">
-          <h3 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-            {new Date(`${selectedDayStr}T00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-          </h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+              {new Date(`${selectedDayStr}T00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+            </h3>
+            {!isReadonly && (
+              <button
+                type="button"
+                title="Add event"
+                onClick={handleCreateEventForDay}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+              >
+                <AddIcon fontSize="small" />
+              </button>
+            )}
+          </div>
           {dayEvents.length === 0 ? (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">No events</p>
           ) : (
@@ -457,6 +513,30 @@ export function DestinationsCalendar({ destinations, isReadonly, preferredCurren
       )}
       {selectedDest && (
         <DestinationModal dest={selectedDest} nextDest={null} onClose={() => setSelectedDest(null)} preferredCurrency={preferredCurrency} />
+      )}
+      {selectedEvent && (
+        <EventModal
+          activity={selectedEvent}
+          preferredCurrency={preferredCurrency}
+          journeyId={!isReadonly && selectedEventDestIndex !== null ? localDestinations[selectedEventDestIndex].journey_id : undefined}
+          destinationId={!isReadonly && selectedEventDestIndex !== null ? localDestinations[selectedEventDestIndex].id : undefined}
+          destinationName={selectedEventDestIndex !== null ? localDestinations[selectedEventDestIndex].name : undefined}
+          onDestinationClick={() => {
+            const idx = selectedEventDestIndex;
+            setSelectedEvent(null);
+            setSelectedEventDestIndex(null);
+            if (idx !== null) setSelectedDest(localDestinations[idx]);
+          }}
+          onClose={() => { setSelectedEvent(null); setSelectedEventDestIndex(null); }}
+        />
+      )}
+      {selectedTransport && (
+        <TransportModal
+          dest={selectedTransport.dest}
+          prevDest={selectedTransport.prevDest}
+          onClose={() => setSelectedTransport(null)}
+          onSelectDestination={(d) => { setSelectedTransport(null); setSelectedDest(d); }}
+        />
       )}
       {pendingCrossDestMove && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center">

@@ -9,7 +9,7 @@ import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import MovingIcon from '@mui/icons-material/Moving';
-import { EditEventButton } from '@/app/journeys/[id]/destinations/destination-buttons';
+import { MoreOptionsEventButton } from '@/app/journeys/[id]/destinations/destination-buttons';
 import { useLockBodyScroll } from './use-lock-body-scroll';
 
 const eventTypeIcons: Record<string, ElementType<SvgIconProps>> = {
@@ -101,7 +101,7 @@ export function EventModal({ activity, preferredCurrency, journeyId, destination
           </div>
           <div className="ml-4 flex shrink-0 items-center gap-1">
             {journeyId && destinationId && (
-              <EditEventButton journeyId={journeyId} destinationId={destinationId} eventId={activity.id} />
+              <MoreOptionsEventButton journeyId={journeyId} destinationId={destinationId} eventId={activity.id} />
             )}
             <button
               type="button"

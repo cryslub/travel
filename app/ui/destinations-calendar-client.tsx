@@ -10,6 +10,6 @@ const DestinationsCalendar = dynamic(
 
 export type { CalendarDest };
 
-export function DestinationsCalendarClient({ destinations, isReadonly, preferredCurrency, defaultCalendarView }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string }) {
-  return <DestinationsCalendar destinations={destinations} isReadonly={isReadonly} preferredCurrency={preferredCurrency} defaultCalendarView={defaultCalendarView} />;
+export function DestinationsCalendarClient({ destinations, isReadonly, preferredCurrency, defaultCalendarView, journeyStartDate, journeyEndDate }: { destinations: CalendarDest[]; isReadonly?: boolean; preferredCurrency?: string; defaultCalendarView?: string; journeyStartDate?: string | null; journeyEndDate?: string | null }) {
+  return <DestinationsCalendar destinations={destinations} isReadonly={isReadonly} preferredCurrency={preferredCurrency} defaultCalendarView={defaultCalendarView} journeyStartDate={journeyStartDate} journeyEndDate={journeyEndDate} />;
 }

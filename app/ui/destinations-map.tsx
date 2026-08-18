@@ -15,6 +15,8 @@ import {
   MoreOptionsDestinationButton,
   EditTransportButton,
   EditAccommodationButton,
+  MoreOptionsTransportButton,
+  MoreOptionsAccommodationButton,
   CreateEventButton,
   CreateRecordButton,
   MoreOptionsRecordButton,
@@ -255,7 +257,11 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
           <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Transport</span>
-              <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
+              {dest.transport ? (
+                <MoreOptionsTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
+              ) : (
+                <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
+              )}
             </div>
             <div className="mt-2 flex flex-col gap-1">
               {dest.transport?.type && (() => {
@@ -294,7 +300,11 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
           <div className="py-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">Accommodation</span>
-              <EditAccommodationButton journeyId={dest.journey_id} destinationId={dest.id} />
+              {dest.accommodation ? (
+                <MoreOptionsAccommodationButton journeyId={dest.journey_id} destinationId={dest.id} />
+              ) : (
+                <EditAccommodationButton journeyId={dest.journey_id} destinationId={dest.id} />
+              )}
             </div>
             <div className="mt-2 flex flex-col gap-1">
               {dest.accommodation && <AccommodationItem accommodation={dest.accommodation} />}
@@ -352,7 +362,7 @@ export function DestinationModal({ dest, nextDest, onClose, preferredCurrency }:
   );
 }
 
-function TransportModal({ dest, prevDest, onClose, onSelectDestination }: { dest: MapDest; prevDest: MapDest | null; onClose: () => void; onSelectDestination: (d: MapDest) => void }) {
+export function TransportModal({ dest, prevDest, onClose, onSelectDestination }: { dest: ModalDest; prevDest: ModalDest | null; onClose: () => void; onSelectDestination: (d: ModalDest) => void }) {
   const t = dest.transport!;
   const Icon = t.type ? transportIcons[t.type] : null;
   const color = (t.type && TRANSPORT_LINE_COLORS[t.type]) || '#f97316';
@@ -398,7 +408,7 @@ function TransportModal({ dest, prevDest, onClose, onSelectDestination }: { dest
             )}
           </div>
           <div className="flex items-center gap-1">
-            <EditTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
+            <MoreOptionsTransportButton journeyId={dest.journey_id} destinationId={dest.id} />
             <button
               type="button"
               onMouseDown={handleClose}
@@ -528,7 +538,7 @@ export function DestinationsMap({ destinations, className, preferredCurrency }: 
             const idx = destinations.findIndex((x) => x.id === d.id);
             const next = idx >= 0 ? (destinations[idx + 1] ?? null) : null;
             setSelectedTransport(null);
-            setSelected({ dest: d, nextDest: next });
+            setSelected({ dest: d as MapDest, nextDest: next });
           }}
         />
       )}

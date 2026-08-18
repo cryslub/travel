@@ -351,6 +351,15 @@ export async function upsertAccommodation(destinationId: string, formData: FormD
   redirect(return_url_acc && return_url_acc.startsWith('/') ? return_url_acc : `/journeys/${journey_id}/destinations`);
 }
 
+export async function deleteAccommodation(destinationId: string, journeyId: string) {
+  const [row] = await sql<{ image_url: string | null }[]>`SELECT image_url FROM accommodations WHERE destination_id = ${destinationId}`;
+  await sql`DELETE FROM accommodations WHERE destination_id = ${destinationId}`;
+  await markJourneyChanged(journeyId);
+  await updateDestinationTotalPrice(destinationId);
+  if (row?.image_url) await del(row.image_url);
+  redirect(`/journeys/${journeyId}/destinations`);
+}
+
 export async function createRecord(destinationId: string, formData: FormData) {
   const name = formData.get('name') as string;
   const type = (formData.get('type') as string) || null;
@@ -451,6 +460,13 @@ export async function upsertTransport(destinationId: string, formData: FormData)
 
   const return_url_tr = (formData.get('return_url') as string) || null;
   redirect(return_url_tr && return_url_tr.startsWith('/') ? return_url_tr : `/journeys/${journey_id}/destinations`);
+}
+
+export async function deleteTransport(destinationId: string, journeyId: string) {
+  await sql`DELETE FROM transports WHERE destination_id = ${destinationId}`;
+  await markJourneyChanged(journeyId);
+  await updateDestinationTotalPrice(destinationId);
+  redirect(`/journeys/${journeyId}/destinations`);
 }
 
 export async function calendarUpdateDestinationDate(destinationId: string, startDate: string) {

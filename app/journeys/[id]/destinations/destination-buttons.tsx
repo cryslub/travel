@@ -7,7 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { deleteDestination, deleteEvent, deleteRecord } from './actions';
+import { deleteDestination, deleteEvent, deleteRecord, deleteTransport, deleteAccommodation } from './actions';
 import Chip from '@mui/material/Chip';
 
 export function SectionChip({ label }: { label: string }) {
@@ -144,6 +144,156 @@ export function EditAccommodationButton({ journeyId, destinationId }: { journeyI
     >
       <EditOutlinedIcon fontSize="small" />
     </button>
+  );
+}
+
+export function MoreOptionsTransportButton({ journeyId, destinationId }: { journeyId: string; destinationId: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        ref.current && !ref.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  }
+
+  async function handleDelete() {
+    setOpen(false);
+    if (!confirm('Are you sure you want to delete this transport?')) return;
+    await deleteTransport(destinationId, journeyId);
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        ref={btnRef}
+        type="button"
+        title="More options"
+        onClick={handleToggle}
+        className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+      >
+        <MoreVertIcon fontSize="small" />
+      </button>
+      {open && menuPos && createPortal(
+        <div
+          ref={menuContentRef}
+          className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+          style={{ top: menuPos.top, right: menuPos.right }}
+        >
+          <button
+            type="button"
+            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/transport/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            <EditOutlinedIcon fontSize="small" /> Edit
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+          >
+            <DeleteOutlinedIcon fontSize="small" /> Delete
+          </button>
+        </div>,
+        document.body,
+      )}
+    </div>
+  );
+}
+
+export function MoreOptionsAccommodationButton({ journeyId, destinationId }: { journeyId: string; destinationId: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const menuContentRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        ref.current && !ref.current.contains(target) &&
+        menuContentRef.current && !menuContentRef.current.contains(target)
+      ) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const top = rect.bottom + 4 + MENU_H > window.innerHeight
+        ? rect.top - MENU_H - 4
+        : rect.bottom + 4;
+      setMenuPos({ top, right: window.innerWidth - rect.right });
+    }
+    setOpen(v => !v);
+  }
+
+  async function handleDelete() {
+    setOpen(false);
+    if (!confirm('Are you sure you want to delete this accommodation?')) return;
+    await deleteAccommodation(destinationId, journeyId);
+  }
+
+  return (
+    <div ref={ref} className="relative ml-4">
+      <button
+        ref={btnRef}
+        type="button"
+        title="More options"
+        onClick={handleToggle}
+        className="rounded-full px-1.5 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+      >
+        <MoreVertIcon fontSize="small" />
+      </button>
+      {open && menuPos && createPortal(
+        <div
+          ref={menuContentRef}
+          className="fixed z-[9999] w-36 rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+          style={{ top: menuPos.top, right: menuPos.right }}
+        >
+          <button
+            type="button"
+            onClick={() => { setOpen(false); router.push(`/journeys/${journeyId}/destinations/${destinationId}/accommodation/edit?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            <EditOutlinedIcon fontSize="small" /> Edit
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+          >
+            <DeleteOutlinedIcon fontSize="small" /> Delete
+          </button>
+        </div>,
+        document.body,
+      )}
+    </div>
   );
 }
 
